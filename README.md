@@ -2,7 +2,7 @@
 
 ![Flutter](https://img.shields.io/badge/Flutter-Mobile%20%26%20Web-02569B.svg)
 ![Dart SDK](https://img.shields.io/badge/Dart-%5E3.10.0-blue.svg)
-[![CI](https://img.shields.io/github/actions/workflow/status/FedericoLaggiard/zeimoto/ci.yml?branch=main&label=CI)](https://github.com/FedericoLaggiard/zeimoto/actions/workflows/ci.yml)
+[![CI](https://github.com/FedericoLaggiard/zeimoto/actions/workflows/ci.yml/badge.svg)](https://github.com/FedericoLaggiard/zeimoto/actions/workflows/ci.yml)
 
 Zeimoto is a mobile and web application for managing bonsai, powered by generative AI.
 
