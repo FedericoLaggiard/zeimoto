@@ -1,0 +1,12 @@
+{
+  "greeting": "Hi!",
+  "title": "How can I help you today?",
+  "btn_work": "I want to work on a plant",
+  "btn_tips": "What tasks do you suggest this period?",
+  "btn_learn": "I want to learn something new",
+  "btn_go_plants": "Go to my plants",
+  "btn_settings": "Settings",
+  "btn_gallery": "Gallery",
+  "btn_calendar": "Calendar",
+  "btn_help": "Help"
+}
