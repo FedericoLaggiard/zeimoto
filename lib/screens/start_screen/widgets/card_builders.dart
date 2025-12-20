@@ -26,7 +26,7 @@ Widget buildStartCard(
         slide: slideWork,
         icon: Icons.handyman,
         label: AppLocalizations.of(context).t('btn_work'),
-        onTap: () => context.go('/plants'),
+        onTap: () => context.go('/add-wizard'),
       );
     case 1:
       return AnimatedCardButton(
