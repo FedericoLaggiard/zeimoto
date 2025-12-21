@@ -1,10 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:zeimoto/models/plant.dart';
-import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_cubit.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_state.dart';
 import 'package:zeimoto/services/plant_repository.dart';
 
 class StepMatchPlant extends StatefulWidget {
@@ -76,7 +77,7 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
     try {
       final image = await _cameraController!.takePicture();
       if (mounted) {
-        context.read<WizardState>().setInitialPhoto(image);
+        context.read<WizardCubit>().setInitialPhoto(image);
       }
     } catch (e) {
       debugPrint('Error taking picture: $e');
@@ -88,13 +89,13 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null && mounted) {
-      context.read<WizardState>().setInitialPhoto(image);
+      context.read<WizardCubit>().setInitialPhoto(image);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<WizardState>();
+    final state = context.watch<WizardCubit>().state;
     final size = MediaQuery.of(context).size;
 
     return Column(
@@ -214,13 +215,14 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
                               selected: isSelected,
                               selectedTileColor: Colors.green.withValues(
                                 alpha: 0.1,
-                              ), // Fixed withValues
+                              ),
                               trailing: isSelected
                                   ? const Icon(Icons.check, color: Colors.green)
                                   : null,
                               onTap: () {
                                 final currentState = context
-                                    .read<WizardState>();
+                                    .read<WizardCubit>()
+                                    .state;
                                 if (currentState.selectedPlant != null &&
                                     currentState.selectedPlant!.id !=
                                         plant.id &&
@@ -240,8 +242,12 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(ctx);
-                                            currentState.clearWorkEntries();
-                                            currentState.setPlant(plant);
+                                            context
+                                                .read<WizardCubit>()
+                                                .clearWorkEntries();
+                                            context
+                                                .read<WizardCubit>()
+                                                .setPlant(plant);
                                           },
                                           child: const Text('Conferma'),
                                         ),
@@ -249,7 +255,7 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
                                     ),
                                   );
                                 } else {
-                                  currentState.setPlant(plant);
+                                  context.read<WizardCubit>().setPlant(plant);
                                 }
                               },
                             );
@@ -273,7 +279,7 @@ class _StepMatchPlantState extends State<StepMatchPlant> {
               ),
               ElevatedButton(
                 onPressed: state.selectedPlant != null
-                    ? () => context.read<WizardState>().nextStep()
+                    ? () => context.read<WizardCubit>().nextStep()
                     : null,
                 child: const Text('AVANTI'),
               ),

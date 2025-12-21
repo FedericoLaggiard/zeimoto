@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:zeimoto/models/enums.dart';
 import 'package:zeimoto/models/photo.dart';
-import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_cubit.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_state.dart';
 import 'package:zeimoto/services/intervention_repository.dart';
 
 class StepEndWork extends StatefulWidget {
@@ -60,7 +61,7 @@ class _StepEndWorkState extends State<StepEndWork> {
     try {
       final image = await _cameraController!.takePicture();
       if (mounted) {
-        context.read<WizardState>().setFinalPhoto(image);
+        context.read<WizardCubit>().setFinalPhoto(image);
       }
     } catch (e) {
       debugPrint('Error taking picture: $e');
@@ -72,13 +73,13 @@ class _StepEndWorkState extends State<StepEndWork> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null && mounted) {
-      context.read<WizardState>().setFinalPhoto(image);
+      context.read<WizardCubit>().setFinalPhoto(image);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<WizardState>();
+    final state = context.watch<WizardCubit>().state;
     final size = MediaQuery.of(context).size;
 
     return Column(
@@ -199,7 +200,7 @@ class _StepEndWorkState extends State<StepEndWork> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () => context.read<WizardState>().prevStep(),
+                onPressed: () => context.read<WizardCubit>().prevStep(),
                 child: const Text('INDIETRO'),
               ),
               ElevatedButton(

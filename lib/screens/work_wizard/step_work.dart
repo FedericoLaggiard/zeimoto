@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:zeimoto/models/enums.dart';
-import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_cubit.dart';
+import 'package:zeimoto/screens/work_wizard/bloc/wizard_state.dart';
 
 class StepWork extends StatefulWidget {
   const StepWork({super.key});
@@ -17,7 +18,7 @@ class _StepWorkState extends State<StepWork> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<WizardState>();
+    final state = context.watch<WizardCubit>().state;
     final entries = state.workEntries;
 
     return Column(
@@ -84,12 +85,12 @@ class _StepWorkState extends State<StepWork> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () => context.read<WizardState>().prevStep(),
+                onPressed: () => context.read<WizardCubit>().prevStep(),
                 child: const Text('INDIETRO'),
               ),
               ElevatedButton(
                 onPressed: entries.isNotEmpty
-                    ? () => context.read<WizardState>().nextStep()
+                    ? () => context.read<WizardCubit>().nextStep()
                     : null,
                 child: const Text('AVANTI'),
               ),
@@ -105,7 +106,7 @@ class _StepWorkState extends State<StepWork> {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       type: InterventionType.pruning, // Default
     );
-    context.read<WizardState>().addWorkEntry(newEntry);
+    context.read<WizardCubit>().addWorkEntry(newEntry);
   }
 
   void _confirmDelete(String id) {
@@ -122,7 +123,7 @@ class _StepWorkState extends State<StepWork> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              context.read<WizardState>().removeWorkEntry(id);
+              context.read<WizardCubit>().removeWorkEntry(id);
             },
             child: const Text('Cancella'),
           ),
@@ -220,10 +221,15 @@ class _WorkEntryCardState extends State<_WorkEntryCard> {
                   }).toList(),
                   onChanged: (v) {
                     if (v != null) {
-                      setState(() {
-                        widget.entry.type = v;
-                      });
-                      context.read<WizardState>().updateWorkEntry(widget.entry);
+                      // Important: We need to create a new object or copy, but since WorkEntry is immutable in Cubit (we made it Equatable/final),
+                      // we should use copyWith and update the Cubit.
+                      // However, widget.entry here is passed from parent.
+                      // The parent rebuilds when state changes.
+                      // But here we are modifying widget.entry.type directly?
+                      // Wait, if I made WorkEntry fields final, I can't modify them.
+                      // I need to use copyWith and send to cubit.
+                      final updatedEntry = widget.entry.copyWith(type: v);
+                      context.read<WizardCubit>().updateWorkEntry(updatedEntry);
                     }
                   },
                 ),
@@ -236,8 +242,8 @@ class _WorkEntryCardState extends State<_WorkEntryCard> {
                   ),
                   maxLines: 3,
                   onChanged: (v) {
-                    widget.entry.notes = v;
-                    context.read<WizardState>().updateWorkEntry(widget.entry);
+                    final updatedEntry = widget.entry.copyWith(notes: v);
+                    context.read<WizardCubit>().updateWorkEntry(updatedEntry);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -322,11 +328,12 @@ class _WorkEntryCardState extends State<_WorkEntryCard> {
     try {
       final image = await _picker.pickImage(source: source);
       if (image != null) {
-        setState(() {
-          widget.entry.detailPhotos = [...widget.entry.detailPhotos, image];
-        });
+        // Create new list for photos
+        final newPhotos = [...widget.entry.detailPhotos, image];
+        final updatedEntry = widget.entry.copyWith(detailPhotos: newPhotos);
+
         if (mounted) {
-          context.read<WizardState>().updateWorkEntry(widget.entry);
+          context.read<WizardCubit>().updateWorkEntry(updatedEntry);
         }
       }
     } catch (e) {
