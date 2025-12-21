@@ -23,10 +23,12 @@ class StepMatchPlantCubit extends Cubit<StepMatchPlantState> {
           enableAudio: false,
         );
         await controller.initialize();
-        emit(state.copyWith(
-          cameraController: controller,
-          isCameraInitialized: true,
-        ));
+        emit(
+          state.copyWith(
+            cameraController: controller,
+            isCameraInitialized: true,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Camera init error: $e');
