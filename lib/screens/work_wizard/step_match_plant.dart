@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zeimoto/models/plant.dart';
 import 'package:zeimoto/screens/work_wizard/bloc/wizard_cubit.dart';
-import 'package:zeimoto/screens/work_wizard/bloc/wizard_state.dart';
 import 'package:zeimoto/services/plant_repository.dart';
 
 class StepMatchPlant extends StatefulWidget {
