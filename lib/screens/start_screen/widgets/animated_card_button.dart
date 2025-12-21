@@ -9,6 +9,8 @@ class AnimatedCardButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final String? heroTag;
+
   const AnimatedCardButton({
     super.key,
     required this.width,
@@ -18,6 +20,7 @@ class AnimatedCardButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.heroTag,
   });
 
   @override
@@ -29,7 +32,7 @@ class AnimatedCardButton extends StatelessWidget {
         child: SizedBox(
           width: width,
           height: height,
-          child: CardButtonIcon(icon: icon, label: label, onTap: onTap),
+          child: CardButtonIcon(icon: icon, label: label, onTap: onTap, heroTag: heroTag),
         ),
       ),
     );

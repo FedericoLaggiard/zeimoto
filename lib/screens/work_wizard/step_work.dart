@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:zeimoto/models/enums.dart';
-import 'package:zeimoto/screens/add_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
 
-class Step2Work extends StatefulWidget {
-  const Step2Work({super.key});
+class StepWork extends StatefulWidget {
+  const StepWork({super.key});
 
   @override
-  State<Step2Work> createState() => _Step2WorkState();
+  State<StepWork> createState() => _StepWorkState();
 }
 
-class _Step2WorkState extends State<Step2Work> {
+class _StepWorkState extends State<StepWork> {
   // Removed unused _picker here, moved to _WorkEntryCard
 
   @override
@@ -206,7 +206,7 @@ class _WorkEntryCardState extends State<_WorkEntryCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DropdownButtonFormField<InterventionType>(
-                  value: requestedTypes.contains(widget.entry.type)
+                  initialValue: requestedTypes.contains(widget.entry.type)
                       ? widget.entry.type
                       : requestedTypes.first,
                   decoration: const InputDecoration(

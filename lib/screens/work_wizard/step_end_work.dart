@@ -8,20 +8,19 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:zeimoto/models/enums.dart';
 import 'package:zeimoto/models/photo.dart';
-import 'package:zeimoto/screens/add_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
 import 'package:zeimoto/services/intervention_repository.dart';
 
-class Step3CloseWork extends StatefulWidget {
-  const Step3CloseWork({super.key});
+class StepEndWork extends StatefulWidget {
+  const StepEndWork({super.key});
 
   @override
-  State<Step3CloseWork> createState() => _Step3CloseWorkState();
+  State<StepEndWork> createState() => _StepEndWorkState();
 }
 
-class _Step3CloseWorkState extends State<Step3CloseWork> {
+class _StepEndWorkState extends State<StepEndWork> {
   CameraController? _cameraController;
   final InterventionRepository _interventionRepo = InterventionRepository();
-  bool _isCameraInitialized = false;
 
   @override
   void initState() {
@@ -39,11 +38,6 @@ class _Step3CloseWorkState extends State<Step3CloseWork> {
           enableAudio: false,
         );
         await _cameraController!.initialize();
-        if (mounted) {
-          setState(() {
-            _isCameraInitialized = true;
-          });
-        }
       }
     } catch (e) {
       debugPrint('Camera init error: $e');
@@ -145,7 +139,7 @@ class _Step3CloseWorkState extends State<Step3CloseWork> {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: FloatingActionButton(
+                  child: ElevatedButton(
                     onPressed: _takePicture,
                     child: const Icon(Icons.camera_alt),
                   ),
@@ -257,7 +251,7 @@ class _Step3CloseWorkState extends State<Step3CloseWork> {
       // Save detail photos
       for (final photo in entry.detailPhotos) {
         final savedId = await _savePhoto(photo, plantId);
-        if (mainPhotoId == null) mainPhotoId = savedId;
+        mainPhotoId ??= savedId;
       }
 
       await _interventionRepo.add(
@@ -292,14 +286,15 @@ class _Step3CloseWorkState extends State<Step3CloseWork> {
     final date = DateTime.now();
     Season season = Season.spring; // Simplification
     final m = date.month;
-    if (m == 12 || m <= 2)
+    if (m == 12 || m <= 2) {
       season = Season.winter;
-    else if (m <= 5)
+    } else if (m <= 5) {
       season = Season.spring;
-    else if (m <= 8)
+    } else if (m <= 8) {
       season = Season.summer;
-    else
+    } else {
       season = Season.autumn;
+    }
 
     final entry = PhotoEntry(
       id: id,

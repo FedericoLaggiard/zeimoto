@@ -10,20 +10,78 @@ class StartScreen extends StatefulWidget {
   State<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> with TickerProviderStateMixin {
-  late final AnimationController _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-  late final Animation<double> _fadeGreeting = CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.2, curve: Curves.easeOut));
-  late final Animation<Offset> _slideGreetingFromTop = Tween(begin: const Offset(0, -0.15), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.2, curve: Curves.easeOut)));
-  late final Animation<double> _fadeTitle = CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.4, curve: Curves.easeOut));
-  late final Animation<Offset> _slideTitleFromTop = Tween(begin: const Offset(0, -0.15), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.4, curve: Curves.easeOut)));
-  late final Animation<double> _fadeCardWork = CurvedAnimation(parent: _ctrl, curve: const Interval(0.45, 0.60, curve: Curves.easeOut));
-  late final Animation<double> _fadeCardTips = CurvedAnimation(parent: _ctrl, curve: const Interval(0.52, 0.67, curve: Curves.easeOut));
-  late final Animation<double> _fadeCardLearn = CurvedAnimation(parent: _ctrl, curve: const Interval(0.59, 0.74, curve: Curves.easeOut));
-  late final Animation<double> _fadeCardGoPlants = CurvedAnimation(parent: _ctrl, curve: const Interval(0.66, 0.81, curve: Curves.easeOut));
-  late final Animation<Offset> _slideCardWorkFromBottom = Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.45, 0.60, curve: Curves.easeOut)));
-  late final Animation<Offset> _slideCardTipsFromBottom = Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.52, 0.67, curve: Curves.easeOut)));
-  late final Animation<Offset> _slideCardLearnFromBottom = Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.59, 0.74, curve: Curves.easeOut)));
-  late final Animation<Offset> _slideCardGoPlantsFromBottom = Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: const Interval(0.66, 0.81, curve: Curves.easeOut)));
+class _StartScreenState extends State<StartScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 2),
+  );
+  late final Animation<double> _fadeGreeting = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.0, 0.2, curve: Curves.easeOut),
+  );
+  late final Animation<Offset> _slideGreetingFromTop =
+      Tween(begin: const Offset(0, -0.15), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.0, 0.2, curve: Curves.easeOut),
+        ),
+      );
+  late final Animation<double> _fadeTitle = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.2, 0.4, curve: Curves.easeOut),
+  );
+  late final Animation<Offset> _slideTitleFromTop =
+      Tween(begin: const Offset(0, -0.15), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.2, 0.4, curve: Curves.easeOut),
+        ),
+      );
+  late final Animation<double> _fadeCardWork = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.45, 0.60, curve: Curves.easeOut),
+  );
+  late final Animation<double> _fadeCardTips = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.52, 0.67, curve: Curves.easeOut),
+  );
+  late final Animation<double> _fadeCardLearn = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.59, 0.74, curve: Curves.easeOut),
+  );
+  late final Animation<double> _fadeCardGoPlants = CurvedAnimation(
+    parent: _ctrl,
+    curve: const Interval(0.66, 0.81, curve: Curves.easeOut),
+  );
+  late final Animation<Offset> _slideCardWorkFromBottom =
+      Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.45, 0.60, curve: Curves.easeOut),
+        ),
+      );
+  late final Animation<Offset> _slideCardTipsFromBottom =
+      Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.52, 0.67, curve: Curves.easeOut),
+        ),
+      );
+  late final Animation<Offset> _slideCardLearnFromBottom =
+      Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.59, 0.74, curve: Curves.easeOut),
+        ),
+      );
+  late final Animation<Offset> _slideCardGoPlantsFromBottom =
+      Tween(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: const Interval(0.66, 0.81, curve: Curves.easeOut),
+        ),
+      );
   final List<int> _order = [0, 1, 2, 3, 4, 5, 6, 7];
   bool _reorderMode = false;
   late final AnimationController _jiggle = AnimationController(
@@ -33,12 +91,7 @@ class _StartScreenState extends State<StartScreen> with TickerProviderStateMixin
   late final Animation<double> _jiggleAngle = Tween(
     begin: -0.06,
     end: 0.06,
-  ).animate(
-    CurvedAnimation(
-      parent: _jiggle,
-      curve: Curves.easeInOut,
-    ),
-  );
+  ).animate(CurvedAnimation(parent: _jiggle, curve: Curves.easeInOut));
 
   @override
   void initState() {
@@ -86,7 +139,11 @@ class _StartScreenState extends State<StartScreen> with TickerProviderStateMixin
                           position: _slideGreetingFromTop,
                           child: Text(
                             AppLocalizations.of(context).t('greeting'),
-                            style: TextStyle(color: Colors.white, fontSize: titleSize, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: titleSize,
+                              fontWeight: FontWeight.w600,
+                            ),
                             textAlign: TextAlign.left,
                           ),
                         ),
@@ -129,13 +186,10 @@ class _StartScreenState extends State<StartScreen> with TickerProviderStateMixin
                             _slideCardLearnFromBottom,
                             _fadeCardGoPlants,
                             _slideCardGoPlantsFromBottom,
+                            enableHero: true,
                           ),
-                          buildCardFeedback: (id, w, h, ctx3) => buildStartCardFeedback(
-                            id,
-                            w,
-                            h,
-                            ctx3,
-                          ),
+                          buildCardFeedback: (id, w, h, ctx3) =>
+                              buildStartCardFeedback(id, w, h, ctx3),
                           onAccept: (itemId, targetIndex) {
                             setState(() {
                               final fromIndex = _order.indexOf(itemId);
@@ -158,12 +212,11 @@ class _StartScreenState extends State<StartScreen> with TickerProviderStateMixin
                           },
                         ),
                       ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              );
-          
+              ),
+            );
           },
         ),
       ),

@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final repo = PlantRepository();
     return Scaffold(
-      appBar: AppBar(title: const Text('Bonsai')), 
+      appBar: AppBar(title: const Text('Bonsai')),
       body: ValueListenableBuilder(
         valueListenable: Hive.box('plants').listenable(),
         builder: (ctx, box, _) {
@@ -36,6 +36,7 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/add-plant'),
+        heroTag: 'add_plant_fab',
         child: const Icon(Icons.add),
       ),
     );

@@ -4,17 +4,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:zeimoto/models/plant.dart';
-import 'package:zeimoto/screens/add_wizard/wizard_state.dart';
+import 'package:zeimoto/screens/work_wizard/wizard_state.dart';
 import 'package:zeimoto/services/plant_repository.dart';
 
-class Step1MatchPlant extends StatefulWidget {
-  const Step1MatchPlant({super.key});
+class StepMatchPlant extends StatefulWidget {
+  const StepMatchPlant({super.key});
 
   @override
-  State<Step1MatchPlant> createState() => _Step1MatchPlantState();
+  State<StepMatchPlant> createState() => _StepMatchPlantState();
 }
 
-class _Step1MatchPlantState extends State<Step1MatchPlant> {
+class _StepMatchPlantState extends State<StepMatchPlant> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   List<Plant> _plants = [];
@@ -158,7 +158,7 @@ class _Step1MatchPlantState extends State<Step1MatchPlant> {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: FloatingActionButton(
+                  child: ElevatedButton(
                     onPressed: _takePicture,
                     child: const Icon(Icons.camera_alt),
                   ),
