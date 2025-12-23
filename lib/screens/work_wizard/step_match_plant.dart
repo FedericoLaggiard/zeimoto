@@ -8,7 +8,7 @@ import 'package:zeimoto/screens/work_wizard/bloc/step_match_plant_state.dart';
 import 'package:zeimoto/screens/work_wizard/bloc/wizard_cubit.dart';
 
 const maxCameraHeight = 0.65;
-const minDraggableHeight = 0.36;
+const minDraggableHeight = 0.34;
 
 class StepMatchPlant extends StatelessWidget {
   const StepMatchPlant({super.key});
