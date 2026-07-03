@@ -1,15 +1,55 @@
-// Variant C — "Cover carousel + agent bar"
-// App shell: horizontal swipe of large cover cards (PageView), plus a
-// persistent input bar "Cosa vuoi fare oggi?" pinned to the bottom.
-// Archive = the carousel itself + a small chip strip on top.
-// Detail: full-screen swipeable pages between plants.
+// Variant C — "Scrollable Home + Parallax sections + pinned agent bar"
+// Homepage with 5 vertical sections scrollable with parallax title effect.
+// Fixed bottom agent bar always pinned. Sections: AI advice, Collection
+// carousel, Calendar, Focus Plant (random), Wiki del Giorno (random).
 // Create: dedicated wizard (Foto → Specie → Nickname) as a full-page 3-step flow.
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../shared/create_widgets.dart';
 import '../shared/design.dart';
 import '../shared/plant.dart';
 import '../shared/plant_store.dart';
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Mock data
+// ──────────────────────────────────────────────────────────────────────────────
+
+const _wikiArticles = <(String, String)>[
+  (
+    'Tecnica del Nebari',
+    'Come sviluppare radici di superficie visibili e armoniose attraverso tecniche di esposizione progressiva.',
+  ),
+  (
+    'Potatura di raffinazione',
+    'Principi guida per la potatura fine: timing, angolatura e strumenti per rami sottili.',
+  ),
+  (
+    'Rinvaso primaverile',
+    'Finestre temporali e indicatori visivi per il corretto rinvaso stagionale.',
+  ),
+  (
+    'Substrati e permeabilità',
+    'Composizioni ottimali per diverse specie: akadama, pomice, lava vulcanica.',
+  ),
+  (
+    'Filo di alluminio vs rame',
+    'Differenze pratiche nell\'uso dei due materiali: forza, impronta e durata stagionale.',
+  ),
+];
+
+const _mockOperations = <(String, String)>[
+  ('Potatura rami primari', '12 giu'),
+  ('Concimazione bilanciata', '28 mag'),
+  ('Applicazione filo', '03 mag'),
+  ('Rinvaso con akadama', '15 apr'),
+  ('Pinzatura apici', '02 apr'),
+];
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Root widget
+// ──────────────────────────────────────────────────────────────────────────────
 
 class VariantCCarousel extends StatefulWidget {
   const VariantCCarousel({super.key});
@@ -19,136 +59,438 @@ class VariantCCarousel extends StatefulWidget {
 }
 
 class _VariantCCarouselState extends State<VariantCCarousel> {
-  late final PageController _pc = PageController(
+  final _scrollController = ScrollController();
+
+  // Carousel state for collection section
+  late final PageController _carouselPc = PageController(
     viewportFraction: 0.82,
-    initialPage: 0,
   );
-  int _current = 0;
+  int _carouselCurrent = 0;
+
+  // Random picks refreshed on entry
+  Plant? _focusPlant;
+  int _wikiIndex = 0;
 
   @override
   void initState() {
     super.initState();
     PlantStore.instance.addListener(_onChange);
-    _pc.addListener(() {
-      final page = _pc.page?.round() ?? 0;
-      if (page != _current) setState(() => _current = page);
+    _carouselPc.addListener(() {
+      final page = _carouselPc.page?.round() ?? 0;
+      if (page != _carouselCurrent) setState(() => _carouselCurrent = page);
     });
+    _refreshRandom();
   }
 
   @override
   void dispose() {
     PlantStore.instance.removeListener(_onChange);
-    _pc.dispose();
+    _carouselPc.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _onChange() => setState(() {});
+  void _onChange() {
+    setState(() => _refreshRandom());
+  }
+
+  void _refreshRandom() {
+    final plants = PlantStore.instance.plants;
+    if (plants.isNotEmpty) {
+      _focusPlant = plants[Random().nextInt(plants.length)];
+    } else {
+      _focusPlant = null;
+    }
+    _wikiIndex = Random().nextInt(_wikiArticles.length);
+  }
 
   @override
   Widget build(BuildContext context) {
     final plants = PlantStore.instance.plants;
-    final selected = plants.isNotEmpty
-        ? plants[_current.clamp(0, plants.length - 1)]
-        : null;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       backgroundColor: ZeimotoColors.washi,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Row(
-                children: [
-                  Text(
-                    'la tua collezione',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    plants.isEmpty ? '0' : '${_current + 1} / ${plants.length}',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
-              ),
+      body: Stack(
+        children: [
+          // ── Scrollable content ──────────────────────────────────────────────
+          ListView(
+            controller: _scrollController,
+            padding: EdgeInsets.only(
+              top: topPadding + 24,
+              bottom: 96 + bottomPadding,
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: Row(
-                children: [
-                  for (final label in const [
-                    'tutte',
-                    'shohin',
-                    'aceri',
-                    'conifere',
-                    'in raffinazione',
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Chip(
-                        label: Text(label),
-                        backgroundColor: ZeimotoColors.washiDeep,
-                        side: BorderSide.none,
-                      ),
-                    ),
-                ],
+            children: [
+              _AiSection(scrollController: _scrollController),
+              const SizedBox(height: 48),
+              _CollectionSection(
+                plants: plants,
+                carouselController: _carouselPc,
+                carouselCurrent: _carouselCurrent,
+                scrollController: _scrollController,
+                onTapPlant: (i) => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => _DetailPagerC(initial: i, plants: plants),
+                  ),
+                ),
               ),
-            ),
-            Expanded(
-              child: plants.isEmpty
-                  ? const Center(child: Text('nessuna pianta'))
-                  : PageView.builder(
-                      controller: _pc,
-                      itemCount: plants.length,
-                      itemBuilder: (ctx, i) {
-                        final p = plants[i];
-                        final active = i == _current;
-                        return AnimatedPadding(
-                          duration: const Duration(milliseconds: 220),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: active ? 8 : 32,
-                          ),
-                          child: GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    _DetailPagerC(initial: i, plants: plants),
-                              ),
+              const SizedBox(height: 48),
+              _CalendarSection(scrollController: _scrollController),
+              const SizedBox(height: 48),
+              _FocusPlantSection(
+                plant: _focusPlant,
+                scrollController: _scrollController,
+                onTap: _focusPlant == null
+                    ? null
+                    : () {
+                        final i = plants.indexOf(_focusPlant!);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => _DetailPagerC(
+                              initial: i.clamp(0, plants.length - 1),
+                              plants: plants,
                             ),
-                            child: _CoverCard(plant: p, active: active),
                           ),
                         );
                       },
-                    ),
+              ),
+              const SizedBox(height: 48),
+              _WikiSection(
+                article: _wikiArticles[_wikiIndex],
+                scrollController: _scrollController,
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+
+          // ── Pinned bottom agent bar ─────────────────────────────────────────
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: ZeimotoColors.washi,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: _AgentBar(onCreate: () => _openCreateC(context)),
+              ),
             ),
-            if (selected != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Parallax section label
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// A section header label that drifts at [factor] × scroll speed,
+/// creating a subtle parallax depth cue between sections.
+class _ParallaxLabel extends StatefulWidget {
+  const _ParallaxLabel({
+    required this.label,
+    required this.scrollController,
+    required this.factor,
+  });
+  final String label;
+  final ScrollController scrollController;
+  final double factor;
+
+  @override
+  State<_ParallaxLabel> createState() => _ParallaxLabelState();
+}
+
+class _ParallaxLabelState extends State<_ParallaxLabel> {
+  final _anchorKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: _anchorKey,
+      child: AnimatedBuilder(
+        animation: widget.scrollController,
+        builder: (context, child) {
+          double dy = 0;
+          if (widget.scrollController.hasClients) {
+            final ctx = _anchorKey.currentContext;
+            if (ctx != null) {
+              final box = ctx.findRenderObject() as RenderBox?;
+              if (box != null && box.hasSize) {
+                final screenY = box.localToGlobal(Offset.zero).dy;
+                dy = screenY * widget.factor;
+              }
+            }
+          }
+          return Transform.translate(offset: Offset(0, dy), child: child);
+        },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+          child: Text(
+            widget.label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10,
+              letterSpacing: 2.6,
+              fontWeight: FontWeight.w600,
+              color: ZeimotoColors.moss,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Section 1 – AI advice
+// ──────────────────────────────────────────────────────────────────────────────
+
+class _AiSection extends StatelessWidget {
+  const _AiSection({required this.scrollController});
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ParallaxLabel(
+          label: 'assistente AI',
+          scrollController: scrollController,
+          factor: 0.08,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: ZeimotoColors.moss.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: ZeimotoColors.sage.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      selected.nickname,
-                      style: Theme.of(context).textTheme.titleMedium,
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: ZeimotoColors.moss.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.wb_sunny_outlined,
+                        color: ZeimotoColors.moss,
+                        size: 18,
+                      ),
                     ),
+                    const SizedBox(width: 10),
                     Text(
-                      selected.species,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontStyle: FontStyle.italic,
+                      'Oggi · 3 luglio',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: ZeimotoColors.moss,
+                        letterSpacing: 1.0,
                       ),
                     ),
                   ],
                 ),
-              ),
-            _AgentBar(onCreate: () => _openCreateC(context)),
-            const SizedBox(height: 72),
-          ],
+                const SizedBox(height: 14),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 15,
+                      height: 1.55,
+                      color: ZeimotoColors.charcoal,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text:
+                            'Oggi sono previsti 30°. Assicurati di ombreggiare le seguenti piante ',
+                      ),
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Text(
+                            '→',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: ZeimotoColors.moss,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _PlantChip(name: 'acero rosso'),
+                    _PlantChip(name: 'shohin del terrazzo'),
+                    _PlantChip(name: 'ficus veloce'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PlantChip extends StatelessWidget {
+  const _PlantChip({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: ZeimotoColors.sage.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        name,
+        style: const TextStyle(
+          fontSize: 12,
+          color: ZeimotoColors.moss,
+          fontWeight: FontWeight.w500,
         ),
       ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Section 2 – La tua collezione
+// ──────────────────────────────────────────────────────────────────────────────
+
+class _CollectionSection extends StatelessWidget {
+  const _CollectionSection({
+    required this.plants,
+    required this.carouselController,
+    required this.carouselCurrent,
+    required this.scrollController,
+    required this.onTapPlant,
+  });
+  final List<Plant> plants;
+  final PageController carouselController;
+  final int carouselCurrent;
+  final ScrollController scrollController;
+  final void Function(int index) onTapPlant;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ParallaxLabel(
+          label: 'la tua collezione',
+          scrollController: scrollController,
+          factor: 0.05,
+        ),
+        // Filter chips
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+          child: Row(
+            children: [
+              for (final label in const [
+                'tutte',
+                'shohin',
+                'aceri',
+                'conifere',
+                'in raffinazione',
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Chip(
+                    label: Text(label),
+                    backgroundColor: ZeimotoColors.washiDeep,
+                    side: BorderSide.none,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // Carousel
+        SizedBox(
+          height: 340,
+          child: plants.isEmpty
+              ? const Center(child: Text('nessuna pianta'))
+              : PageView.builder(
+                  controller: carouselController,
+                  itemCount: plants.length,
+                  itemBuilder: (ctx, i) {
+                    final p = plants[i];
+                    final active = i == carouselCurrent;
+                    return AnimatedPadding(
+                      duration: const Duration(milliseconds: 220),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: active ? 8 : 32,
+                      ),
+                      child: GestureDetector(
+                        onTap: () => onTapPlant(i),
+                        child: _CoverCard(plant: p, active: active),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        // Plant name / counter
+        if (plants.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        plants[carouselCurrent.clamp(0, plants.length - 1)]
+                            .nickname,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        plants[carouselCurrent.clamp(0, plants.length - 1)]
+                            .species,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${carouselCurrent + 1} / ${plants.length}',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
@@ -177,6 +519,558 @@ class _CoverCard extends StatelessWidget {
     );
   }
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Section 3 – Calendario
+// ──────────────────────────────────────────────────────────────────────────────
+
+class _CalendarSection extends StatelessWidget {
+  const _CalendarSection({required this.scrollController});
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
+    final firstWeekday = DateTime(now.year, now.month, 1).weekday; // 1=Mon
+    final monthName = _monthName(now.month);
+
+    // Mock event days
+    const eventDays = {5, 12, 18, 24};
+    const taskDays = {8, 21};
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ParallaxLabel(
+          label: 'calendario',
+          scrollController: scrollController,
+          factor: 0.10,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: ZeimotoColors.washiDeep,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                // Month header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$monthName ${now.year}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left, size: 20),
+                          color: ZeimotoColors.charcoalSoft,
+                          onPressed: () {},
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right, size: 20),
+                          color: ZeimotoColors.charcoalSoft,
+                          onPressed: () {},
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Day-of-week headers
+                Row(
+                  children: ['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((d) {
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          d,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.6,
+                            color: ZeimotoColors.charcoalSoft,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 10),
+                // Calendar grid
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: 4,
+                    crossAxisSpacing: 2,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: (firstWeekday - 1) + daysInMonth,
+                  itemBuilder: (ctx, idx) {
+                    if (idx < firstWeekday - 1) return const SizedBox();
+                    final day = idx - (firstWeekday - 1) + 1;
+                    final isToday = day == now.day;
+                    final hasEvent = eventDays.contains(day);
+                    final hasTask = taskDays.contains(day);
+                    return _CalendarDay(
+                      day: day,
+                      isToday: isToday,
+                      hasEvent: hasEvent,
+                      hasTask: hasTask,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                // Legend
+                Row(
+                  children: [
+                    _Legend(color: ZeimotoColors.moss, label: 'evento'),
+                    const SizedBox(width: 16),
+                    _Legend(color: ZeimotoColors.cinnabar, label: 'task AI'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static String _monthName(int month) {
+    const names = [
+      '',
+      'Gennaio',
+      'Febbraio',
+      'Marzo',
+      'Aprile',
+      'Maggio',
+      'Giugno',
+      'Luglio',
+      'Agosto',
+      'Settembre',
+      'Ottobre',
+      'Novembre',
+      'Dicembre',
+    ];
+    return names[month];
+  }
+}
+
+class _CalendarDay extends StatelessWidget {
+  const _CalendarDay({
+    required this.day,
+    required this.isToday,
+    required this.hasEvent,
+    required this.hasTask,
+  });
+  final int day;
+  final bool isToday;
+  final bool hasEvent;
+  final bool hasTask;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: isToday
+              ? const BoxDecoration(
+                  color: ZeimotoColors.moss,
+                  shape: BoxShape.circle,
+                )
+              : null,
+          child: Center(
+            child: Text(
+              '$day',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
+                color: isToday ? Colors.white : ZeimotoColors.charcoal,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (hasEvent)
+              Container(
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: const BoxDecoration(
+                  color: ZeimotoColors.moss,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            if (hasTask)
+              Container(
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: const BoxDecoration(
+                  color: ZeimotoColors.cinnabar,
+                  shape: BoxShape.circle,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend({required this.color, required this.label});
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            color: ZeimotoColors.charcoalSoft,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Section 4 – Focus su pianta
+// ──────────────────────────────────────────────────────────────────────────────
+
+class _FocusPlantSection extends StatelessWidget {
+  const _FocusPlantSection({
+    required this.plant,
+    required this.scrollController,
+    required this.onTap,
+  });
+  final Plant? plant;
+  final ScrollController scrollController;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ParallaxLabel(
+          label: 'focus su pianta',
+          scrollController: scrollController,
+          factor: 0.06,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: plant == null
+              ? const Center(child: Text('aggiungi almeno una pianta'))
+              : GestureDetector(
+                  onTap: onTap,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: ZeimotoColors.washiDeep,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Cover photo
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                          child: SizedBox(
+                            height: 200,
+                            child: PhotoTile(
+                              photo: plant!.cover,
+                              borderRadius: 0,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          plant!.nickname,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
+                                        ),
+                                        Text(
+                                          plant!.species,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: ZeimotoColors.charcoalSoft,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              // Status chips
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  _StatusBadge(
+                                    label: 'vigoroso',
+                                    icon: Icons.local_florist_outlined,
+                                  ),
+                                  _StatusBadge(
+                                    label: 'raffinazione',
+                                    icon: Icons.spa_outlined,
+                                  ),
+                                  _StatusBadge(
+                                    label: 'estate',
+                                    icon: Icons.wb_sunny_outlined,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                'ULTIME LAVORAZIONI',
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(letterSpacing: 1.8, fontSize: 9),
+                              ),
+                              const SizedBox(height: 10),
+                              for (final op in _mockOperations.take(3))
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 6,
+                                        height: 6,
+                                        margin: const EdgeInsets.only(
+                                          right: 10,
+                                          top: 1,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          color: ZeimotoColors.sage,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          op.$1,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: ZeimotoColors.charcoal,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        op.$2,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: ZeimotoColors.charcoalSoft,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.label, required this.icon});
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: ZeimotoColors.sage.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: ZeimotoColors.moss),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: ZeimotoColors.moss,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Section 5 – Wiki del giorno
+// ──────────────────────────────────────────────────────────────────────────────
+
+class _WikiSection extends StatelessWidget {
+  const _WikiSection({required this.article, required this.scrollController});
+  final (String, String) article;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ParallaxLabel(
+          label: 'wiki del giorno',
+          scrollController: scrollController,
+          factor: 0.12,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: ZeimotoColors.charcoal,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.menu_book_outlined,
+                        color: ZeimotoColors.sage,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'LETTURA CONSIGLIATA',
+                      style: TextStyle(
+                        fontSize: 9,
+                        letterSpacing: 2.2,
+                        fontWeight: FontWeight.w600,
+                        color: ZeimotoColors.sage,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  article.$1,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  article.$2,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.5,
+                    color: Colors.white.withValues(alpha: 0.65),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {},
+                  child: Row(
+                    children: [
+                      const Text(
+                        'leggi articolo',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: ZeimotoColors.sage,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        '→',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: ZeimotoColors.sage,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Agent bar (pinned at bottom)
+// ──────────────────────────────────────────────────────────────────────────────
 
 class _AgentBar extends StatelessWidget {
   const _AgentBar({required this.onCreate});
