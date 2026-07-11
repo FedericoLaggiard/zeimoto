@@ -59,7 +59,7 @@ class VariantCCarousel extends StatefulWidget {
 }
 
 class _VariantCCarouselState extends State<VariantCCarousel> {
-  final _scrollController = ScrollController();
+  final _sectionsController = PageController();
 
   // Carousel state for collection section
   late final PageController _carouselPc = PageController(
@@ -86,7 +86,7 @@ class _VariantCCarouselState extends State<VariantCCarousel> {
   void dispose() {
     PlantStore.instance.removeListener(_onChange);
     _carouselPc.dispose();
-    _scrollController.dispose();
+    _sectionsController.dispose();
     super.dispose();
   }
 
@@ -108,60 +108,65 @@ class _VariantCCarouselState extends State<VariantCCarousel> {
   Widget build(BuildContext context) {
     final plants = PlantStore.instance.plants;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final topPadding = MediaQuery.of(context).padding.top;
+    const pinnedBarHeight = 78.0;
 
     return Scaffold(
       backgroundColor: ZeimotoColors.washi,
       body: Stack(
         children: [
-          // ── Scrollable content ──────────────────────────────────────────────
-          ListView(
-            controller: _scrollController,
-            padding: EdgeInsets.only(
-              top: topPadding + 24,
-              bottom: 96 + bottomPadding,
-            ),
-            children: [
-              _AiSection(scrollController: _scrollController),
-              const SizedBox(height: 48),
-              _CollectionSection(
-                plants: plants,
-                carouselController: _carouselPc,
-                carouselCurrent: _carouselCurrent,
-                scrollController: _scrollController,
-                onTapPlant: (i) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => _DetailPagerC(initial: i, plants: plants),
+          // ── Full-screen sections with snap paging ─────────────────────────
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: pinnedBarHeight + bottomPadding),
+              child: PageView(
+                controller: _sectionsController,
+                scrollDirection: Axis.vertical,
+                children: [
+                  _AiSection(pageController: _sectionsController, pageIndex: 0),
+                  _CollectionSection(
+                    plants: plants,
+                    carouselController: _carouselPc,
+                    carouselCurrent: _carouselCurrent,
+                    pageController: _sectionsController,
+                    pageIndex: 1,
+                    onTapPlant: (i) => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            _DetailPagerC(initial: i, plants: plants),
+                      ),
+                    ),
                   ),
-                ),
+                  _CalendarSection(
+                    pageController: _sectionsController,
+                    pageIndex: 2,
+                  ),
+                  _FocusPlantSection(
+                    plant: _focusPlant,
+                    pageController: _sectionsController,
+                    pageIndex: 3,
+                    onTap: _focusPlant == null
+                        ? null
+                        : () {
+                            final i = plants.indexOf(_focusPlant!);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => _DetailPagerC(
+                                  initial: i.clamp(0, plants.length - 1),
+                                  plants: plants,
+                                ),
+                              ),
+                            );
+                          },
+                  ),
+                  _WikiSection(
+                    article: _wikiArticles[_wikiIndex],
+                    pageController: _sectionsController,
+                    pageIndex: 4,
+                  ),
+                ],
               ),
-              const SizedBox(height: 48),
-              _CalendarSection(scrollController: _scrollController),
-              const SizedBox(height: 48),
-              _FocusPlantSection(
-                plant: _focusPlant,
-                scrollController: _scrollController,
-                onTap: _focusPlant == null
-                    ? null
-                    : () {
-                        final i = plants.indexOf(_focusPlant!);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => _DetailPagerC(
-                              initial: i.clamp(0, plants.length - 1),
-                              plants: plants,
-                            ),
-                          ),
-                        );
-                      },
-              ),
-              const SizedBox(height: 48),
-              _WikiSection(
-                article: _wikiArticles[_wikiIndex],
-                scrollController: _scrollController,
-              ),
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
 
           // ── Pinned bottom agent bar ─────────────────────────────────────────
@@ -193,59 +198,64 @@ class _VariantCCarouselState extends State<VariantCCarousel> {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Parallax section label
+// Parallax helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
-/// A section header label that drifts at [factor] × scroll speed,
-/// creating a subtle parallax depth cue between sections.
-class _ParallaxLabel extends StatefulWidget {
-  const _ParallaxLabel({
-    required this.label,
-    required this.scrollController,
-    required this.factor,
+class _SectionParallax extends StatelessWidget {
+  const _SectionParallax({
+    required this.pageController,
+    required this.pageIndex,
+    required this.depth,
+    required this.child,
   });
-  final String label;
-  final ScrollController scrollController;
-  final double factor;
 
-  @override
-  State<_ParallaxLabel> createState() => _ParallaxLabelState();
-}
-
-class _ParallaxLabelState extends State<_ParallaxLabel> {
-  final _anchorKey = GlobalKey();
+  final PageController pageController;
+  final int pageIndex;
+  final double depth;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      key: _anchorKey,
-      child: AnimatedBuilder(
-        animation: widget.scrollController,
-        builder: (context, child) {
-          double dy = 0;
-          if (widget.scrollController.hasClients) {
-            final ctx = _anchorKey.currentContext;
-            if (ctx != null) {
-              final box = ctx.findRenderObject() as RenderBox?;
-              if (box != null && box.hasSize) {
-                final screenY = box.localToGlobal(Offset.zero).dy;
-                dy = screenY * widget.factor;
-              }
-            }
-          }
-          return Transform.translate(offset: Offset(0, dy), child: child);
-        },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
-          child: Text(
-            widget.label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              letterSpacing: 2.6,
-              fontWeight: FontWeight.w600,
-              color: ZeimotoColors.moss,
-            ),
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, _) {
+        final page = pageController.hasClients
+            ? (pageController.page ?? pageController.initialPage.toDouble())
+            : pageController.initialPage.toDouble();
+        final delta = pageIndex - page;
+        final shiftY = delta * 124 * depth;
+        final scale = 1 - (delta.abs() * 0.07 * depth).clamp(0.0, 0.18);
+        final opacity = (1 - delta.abs() * 0.42).clamp(0.5, 1.0);
+
+        return Transform.translate(
+          offset: Offset(0, shiftY),
+          child: Transform.scale(
+            scale: scale,
+            alignment: Alignment.topCenter,
+            child: Opacity(opacity: opacity, child: child),
           ),
+        );
+      },
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 14),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 30,
+          height: 1.0,
+          letterSpacing: 0.2,
+          fontWeight: FontWeight.w300,
+          color: ZeimotoColors.moss,
         ),
       ),
     );
@@ -257,102 +267,122 @@ class _ParallaxLabelState extends State<_ParallaxLabel> {
 // ──────────────────────────────────────────────────────────────────────────────
 
 class _AiSection extends StatelessWidget {
-  const _AiSection({required this.scrollController});
-  final ScrollController scrollController;
+  const _AiSection({required this.pageController, required this.pageIndex});
+  final PageController pageController;
+  final int pageIndex;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ParallaxLabel(
-          label: 'assistente AI',
-          scrollController: scrollController,
-          factor: 0.08,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: ZeimotoColors.moss.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: ZeimotoColors.sage.withValues(alpha: 0.4),
-              ),
+    return SizedBox.expand(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionParallax(
+              pageController: pageController,
+              pageIndex: pageIndex,
+              depth: 1.35,
+              child: const _SectionTitle('Assistente AI'),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
+            Expanded(
+              child: Center(
+                child: _SectionParallax(
+                  pageController: pageController,
+                  pageIndex: pageIndex,
+                  depth: 0.85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: ZeimotoColors.moss.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.wb_sunny_outlined,
-                        color: ZeimotoColors.moss,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Oggi · 3 luglio',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: ZeimotoColors.moss,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 15,
-                      height: 1.55,
-                      color: ZeimotoColors.charcoal,
-                    ),
-                    children: [
-                      const TextSpan(
-                        text:
-                            'Oggi sono previsti 30°. Assicurati di ombreggiare le seguenti piante ',
-                      ),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: const Text(
-                            '→',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: ZeimotoColors.moss,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                        color: ZeimotoColors.moss.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: ZeimotoColors.sage.withValues(alpha: 0.4),
                         ),
                       ),
-                    ],
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: ZeimotoColors.moss.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.wb_sunny_outlined,
+                                  color: ZeimotoColors.moss,
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Oggi · 3 luglio',
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      color: ZeimotoColors.moss,
+                                      letterSpacing: 1.0,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontSize: 15,
+                                height: 1.55,
+                                color: ZeimotoColors.charcoal,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text:
+                                      'Oggi sono previsti 30°. Assicurati di ombreggiare le seguenti piante ',
+                                ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: GestureDetector(
+                                    onTap: () {},
+                                    child: const Text(
+                                      '→',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: ZeimotoColors.moss,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: const [
+                              _PlantChip(name: 'acero rosso'),
+                              _PlantChip(name: 'shohin del terrazzo'),
+                              _PlantChip(name: 'ficus veloce'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _PlantChip(name: 'acero rosso'),
-                    _PlantChip(name: 'shohin del terrazzo'),
-                    _PlantChip(name: 'ficus veloce'),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -390,107 +420,140 @@ class _CollectionSection extends StatelessWidget {
     required this.plants,
     required this.carouselController,
     required this.carouselCurrent,
-    required this.scrollController,
+    required this.pageController,
+    required this.pageIndex,
     required this.onTapPlant,
   });
   final List<Plant> plants;
   final PageController carouselController;
   final int carouselCurrent;
-  final ScrollController scrollController;
+  final PageController pageController;
+  final int pageIndex;
   final void Function(int index) onTapPlant;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ParallaxLabel(
-          label: 'la tua collezione',
-          scrollController: scrollController,
-          factor: 0.05,
-        ),
-        // Filter chips
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-          child: Row(
-            children: [
-              for (final label in const [
-                'tutte',
-                'shohin',
-                'aceri',
-                'conifere',
-                'in raffinazione',
-              ])
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Chip(
-                    label: Text(label),
-                    backgroundColor: ZeimotoColors.washiDeep,
-                    side: BorderSide.none,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        // Carousel
-        SizedBox(
-          height: 340,
-          child: plants.isEmpty
-              ? const Center(child: Text('nessuna pianta'))
-              : PageView.builder(
-                  controller: carouselController,
-                  itemCount: plants.length,
-                  itemBuilder: (ctx, i) {
-                    final p = plants[i];
-                    final active = i == carouselCurrent;
-                    return AnimatedPadding(
-                      duration: const Duration(milliseconds: 220),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: active ? 8 : 32,
-                      ),
-                      child: GestureDetector(
-                        onTap: () => onTapPlant(i),
-                        child: _CoverCard(plant: p, active: active),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        // Plant name / counter
-        if (plants.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-            child: Row(
-              children: [
-                Expanded(
+    return SizedBox.expand(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionParallax(
+              pageController: pageController,
+              pageIndex: pageIndex,
+              depth: 1.35,
+              child: const _SectionTitle('La Tua Collezione'),
+            ),
+            Expanded(
+              child: Center(
+                child: _SectionParallax(
+                  pageController: pageController,
+                  pageIndex: pageIndex,
+                  depth: 0.85,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        plants[carouselCurrent.clamp(0, plants.length - 1)]
-                            .nickname,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      Text(
-                        plants[carouselCurrent.clamp(0, plants.length - 1)]
-                            .species,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                        child: Row(
+                          children: [
+                            for (final label in const [
+                              'tutte',
+                              'shohin',
+                              'aceri',
+                              'conifere',
+                              'in raffinazione',
+                            ])
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Chip(
+                                  label: Text(label),
+                                  backgroundColor: ZeimotoColors.washiDeep,
+                                  side: BorderSide.none,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
+                      SizedBox(
+                        height: 340,
+                        child: plants.isEmpty
+                            ? const Center(child: Text('nessuna pianta'))
+                            : PageView.builder(
+                                controller: carouselController,
+                                itemCount: plants.length,
+                                itemBuilder: (ctx, i) {
+                                  final p = plants[i];
+                                  final active = i == carouselCurrent;
+                                  return AnimatedPadding(
+                                    duration: const Duration(milliseconds: 220),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: active ? 8 : 32,
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () => onTapPlant(i),
+                                      child: _CoverCard(
+                                        plant: p,
+                                        active: active,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                      if (plants.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      plants[carouselCurrent.clamp(
+                                            0,
+                                            plants.length - 1,
+                                          )]
+                                          .nickname,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    Text(
+                                      plants[carouselCurrent.clamp(
+                                            0,
+                                            plants.length - 1,
+                                          )]
+                                          .species,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '${carouselCurrent + 1} / ${plants.length}',
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                Text(
-                  '${carouselCurrent + 1} / ${plants.length}',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ],
+              ),
             ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -525,8 +588,12 @@ class _CoverCard extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────────────────────
 
 class _CalendarSection extends StatelessWidget {
-  const _CalendarSection({required this.scrollController});
-  final ScrollController scrollController;
+  const _CalendarSection({
+    required this.pageController,
+    required this.pageIndex,
+  });
+  final PageController pageController;
+  final int pageIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -539,112 +606,140 @@ class _CalendarSection extends StatelessWidget {
     const eventDays = {5, 12, 18, 24};
     const taskDays = {8, 21};
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ParallaxLabel(
-          label: 'calendario',
-          scrollController: scrollController,
-          factor: 0.10,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: ZeimotoColors.washiDeep,
-              borderRadius: BorderRadius.circular(20),
+    return SizedBox.expand(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionParallax(
+              pageController: pageController,
+              pageIndex: pageIndex,
+              depth: 1.35,
+              child: const _SectionTitle('Calendario'),
             ),
-            child: Column(
-              children: [
-                // Month header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '$monthName ${now.year}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left, size: 20),
-                          color: ZeimotoColors.charcoalSoft,
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 12),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right, size: 20),
-                          color: ZeimotoColors.charcoalSoft,
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Day-of-week headers
-                Row(
-                  children: ['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((d) {
-                    return Expanded(
-                      child: Center(
-                        child: Text(
-                          d,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.6,
-                            color: ZeimotoColors.charcoalSoft,
-                          ),
-                        ),
+            Expanded(
+              child: Center(
+                child: _SectionParallax(
+                  pageController: pageController,
+                  pageIndex: pageIndex,
+                  depth: 0.85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: ZeimotoColors.washiDeep,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 10),
-                // Calendar grid
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    mainAxisSpacing: 4,
-                    crossAxisSpacing: 2,
-                    childAspectRatio: 1.0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '$monthName ${now.year}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.chevron_left,
+                                      size: 20,
+                                    ),
+                                    color: ZeimotoColors.charcoalSoft,
+                                    onPressed: () {},
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.chevron_right,
+                                      size: 20,
+                                    ),
+                                    color: ZeimotoColors.charcoalSoft,
+                                    onPressed: () {},
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: ['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((
+                              d,
+                            ) {
+                              return Expanded(
+                                child: Center(
+                                  child: Text(
+                                    d,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.6,
+                                      color: ZeimotoColors.charcoalSoft,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 10),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 7,
+                                  mainAxisSpacing: 4,
+                                  crossAxisSpacing: 2,
+                                  childAspectRatio: 1.0,
+                                ),
+                            itemCount: (firstWeekday - 1) + daysInMonth,
+                            itemBuilder: (ctx, idx) {
+                              if (idx < firstWeekday - 1)
+                                return const SizedBox();
+                              final day = idx - (firstWeekday - 1) + 1;
+                              final isToday = day == now.day;
+                              final hasEvent = eventDays.contains(day);
+                              final hasTask = taskDays.contains(day);
+                              return _CalendarDay(
+                                day: day,
+                                isToday: isToday,
+                                hasEvent: hasEvent,
+                                hasTask: hasTask,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          const Row(
+                            children: [
+                              _Legend(
+                                color: ZeimotoColors.moss,
+                                label: 'evento',
+                              ),
+                              SizedBox(width: 16),
+                              _Legend(
+                                color: ZeimotoColors.cinnabar,
+                                label: 'task AI',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  itemCount: (firstWeekday - 1) + daysInMonth,
-                  itemBuilder: (ctx, idx) {
-                    if (idx < firstWeekday - 1) return const SizedBox();
-                    final day = idx - (firstWeekday - 1) + 1;
-                    final isToday = day == now.day;
-                    final hasEvent = eventDays.contains(day);
-                    final hasTask = taskDays.contains(day);
-                    return _CalendarDay(
-                      day: day,
-                      isToday: isToday,
-                      hasEvent: hasEvent,
-                      hasTask: hasTask,
-                    );
-                  },
                 ),
-                const SizedBox(height: 12),
-                // Legend
-                Row(
-                  children: [
-                    _Legend(color: ZeimotoColors.moss, label: 'evento'),
-                    const SizedBox(width: 16),
-                    _Legend(color: ZeimotoColors.cinnabar, label: 'task AI'),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -770,159 +865,193 @@ class _Legend extends StatelessWidget {
 class _FocusPlantSection extends StatelessWidget {
   const _FocusPlantSection({
     required this.plant,
-    required this.scrollController,
+    required this.pageController,
+    required this.pageIndex,
     required this.onTap,
   });
   final Plant? plant;
-  final ScrollController scrollController;
+  final PageController pageController;
+  final int pageIndex;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ParallaxLabel(
-          label: 'focus su pianta',
-          scrollController: scrollController,
-          factor: 0.06,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: plant == null
-              ? const Center(child: Text('aggiungi almeno una pianta'))
-              : GestureDetector(
-                  onTap: onTap,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: ZeimotoColors.washiDeep,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Cover photo
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                          child: SizedBox(
-                            height: 200,
-                            child: PhotoTile(
-                              photo: plant!.cover,
-                              borderRadius: 0,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+    return SizedBox.expand(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionParallax(
+              pageController: pageController,
+              pageIndex: pageIndex,
+              depth: 1.35,
+              child: const _SectionTitle('Focus Su Pianta'),
+            ),
+            Expanded(
+              child: Center(
+                child: _SectionParallax(
+                  pageController: pageController,
+                  pageIndex: pageIndex,
+                  depth: 0.85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: plant == null
+                        ? const Center(
+                            child: Text('aggiungi almeno una pianta'),
+                          )
+                        : GestureDetector(
+                            onTap: onTap,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: ZeimotoColors.washiDeep,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
+                                    child: SizedBox(
+                                      height: 200,
+                                      child: PhotoTile(
+                                        photo: plant!.cover,
+                                        borderRadius: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(20),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          plant!.nickname,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium,
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    plant!.nickname,
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.titleMedium,
+                                                  ),
+                                                  Text(
+                                                    plant!.species,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 14,
+                                              color: ZeimotoColors.charcoalSoft,
+                                            ),
+                                          ],
                                         ),
+                                        const SizedBox(height: 18),
+                                        const Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            _StatusBadge(
+                                              label: 'vigoroso',
+                                              icon:
+                                                  Icons.local_florist_outlined,
+                                            ),
+                                            _StatusBadge(
+                                              label: 'raffinazione',
+                                              icon: Icons.spa_outlined,
+                                            ),
+                                            _StatusBadge(
+                                              label: 'estate',
+                                              icon: Icons.wb_sunny_outlined,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 18),
                                         Text(
-                                          plant!.species,
+                                          'ULTIME LAVORAZIONI',
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodyMedium
+                                              .labelSmall
                                               ?.copyWith(
-                                                fontStyle: FontStyle.italic,
+                                                letterSpacing: 1.8,
+                                                fontSize: 9,
                                               ),
                                         ),
+                                        const SizedBox(height: 10),
+                                        for (final op in _mockOperations.take(
+                                          3,
+                                        ))
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 6,
+                                                  height: 6,
+                                                  margin: const EdgeInsets.only(
+                                                    right: 10,
+                                                    top: 1,
+                                                  ),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color:
+                                                            ZeimotoColors.sage,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    op.$1,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      color: ZeimotoColors
+                                                          .charcoal,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  op.$2,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color: ZeimotoColors
+                                                        .charcoalSoft,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
-                                  const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 14,
-                                    color: ZeimotoColors.charcoalSoft,
-                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 18),
-                              // Status chips
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  _StatusBadge(
-                                    label: 'vigoroso',
-                                    icon: Icons.local_florist_outlined,
-                                  ),
-                                  _StatusBadge(
-                                    label: 'raffinazione',
-                                    icon: Icons.spa_outlined,
-                                  ),
-                                  _StatusBadge(
-                                    label: 'estate',
-                                    icon: Icons.wb_sunny_outlined,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              Text(
-                                'ULTIME LAVORAZIONI',
-                                style: Theme.of(context).textTheme.labelSmall
-                                    ?.copyWith(letterSpacing: 1.8, fontSize: 9),
-                              ),
-                              const SizedBox(height: 10),
-                              for (final op in _mockOperations.take(3))
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 6,
-                                        height: 6,
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
-                                          top: 1,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          color: ZeimotoColors.sage,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          op.$1,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: ZeimotoColors.charcoal,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        op.$2,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: ZeimotoColors.charcoalSoft,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -964,106 +1093,127 @@ class _StatusBadge extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────────────────────
 
 class _WikiSection extends StatelessWidget {
-  const _WikiSection({required this.article, required this.scrollController});
+  const _WikiSection({
+    required this.article,
+    required this.pageController,
+    required this.pageIndex,
+  });
   final (String, String) article;
-  final ScrollController scrollController;
+  final PageController pageController;
+  final int pageIndex;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ParallaxLabel(
-          label: 'wiki del giorno',
-          scrollController: scrollController,
-          factor: 0.12,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: ZeimotoColors.charcoal,
-              borderRadius: BorderRadius.circular(20),
+    return SizedBox.expand(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionParallax(
+              pageController: pageController,
+              pageIndex: pageIndex,
+              depth: 1.35,
+              child: const _SectionTitle('Wiki Del Giorno'),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
+            Expanded(
+              child: Center(
+                child: _SectionParallax(
+                  pageController: pageController,
+                  pageIndex: pageIndex,
+                  depth: 0.85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(22),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                        color: ZeimotoColors.charcoal,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(
-                        Icons.menu_book_outlined,
-                        color: ZeimotoColors.sage,
-                        size: 16,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.menu_book_outlined,
+                                  color: ZeimotoColors.sage,
+                                  size: 16,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'LETTURA CONSIGLIATA',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  letterSpacing: 2.2,
+                                  fontWeight: FontWeight.w600,
+                                  color: ZeimotoColors.sage,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            article.$1,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            article.$2,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.5,
+                              color: Colors.white.withValues(alpha: 0.65),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          GestureDetector(
+                            onTap: () {},
+                            child: const Row(
+                              children: [
+                                Text(
+                                  'leggi articolo',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: ZeimotoColors.sage,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  '→',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: ZeimotoColors.sage,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'LETTURA CONSIGLIATA',
-                      style: TextStyle(
-                        fontSize: 9,
-                        letterSpacing: 2.2,
-                        fontWeight: FontWeight.w600,
-                        color: ZeimotoColors.sage,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  article.$1,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
-                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  article.$2,
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.5,
-                    color: Colors.white.withValues(alpha: 0.65),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    children: [
-                      const Text(
-                        'leggi articolo',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: ZeimotoColors.sage,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        '→',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: ZeimotoColors.sage,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

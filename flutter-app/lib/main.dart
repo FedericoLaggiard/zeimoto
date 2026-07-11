@@ -1,25 +1,23 @@
-// PROTOTYPE — throwaway UI for issue #3 (app shell + archivio + creazione pianta).
-// Not production code. Delete or absorb the winning variant when done.
-// Run with: flutter run
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'prototype/app_shell/prototype_root.dart';
-import 'prototype/app_shell/shared/design.dart';
+import 'app/zeimoto_app_shell.dart';
+import 'core/design/zeimoto_theme.dart';
 
 void main() {
-  runApp(const ZeimotoPrototypeApp());
+  runApp(const ZeimotoApp());
 }
 
-class ZeimotoPrototypeApp extends StatelessWidget {
-  const ZeimotoPrototypeApp({super.key});
+class ZeimotoApp extends StatelessWidget {
+  const ZeimotoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Zeimoto — Prototype',
-      debugShowCheckedModeBanner: false,
+      title: 'Zeimoto',
+      debugShowCheckedModeBanner: !kReleaseMode,
       theme: ZeimotoTheme.light,
-      home: const PrototypeRoot(),
+      home: const ZeimotoAppShell(),
     );
   }
 }
