@@ -40,10 +40,8 @@ GoRouter buildAppRouter() {
       // No `extra` required.
       GoRoute(
         path: AppRoutes.addPlant,
-        pageBuilder: (context, state) => const MaterialPage(
-          fullscreenDialog: true,
-          child: AddPlantWizard(),
-        ),
+        pageBuilder: (context, state) =>
+            const MaterialPage(fullscreenDialog: true, child: AddPlantWizard()),
       ),
 
       // ── Plant detail ─────────────────────────────────────────────────────
