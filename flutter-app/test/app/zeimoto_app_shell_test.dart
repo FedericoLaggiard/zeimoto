@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zeimoto/app/zeimoto_app_shell.dart';
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
+import 'package:zeimoto/widgets/agent_bar.dart';
 import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
 import 'package:zeimoto/features/calendar/calendar_section.dart';
