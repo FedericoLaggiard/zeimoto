@@ -1,6 +1,6 @@
 # A12 — Rifiniture MVP
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -17,12 +17,12 @@ Completare i dettagli necessari per avere un MVP stabile e presentabile, senza a
 
 ## Acceptance criteria
 
-- [ ] La sezione Collezione con repository vuoto mostra uno stato vuoto con testo e CTA che apre il wizard
-- [ ] La sezione Focus Pianta con repository vuoto mostra un messaggio neutro (nessun crash)
-- [ ] I pulsanti "Avanti" e "Salva" del wizard hanno uno stile disabled visivamente distinguibile dallo stato enabled
-- [ ] Al completamento del wizard compare un feedback visivo (snackbar o transizione) che conferma il salvataggio
-- [ ] Il feedback non contiene dati sensibili
-- [ ] Tutti i test esistenti (A3, A11) continuano a passare
+- [x] La sezione Collezione con repository vuoto mostra uno stato vuoto con testo e CTA che apre il wizard
+- [x] La sezione Focus Pianta con repository vuoto mostra un messaggio neutro (nessun crash)
+- [x] I pulsanti "Avanti" e "Salva" del wizard hanno uno stile disabled visivamente distinguibile dallo stato enabled
+- [x] Al completamento del wizard compare un feedback visivo (snackbar o transizione) che conferma il salvataggio
+- [x] Il feedback non contiene dati sensibili
+- [x] Tutti i test esistenti (A3, A11) continuano a passare
 
 ## Blocked by
 
