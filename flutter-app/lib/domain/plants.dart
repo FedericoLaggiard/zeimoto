@@ -67,6 +67,9 @@ class PlaceholderPhoto {
     final resolvedSeed = seed ?? DateTime.now().microsecondsSinceEpoch;
     return _palette[resolvedSeed.abs() % _palette.length];
   }
+
+  /// All available placeholder photos, in palette order.
+  static List<PlaceholderPhoto> get palette => List.unmodifiable(_palette);
 }
 
 const kSeedSpecies = <String>[

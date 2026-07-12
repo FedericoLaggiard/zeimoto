@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+
+  "wizardClose": "Close",
+  "wizardStepPhotoHeading": "Choose a photo",
+  "wizardStepSpeciesHeading": "Select the species",
+  "wizardStepNicknameHeading": "Give it a name",
+  "wizardButtonNext": "Next",
+  "wizardButtonSave": "Save",
+  "wizardSpeciesFieldHint": "Enter a species…",
+  "wizardNicknameFieldHint": "Leave empty to use: {defaultName}"
+}
