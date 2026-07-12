@@ -1,55 +1,65 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/design/zeimoto_theme.dart';
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
+import 'focus_cubit.dart';
+import 'focus_state.dart';
 
-/// FocusPlantSection — feature widget that displays one random plant.
+/// FocusPlantSection — feature entry widget for the focus-plant display.
 ///
-/// The random selection is computed once when the widget is inserted in the
-/// tree and stays stable for the life of that widget instance.
-class FocusPlantSection extends StatefulWidget {
-  const FocusPlantSection({
-    super.key,
-    required this.onTapPlant,
-    this.randomIndex,
-  });
+/// Creates its own [FocusCubit] via [BlocProvider], reading
+/// [PlantRepository] from the ambient [RepositoryProvider].
+/// When the plant card is tapped, calls [onTapPlant] callback.
+class FocusPlantSection extends StatelessWidget {
+  const FocusPlantSection({super.key, required this.onTapPlant});
 
   final ValueChanged<Plant> onTapPlant;
-  final int Function(int max)? randomIndex;
-
-  @override
-  State<FocusPlantSection> createState() => _FocusPlantSectionState();
-}
-
-class _FocusPlantSectionState extends State<FocusPlantSection> {
-  Plant? _selectedPlant;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final plants = context.read<PlantRepository>().plants;
-    if (plants.isEmpty) {
-      return;
-    }
-
-    final pickIndex = widget.randomIndex ?? (max) => Random().nextInt(max);
-    final index = pickIndex(plants.length);
-    _selectedPlant = plants[index];
-  }
 
   @override
   Widget build(BuildContext context) {
-    final plant = _selectedPlant;
-    if (plant == null) {
-      return _buildEmpty(context);
-    }
+    return BlocProvider(
+      create: (ctx) => FocusCubit(ctx.read<PlantRepository>()),
+      child: _FocusView(onTapPlant: onTapPlant),
+    );
+  }
+}
 
-    return _FocusPlantCard(plant: plant, onTap: () => widget.onTapPlant(plant));
+// ---------------------------------------------------------------------------
+// Internal view — consumes FocusCubit
+// ---------------------------------------------------------------------------
+
+class _FocusView extends StatelessWidget {
+  const _FocusView({required this.onTapPlant});
+
+  final ValueChanged<Plant> onTapPlant;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FocusCubit, FocusState>(
+      builder: (context, state) {
+        return switch (state) {
+          FocusLoading() => _buildLoading(),
+          FocusLoaded(plant: final plant) => _buildCard(plant),
+          FocusEmpty() => _buildEmpty(context),
+        };
+      },
+    );
+  }
+
+  Widget _buildLoading() {
+    return const SizedBox(
+      height: 340,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildCard(Plant plant) {
+    return SizedBox(
+      height: 340,
+      child: _FocusPlantCard(plant: plant, onTap: () => onTapPlant(plant)),
+    );
   }
 
   Widget _buildEmpty(BuildContext context) {
@@ -66,6 +76,10 @@ class _FocusPlantSectionState extends State<FocusPlantSection> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Card widget — identical visual style to CollectionSection's _PlantCard
+// ---------------------------------------------------------------------------
+
 class _FocusPlantCard extends StatelessWidget {
   const _FocusPlantCard({required this.plant, required this.onTap});
 
@@ -74,51 +88,50 @@ class _FocusPlantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 340,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [plant.cover.top, plant.cover.bottom],
-                    ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Photo placeholder — gradient + glyph, identical to CollectionSection
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [plant.cover.top, plant.cover.bottom],
                   ),
-                  child: Center(
-                    child: Text(
-                      plant.cover.glyph,
-                      style: const TextStyle(fontSize: 48),
-                    ),
+                ),
+                child: Center(
+                  child: Text(
+                    plant.cover.glyph,
+                    style: const TextStyle(fontSize: 48),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                plant.nickname,
-                style: Theme.of(context).textTheme.titleMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 16),
+            // Plant info
+            Text(
+              plant.nickname,
+              style: Theme.of(context).textTheme.titleMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              plant.species,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: ZeimotoColors.charcoalSoft,
               ),
-              Text(
-                plant.species,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontStyle: FontStyle.italic,
-                  color: ZeimotoColors.charcoalSoft,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
