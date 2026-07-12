@@ -1,6 +1,6 @@
 # Architettura Generale
 
-Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A9 e A14.
+Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A9, A14 e A15.
 
 ---
 
@@ -9,14 +9,14 @@ Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MV
 ```
 flutter-app/lib/
 ├── main.dart                     # Entry point; RepositoryProvider radice + GoRouter
-├── app/
-│   └── zeimoto_app_shell.dart   # Shell principale + AgentBar + FAB
 ├── core/
 │   └── design/
 │       └── zeimoto_theme.dart   # Palette, spaziatura, ThemeData
 ├── domain/
 │   └── plants.dart              # Tipi di dominio, interfaccia repository, impl. in-memory
 ├── features/
+│   ├── home/
+│   │   └── home.dart            # Feature Home: 5 sezioni + FAB + AgentBar
 │   ├── add_plant/
 │   │   ├── plant_creation_state.dart
 │   │   ├── plant_creation_cubit.dart
@@ -34,6 +34,8 @@ flutter-app/lib/
 │       ├── focus_state.dart
 │       ├── focus_cubit.dart
 │       └── focus_plant_section.dart
+├── widgets/
+│   └── agent_bar.dart           # Widget UI riutilizzabile — barra agente pinnata
 ├── routing/
 │   ├── routes.dart              # AppRoutes — costanti dei path (sorgente unica di verità)
 │   ├── app_router.dart          # buildAppRouter() factory + re-export di routes.dart
@@ -51,7 +53,7 @@ flutter-app/lib/
 ```mermaid
 graph TD
     subgraph Presentazione
-        AS[ZeimotoAppShell]
+        HM[Home]
         APW[AddPlantWizard]
         AIA[AiAssistantSection]
         CS[CollectionSection]
@@ -84,12 +86,12 @@ graph TD
         L10N[AppLocalizations]
     end
 
-    AS --> TH
-    AS --> L10N
-    AS --> AIA
-    AS --> CS
-    AS --> FPS
-    AS --> CAL
+    HM --> TH
+    HM --> L10N
+    HM --> AIA
+    HM --> CS
+    HM --> FPS
+    HM --> CAL
     CS --> DPP
     FPS --> DPP
     APW --> PCC
@@ -115,7 +117,7 @@ graph TD
 graph TD
     A[RepositoryProvider&lt;PlantRepository&gt;\nmain.dart] --> B[MaterialApp.router\nrouterConfig: GoRouter]
     B --> GR[GoRouter\nbuildAppRouter]
-    GR --> C[ZeimotoAppShell]
+    GR --> C[Home]
     GR --> D[AddPlantWizard]
     GR --> DPP[PlantDetailPlaceholder]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
@@ -142,5 +144,6 @@ graph TD
 |-------|-----------|------|
 | Cubit | Unit test puri, senza widget | `test/features/<nome>/*_cubit_test.dart` |
 | Widget | Widget test con `GoRouter` locale + `RepositoryProvider.value` + fake/in-memory repo | `test/features/<nome>/*_test.dart` |
-| App Shell | Widget test con `buildAppRouter()` reale + `InMemoryPlantRepository` | `test/app/*_test.dart` |
+| Home | Widget test con `buildAppRouter()` reale + `InMemoryPlantRepository` | `test/features/home/home_test.dart` |
+| Widget standalone | Widget test in isolamento con `MaterialApp` + `AppLocalizations` | `test/widgets/*_test.dart` |
 | Dominio | Unit test puri | `test/domain/*_test.dart` |
