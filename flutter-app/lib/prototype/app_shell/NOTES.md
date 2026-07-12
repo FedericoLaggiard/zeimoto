@@ -31,11 +31,17 @@ Photos are gradient placeholders (labelled `PLACEHOLDER`) so the prototype needs
 
 **Verdict**
 
-_Not filled in yet — fill this in after you flip through the variants._
+_Compiled 2026-07-12 — signed off by maintainer (issue A13)._
 
-- Winning variant:
-- What to keep from the losers:
-- Structural decision to fold into real code:
+- **Winning variant: C** — "Cover carousel + agent bar". The vertical PageView with parallax section titles and the pinned agent bar at the bottom best embody the "osserva, suggerisce e ricorda" mission. The full-page 3-step wizard (Foto → Specie → Nickname) maps cleanly onto a cubit-driven creation flow.
+- **What to keep from the losers:** nothing structural — A and B were discarded entirely. The organic color palette (washi, moss, sage, charcoal) and the PhotoTile placeholder approach were extracted into `core/design/zeimoto_theme.dart` and `widgets/photo_tile.dart`.
+- **Structural decisions folded into real code:**
+  - Vertical `PageView` home with 5 sections → `features/home/home.dart` (`AppShell` + section widgets)
+  - Pinned agent bar → `features/home/home.dart` (`AgentBar`)
+  - 3-step wizard → `features/add_plant/add_plant_wizard.dart` + `PlantCreationCubit`
+  - Collection carousel → `features/collection/collection_section.dart`
+  - In-memory `PlantStore` → replaced by `domain/plants.dart` (`InMemoryPlantRepository`) behind `PlantRepository` interface
+  - All section stubs → `features/{ai_assistant,calendar,focus,wiki}/`
 
 **Cleanup**
 
