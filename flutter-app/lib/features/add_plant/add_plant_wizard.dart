@@ -102,6 +102,7 @@ class _WizardViewState extends State<_WizardView> {
               WizardStep.nickname => _StepNickname(
                 nicknameController: _nicknameController,
                 defaultName: defaultNickname(collecting.species, 0),
+                onNicknameChanged: cubit.changeNickname,
                 onSave: cubit.save,
               ),
             },
@@ -279,11 +280,13 @@ class _StepNickname extends StatelessWidget {
   const _StepNickname({
     required this.nicknameController,
     required this.defaultName,
+    required this.onNicknameChanged,
     required this.onSave,
   });
 
   final TextEditingController nicknameController;
   final String defaultName;
+  final ValueChanged<String> onNicknameChanged;
   final VoidCallback onSave;
 
   @override
@@ -309,6 +312,7 @@ class _StepNickname extends StatelessWidget {
               hintText: l10n.wizard_nickname_field_hint(defaultName),
               border: const OutlineInputBorder(),
             ),
+            onChanged: onNicknameChanged,
           ),
         ),
         const Spacer(),
