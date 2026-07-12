@@ -336,10 +336,10 @@ void main() {
 
         // The bottom of the wiki card must sit at or above the agent bar top.
         // If not, content is hidden behind the bar.
-        final wikiBottom =
-            tester.getBottomLeft(find.byType(WikiDelGiornoSection)).dy;
-        final agentBarTop =
-            tester.getTopLeft(find.byType(AgentBar)).dy;
+        final wikiBottom = tester
+            .getBottomLeft(find.byType(WikiDelGiornoSection))
+            .dy;
+        final agentBarTop = tester.getTopLeft(find.byType(AgentBar)).dy;
 
         expect(
           wikiBottom,
