@@ -12,6 +12,8 @@
 
   "collection_section_title": "Your Collection",
   "collection_empty": "No plants in your collection yet",
+  "collection_add_plant_cta": "Add your first plant",
+  "wizard_save_feedback": "Plant added to your collection",
   "focus_plant_section_title": "Plant Focus",
   "@focus_plant_section_title": {
     "description": "Title of the Focus Plant section on the home screen"

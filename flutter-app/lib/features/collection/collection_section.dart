@@ -12,16 +12,22 @@ import 'collection_state.dart';
 /// Creates its own [CollectionCubit] via [BlocProvider], reading
 /// [PlantRepository] from the ambient [RepositoryProvider].
 /// When a plant card is tapped, calls [onTapPlant] callback.
+/// When the empty-state CTA is tapped, calls [onAddPlant] callback (if set).
 class CollectionSection extends StatelessWidget {
-  const CollectionSection({super.key, required this.onTapPlant});
+  const CollectionSection({
+    super.key,
+    required this.onTapPlant,
+    this.onAddPlant,
+  });
 
   final ValueChanged<Plant> onTapPlant;
+  final VoidCallback? onAddPlant;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (ctx) => CollectionCubit(ctx.read<PlantRepository>()),
-      child: _CollectionView(onTapPlant: onTapPlant),
+      child: _CollectionView(onTapPlant: onTapPlant, onAddPlant: onAddPlant),
     );
   }
 }
@@ -31,9 +37,10 @@ class CollectionSection extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _CollectionView extends StatelessWidget {
-  const _CollectionView({required this.onTapPlant});
+  const _CollectionView({required this.onTapPlant, this.onAddPlant});
 
   final ValueChanged<Plant> onTapPlant;
+  final VoidCallback? onAddPlant;
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +87,22 @@ class _CollectionView extends StatelessWidget {
     return SizedBox(
       height: 340,
       child: Center(
-        child: Text(
-          l10n.collection_empty,
-          style: Theme.of(context).textTheme.bodyMedium,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.collection_empty,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (onAddPlant != null) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(
+                key: const Key('collection_add_plant_cta_button'),
+                onPressed: onAddPlant,
+                child: Text(l10n.collection_add_plant_cta),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -57,6 +57,10 @@ class _WizardViewState extends State<_WizardView> {
     return BlocListener<PlantCreationCubit, PlantCreationState>(
       listener: (context, state) {
         if (state is PlantCreationSaved) {
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.wizard_save_feedback)),
+          );
           context.pop();
         }
       },
