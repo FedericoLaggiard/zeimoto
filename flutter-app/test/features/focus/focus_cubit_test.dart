@@ -107,10 +107,13 @@ void main() {
       }
 
       int? receivedMax;
-      FocusCubit(repo, pickIndex: (max) {
-        receivedMax = max;
-        return 0;
-      });
+      FocusCubit(
+        repo,
+        pickIndex: (max) {
+          receivedMax = max;
+          return 0;
+        },
+      );
 
       expect(receivedMax, 3);
     });

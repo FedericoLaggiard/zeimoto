@@ -104,10 +104,7 @@ void main() {
 
       Plant? tapped;
       await tester.pumpWidget(
-        buildHarness(
-          repository: repo,
-          onTapPlant: (p) => tapped = p,
-        ),
+        buildHarness(repository: repo, onTapPlant: (p) => tapped = p),
       );
 
       await tester.tap(find.text('acero_01'));
@@ -152,4 +149,3 @@ void main() {
     });
   });
 }
-
