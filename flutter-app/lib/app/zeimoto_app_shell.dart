@@ -24,8 +24,10 @@ class ZeimotoAppShell extends StatelessWidget {
           Positioned.fill(
             bottom: ZeimotoSpacing
                 .agentBarHeight, // Leave space for pinned agent bar
-            child: CustomScrollView(
-              slivers: [
+            child: SafeArea(
+              bottom: false, // Don't inset from bottom; AgentBar handles it
+              child: CustomScrollView(
+                slivers: [
                 // Section title + spacing
                 SliverToBoxAdapter(
                   child: Padding(
@@ -59,6 +61,7 @@ class ZeimotoAppShell extends StatelessWidget {
                   ),
                 ),
               ],
+              ),
             ),
           ),
           // Pinned agent bar
@@ -66,7 +69,10 @@ class ZeimotoAppShell extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: AgentBar(height: ZeimotoSpacing.agentBarHeight),
+            child: SafeArea(
+              top: false,
+              child: AgentBar(height: ZeimotoSpacing.agentBarHeight),
+            ),
           ),
         ],
       ),

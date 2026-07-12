@@ -21,7 +21,8 @@ class PlantDetailPlaceholder extends StatelessWidget {
         leading: BackButton(onPressed: () => Navigator.of(context).pop()),
         title: Text(plant.nickname),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,6 +65,7 @@ class PlantDetailPlaceholder extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
+        ),
         ),
       ),
     );

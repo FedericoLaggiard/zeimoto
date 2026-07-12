@@ -43,6 +43,8 @@ Il `Scaffold` ha `backgroundColor: ZeimotoColors.washi` (`#F5F1E8`).
 
 L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare spazio fisso all'`AgentBar` in basso, senza sovrapposizioni.
 
+**SafeArea constraint**: il `CustomScrollView` è wrappato in `SafeArea(bottom: false)` per proteggere il contenuto dal notch iOS e dalla status bar, mentre lascia lo spazio per l'`AgentBar` che è gestito separatamente.
+
 ---
 
 ## `ZeimotoAppShell`
