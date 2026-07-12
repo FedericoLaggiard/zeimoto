@@ -1,6 +1,6 @@
 # A15 — Estrazione della Home in una feature dedicata e AgentBar in lib/widgets/
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -116,15 +116,15 @@ Ogni commit deve lasciare la build verde e tutti i test passanti. La strategia �
 
 ## Acceptance criteria
 
-- [ ] `AgentBar` vive in `lib/widgets/agent_bar.dart` senza modifiche alla sua API pubblica
-- [ ] Esiste `test/widgets/agent_bar_test.dart` con test di isolamento sul widget
-- [ ] `class Home extends StatelessWidget` vive in `lib/features/home/home.dart`
-- [ ] `lib/app/` e il file `zeimoto_app_shell.dart` sono stati eliminati
-- [ ] Il router monta `Home` sulla route `AppRoutes.home`
-- [ ] I test della Home vivono in `test/features/home/home_test.dart` e continuano a coprire l'ordine delle sezioni, la CTA del FAB, il tap sulle card e la regressione safe-area
-- [ ] Nessun `ZeimotoAppShell` residuo nel repo (`grep_search` pulita in codice e docs)
-- [ ] Documentazione: `docs/home/home_it.md` + `docs/home/home_en.md` esistono e `docs/architecture/` è aggiornata
-- [ ] Full test suite verde (77/77 attesi al termine del refactor, più i nuovi test AgentBar)
+- [X] `AgentBar` vive in `lib/widgets/agent_bar.dart` senza modifiche alla sua API pubblica
+- [X] Esiste `test/widgets/agent_bar_test.dart` con test di isolamento sul widget
+- [X] `class Home extends StatelessWidget` vive in `lib/features/home/home.dart`
+- [X] `lib/app/` e il file `zeimoto_app_shell.dart` sono stati eliminati
+- [X] Il router monta `Home` sulla route `AppRoutes.home`
+- [X] I test della Home vivono in `test/features/home/home_test.dart` e continuano a coprire l'ordine delle sezioni, la CTA del FAB, il tap sulle card e la regressione safe-area
+- [X] Nessun `ZeimotoAppShell` residuo nel repo (`grep_search` pulita in codice e docs)
+- [X] Documentazione: `docs/home/home_it.md` + `docs/home/home_en.md` esistono e `docs/architecture/` è aggiornata
+- [X] Full test suite verde (77/77 attesi al termine del refactor, più i nuovi test AgentBar)
 
 ## Blocked by
 
