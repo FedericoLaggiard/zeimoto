@@ -145,6 +145,24 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Lascia vuoto per usare: {defaultName}'**
   String wizardNicknameFieldHint(String defaultName);
+
+  /// Titolo della sezione carosello nella home
+  ///
+  /// In it, this message translates to:
+  /// **'La Tua Collezione'**
+  String get collectionSectionTitle;
+
+  /// Messaggio stato vuoto della sezione Collezione
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna pianta nella collezione'**
+  String get collectionEmpty;
+
+  /// Testo segnaposto nella schermata di dettaglio pianta
+  ///
+  /// In it, this message translates to:
+  /// **'Dettagli completi disponibili a breve'**
+  String get plantDetailComingSoon;
 }
 
 class _AppLocalizationsDelegate

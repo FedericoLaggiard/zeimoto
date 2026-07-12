@@ -33,4 +33,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String wizardNicknameFieldHint(String defaultName) {
     return 'Leave empty to use: $defaultName';
   }
+
+  @override
+  String get collectionSectionTitle => 'Your Collection';
+
+  @override
+  String get collectionEmpty => 'No plants in your collection yet';
+
+  @override
+  String get plantDetailComingSoon => 'Full details coming soon';
 }
