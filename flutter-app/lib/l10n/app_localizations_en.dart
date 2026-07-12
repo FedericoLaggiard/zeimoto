@@ -41,6 +41,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collection_empty => 'No plants in your collection yet';
 
   @override
+  String get ai_assistant_section_title => 'AI Assistant';
+
+  @override
+  String get ai_assistant_card_label => 'Contextual observations';
+
+  @override
+  String get ai_assistant_card_message =>
+      'The app observes, suggests, and remembers your collection context, but it does not replace the bonsai grower.';
+
+  @override
   String get plant_detail_coming_soon => 'Full details coming soon';
 
   @override

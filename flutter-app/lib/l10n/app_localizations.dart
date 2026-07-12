@@ -158,6 +158,24 @@ abstract class AppLocalizations {
   /// **'Nessuna pianta nella collezione'**
   String get collection_empty;
 
+  /// Titolo della sezione statica Assistente AI nella home
+  ///
+  /// In it, this message translates to:
+  /// **'Assistente AI'**
+  String get ai_assistant_section_title;
+
+  /// Etichetta breve della card statica Assistente AI
+  ///
+  /// In it, this message translates to:
+  /// **'Osservazioni contestuali'**
+  String get ai_assistant_card_label;
+
+  /// Copy statico della card Assistente AI con postura non decisionale
+  ///
+  /// In it, this message translates to:
+  /// **'L\'app osserva, suggerisce e ricorda il contesto della tua collezione, ma non sostituisce il bonsaista.'**
+  String get ai_assistant_card_message;
+
   /// Testo segnaposto nella schermata di dettaglio pianta
   ///
   /// In it, this message translates to:

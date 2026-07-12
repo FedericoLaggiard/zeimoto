@@ -41,6 +41,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get collection_empty => 'Nessuna pianta nella collezione';
 
   @override
+  String get ai_assistant_section_title => 'Assistente AI';
+
+  @override
+  String get ai_assistant_card_label => 'Osservazioni contestuali';
+
+  @override
+  String get ai_assistant_card_message =>
+      'L\'app osserva, suggerisce e ricorda il contesto della tua collezione, ma non sostituisce il bonsaista.';
+
+  @override
   String get plant_detail_coming_soon =>
       'Dettagli completi disponibili a breve';
 

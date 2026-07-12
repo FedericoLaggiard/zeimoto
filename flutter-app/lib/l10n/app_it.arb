@@ -57,6 +57,21 @@
     "description": "Messaggio stato vuoto della sezione Collezione"
   },
 
+  "ai_assistant_section_title": "Assistente AI",
+  "@ai_assistant_section_title": {
+    "description": "Titolo della sezione statica Assistente AI nella home"
+  },
+
+  "ai_assistant_card_label": "Osservazioni contestuali",
+  "@ai_assistant_card_label": {
+    "description": "Etichetta breve della card statica Assistente AI"
+  },
+
+  "ai_assistant_card_message": "L'app osserva, suggerisce e ricorda il contesto della tua collezione, ma non sostituisce il bonsaista.",
+  "@ai_assistant_card_message": {
+    "description": "Copy statico della card Assistente AI con postura non decisionale"
+  },
+
   "plant_detail_coming_soon": "Dettagli completi disponibili a breve",
   "@plant_detail_coming_soon": {
     "description": "Testo segnaposto nella schermata di dettaglio pianta"

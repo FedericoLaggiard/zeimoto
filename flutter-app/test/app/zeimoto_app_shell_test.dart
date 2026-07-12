@@ -89,6 +89,18 @@ void main() {
       expect(find.text(l10n.agent_bar_hint_text), findsWidgets);
     });
 
+    testWidgets('home shows static AI assistant section copy', (
+      WidgetTester tester,
+    ) async {
+      final (:widget, :repo) = buildApp();
+      await tester.pumpWidget(widget);
+
+      final l10n = lookupAppLocalizations(const Locale('it'));
+
+      expect(find.text(l10n.ai_assistant_section_title), findsOneWidget);
+      expect(find.text(l10n.ai_assistant_card_message), findsOneWidget);
+    });
+
     testWidgets('FAB is visible to trigger wizard', (
       WidgetTester tester,
     ) async {
