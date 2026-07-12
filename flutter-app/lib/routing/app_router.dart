@@ -34,7 +34,7 @@ GoRouter buildAppRouter() {
 
       // ── Add Plant wizard ─────────────────────────────────────────────────
       // Full-page dialog (fullscreenDialog: true) for the 3-step plant
-      // creation flow.  Opens from the FAB in ZeimotoAppShell.
+      // creation flow.  Opens from the FAB in Home.
       // No `extra` required.
       GoRoute(
         path: AppRoutes.addPlant,
