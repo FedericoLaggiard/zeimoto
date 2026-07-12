@@ -1,6 +1,6 @@
 # A10 — Sezione Wiki del Giorno (statica)
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,11 +12,11 @@ Implementare la sezione "Wiki del Giorno" come widget autonomo che pesca casualm
 
 ## Acceptance criteria
 
-- [ ] La sezione è visibile nella home come widget autonomo
-- [ ] L'articolo mostrato viene selezionato casualmente dalla lista mock all'apertura della home
-- [ ] Il contenuto non cambia durante la sessione (stessa selezione fino al prossimo avvio)
-- [ ] Nessuna chiamata a servizi esterni
-- [ ] Nessun comportamento interattivo oltre alla lettura (in questo slice)
+- [x] La sezione è visibile nella home come widget autonomo
+- [x] L'articolo mostrato viene selezionato casualmente dalla lista mock all'apertura della home
+- [x] Il contenuto non cambia durante la sessione (stessa selezione fino al prossimo avvio)
+- [x] Nessuna chiamata a servizi esterni
+- [x] Nessun comportamento interattivo oltre alla lettura (in questo slice)
 
 ## Blocked by
 
