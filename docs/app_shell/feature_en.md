@@ -53,10 +53,10 @@ The scrollable area is positioned with `Positioned.fill(bottom: 60)` to leave a 
 `StatelessWidget`. Holds no state; sections and data are injected by feature Cubits.
 
 Currently hosts:
-- **Collection section** — `CollectionSection` (feature entry widget that creates its own `BlocProvider<CollectionCubit>` internally); the `onTapPlant` callback calls `context.push(AppRoutes.plantDetail, extra: plant)` via go_router.
+- **Collection section** — `CollectionSection` (feature entry widget that creates its own `BlocProvider<CollectionCubit>` internally); the `onTapPlant` callback calls `PlantDetailRoute(plant).push(context)` (typed route via go_router).
 - **FAB** — `FloatingActionButton` with `key: 'add_plant_fab'` positioned above the `AgentBar` (bottom padding = `agentBarHeight`); calls `context.push(AppRoutes.addPlant)`.
 
-Navigation is **always delegated to `AppRoutes`** (`lib/routing/routes.dart`). No feature screens are imported directly (ADR-0001, ADR-0004).
+Navigation is **always delegated to the `lib/routing/` layer** (`AppRoutes` constants and typed wrappers). No feature screens are imported directly (ADR-0001, ADR-0004).
 
 ---
 

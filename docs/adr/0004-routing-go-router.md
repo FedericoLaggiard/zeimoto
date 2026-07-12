@@ -19,7 +19,7 @@ Prima di questo ADR la navigazione era distribuita tra i widget: `ZeimotoAppShel
 - le costanti dei path (`AppRoutes.home`, `AppRoutes.addPlant`, `AppRoutes.plantDetail`, …)
 - il `GoRouter` configurato con tutte le rotte e i relativi widget
 
-I widget **non importano mai** altri widget di feature per scopi di navigazione. Per navigare usano esclusivamente `context.push(AppRoutes.<name>)` e `context.pop()` forniti da `go_router`.
+I widget **non importano mai** altri widget di feature per scopi di navigazione. Per navigare usano le API di `go_router`: `context.push(AppRoutes.<name>)` per route senza payload obbligatorio, oppure wrapper typed (`GoRouteData`, es. `PlantDetailRoute(plant).push(context)`) per route con payload obbligatorio; `context.pop()` per il back.
 
 ### Package scelto: `go_router`
 
@@ -48,7 +48,7 @@ I widget **non importano mai** altri widget di feature per scopi di navigazione.
 
 ## Regole vincolanti (obbligatorie per tutti i contributor e per gli agenti AFK)
 
-1. **Nessun `Navigator.of(context).push(…)`** con istanza widget esplicita. Usare sempre `context.push(AppRoutes.<name>)`.
+1. **Nessun `Navigator.of(context).push(…)`** con istanza widget esplicita. Usare sempre API `go_router` (`context.push(AppRoutes.<name>)` o wrapper typed `GoRouteData`).
 2. **Nessun `Navigator.of(context).pop()`** nelle schermate. Usare `context.pop()` di go_router.
 3. **Ogni nuova schermata** deve avere una costante in `AppRoutes` e una `GoRoute` in `buildAppRouter()`.
 4. **Nessun widget** in `lib/app/` o `lib/features/<A>/` può importare un widget di `lib/features/<B>/` per navigarci. Il routing è il tramite.

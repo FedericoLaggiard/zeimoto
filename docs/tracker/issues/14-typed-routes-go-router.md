@@ -1,6 +1,6 @@
 # A14 — Typed routes con go_router
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -26,11 +26,17 @@ Migrare `lib/routing/` a typed routes:
 
 ## Acceptance criteria
 
-- [ ] La rotta `/plant-detail` usa un typed route: la compilazione fallisce se si naviga senza passare un `Plant`
-- [ ] Il redirect guard temporaneo su `/plant-detail` è rimosso
-- [ ] `context.push(AppRoutes.plantDetail, extra: plant)` è sostituito con l'API typed
-- [ ] Tutti i test passano
-- [ ] Nessun `state.extra!` non guardato rimane in `app_router.dart`
+- [x] La rotta `/plant-detail` usa un typed route: la compilazione fallisce se si naviga senza passare un `Plant`
+- [x] Il redirect guard temporaneo su `/plant-detail` è rimosso
+- [x] `context.push(AppRoutes.plantDetail, extra: plant)` è sostituito con l'API typed
+- [x] Tutti i test passano
+- [x] Nessun `state.extra!` non guardato rimane in `app_router.dart`
+
+## Note architetturali
+
+- Aggiunta `PlantDetailRoute` typed (`GoRouteData`) con codegen `go_router_builder`.
+- `buildAppRouter()` ora aggrega anche `...$appRoutes` generated.
+- Documentazione allineata al modello typed routes in `docs/routing/*`, `docs/app_shell/*` e ADR-0004.
 
 ## Blocked by
 

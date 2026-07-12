@@ -1,6 +1,6 @@
 # Routing
 
-The routing layer (`lib/routing/`) is the **single source of truth** for all navigation in the application. No widget may reference another screen directly — it always uses `AppRoutes` constants and go_router APIs.
+The routing layer (`lib/routing/`) is the **single source of truth** for all navigation in the application. No widget may reference another screen directly — it must use go_router APIs via `AppRoutes` constants or typed wrappers (`GoRouteData`) defined in the routing layer.
 
 See [ADR-0004](../adr/0004-routing-go-router.md) for binding rules and the rationale behind the choice.
 
@@ -11,11 +11,13 @@ See [ADR-0004](../adr/0004-routing-go-router.md) for binding rules and the ratio
 ```
 lib/routing/
 ├── routes.dart       # AppRoutes — path constants (import this in widgets)
-└── app_router.dart   # buildAppRouter() — GoRouter factory (import this in main.dart)
-                      # re-exports routes.dart
+├── app_router.dart   # buildAppRouter() — GoRouter factory (import this in main.dart)
+│                     # re-exports routes.dart
+└── plant_detail_route.dart   # typed route (GoRouteData) for /plant-detail
 ```
 
 Code that only needs the constants (e.g. widgets calling `context.push`) imports **`routes.dart`**.
+Code that navigates to routes with required payload can import typed wrappers from `lib/routing/` (e.g. `PlantDetailRoute`).
 Code that assembles the app (e.g. `main.dart`) imports **`app_router.dart`**.
 
 ---
@@ -39,7 +41,7 @@ To add a new route: declare the constant in `routes.dart`, then add the matching
 ```mermaid
 graph LR
     HOME[/ home] -->|context.push addPlant| WIZ[/add-plant\nAddPlantWizard\nfullscreenDialog]
-    HOME -->|context.push plantDetail\nextra: Plant| DET[/plant-detail\nPlantDetailPlaceholder]
+  HOME -->|PlantDetailRoute(plant).push\ntyped extra: Plant| DET[/plant-detail\nPlantDetailPlaceholder]
     WIZ -->|context.pop\non save or close| HOME
     DET -->|context.pop| HOME
 ```
@@ -48,7 +50,7 @@ graph LR
 
 ## Router factory (`buildAppRouter`)
 
-Defined in `lib/routing/app_router.dart`. Returns a `GoRouter` with three top-level routes:
+Defined in `lib/routing/app_router.dart`. Returns a `GoRouter` with manual routes for shell and wizard, plus generated typed routes aggregated by `go_router_builder`:
 
 ```dart
 GoRouter buildAppRouter() {
@@ -59,8 +61,8 @@ GoRouter buildAppRouter() {
       GoRoute(path: AppRoutes.home,        builder: ...),
       // Add-plant wizard (fullscreen dialog, no extra)
       GoRoute(path: AppRoutes.addPlant,    pageBuilder: ...),
-      // Plant detail (extra: Plant required)
-      GoRoute(path: AppRoutes.plantDetail, pageBuilder: ...),
+      // Generated typed routes (e.g. PlantDetailRoute)
+      ...$appRoutes,
     ],
   );
 }
@@ -78,9 +80,13 @@ The `GoRouter` is created inside `_ZeimotoAppState` (a `StatefulWidget`) so the 
 // From any widget with a BuildContext
 context.push(AppRoutes.addPlant);
 
-// With payload (extra required for plantDetail)
-context.push(AppRoutes.plantDetail, extra: plant);
+// For required payload routes: prefer typed route wrappers
+PlantDetailRoute(plant).push(context);
 ```
+
+Rule of thumb:
+- Use `context.push(AppRoutes.<name>)` for routes without required payload.
+- Use typed wrappers (`GoRouteData`) for routes with required payload so the contract is checked at compile time.
 
 ### Go back
 
@@ -109,7 +115,7 @@ import '../features/add_plant/add_plant_wizard.dart'; // ← ADR-0001 violation
 |-------|---------|-------|
 | `AppRoutes.home` | — | No extra |
 | `AppRoutes.addPlant` | — | No extra; wizard reads repository from ambient context |
-| `AppRoutes.plantDetail` | `Plant` (required) | `state.extra! as Plant`; not serialisable — switch to ID when persistence is introduced |
+| `AppRoutes.plantDetail` | `Plant` (required) | Contract exposed through `PlantDetailRoute(plant)`; generated parser uses `state.extra as Plant`. Not serialisable — switch to ID when persistence is introduced |
 
 ---
 
@@ -139,7 +145,7 @@ The `RepositoryProvider` must sit **outside** `MaterialApp.router` so that all r
 ## Adding a new route — checklist
 
 1. [ ] Declare the constant in `lib/routing/routes.dart`
-2. [ ] Add the `GoRoute` in `buildAppRouter()` with an explanatory comment
-3. [ ] Document the `extra` contract if present
+2. [ ] Add a manual route or typed route (`GoRouteData`) in the routing layer
+3. [ ] If there is required payload, prefer a typed wrapper and document the contract
 4. [ ] Update this page (constants and contracts tables)
 5. [ ] Tests: verify navigation to and from the new screen
