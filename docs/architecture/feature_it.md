@@ -95,7 +95,7 @@ graph TD
     B --> C[ZeimotoAppShell]
     B --> D[AddPlantWizard]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
-    C --> F[BlocProvider&lt;CollectionCubit&gt;\ncontext.read PlantRepository]
+    C --> F[CollectionSection\nBlocProvider&lt;CollectionCubit&gt; interno\ncontext.read PlantRepository]
 ```
 
 ---

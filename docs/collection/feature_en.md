@@ -19,8 +19,10 @@ The `collection` feature (`lib/features/collection/`) implements the home carous
 classDiagram
     class CollectionCubit {
         -PlantRepository _repository
+        -StreamSubscription _subscription
         +CollectionCubit(PlantRepository)
         -_loadPlants()
+        +close()
     }
 
     class CollectionState {
@@ -37,6 +39,10 @@ classDiagram
         +ValueChanged~Plant~ onTapPlant
     }
 
+    class _CollectionView {
+        +ValueChanged~Plant~ onTapPlant
+    }
+
     class PlantDetailPlaceholder {
         +Plant plant
     }
@@ -45,7 +51,9 @@ classDiagram
     CollectionState <|-- CollectionLoading
     CollectionState <|-- CollectionLoaded
     CollectionState <|-- CollectionEmpty
-    CollectionSection --> CollectionCubit : BlocBuilder
+    CollectionSection --> CollectionCubit : BlocProvider (creates)
+    CollectionSection --> _CollectionView : child
+    _CollectionView --> CollectionCubit : BlocBuilder
     CollectionSection ..> PlantDetailPlaceholder : callback → navigator (parent)
 ```
 
@@ -57,19 +65,19 @@ classDiagram
 RepositoryProvider<PlantRepository>  (main.dart)
          │
          ▼
-BlocProvider<CollectionCubit>        (ZeimotoAppShell)
+CollectionSection — creates BlocProvider<CollectionCubit> internally
          │  context.read<PlantRepository>()
          ▼
-CollectionCubit._loadPlants()
+CollectionCubit._loadPlants()  ← also triggered on PlantRepository.changes
          │
-         ├── plants.isNotEmpty → emit CollectionLoaded(plants)
+         ├── plants.isNotEmpty → emit CollectionLoaded(plants sorted desc)
          └── plants.isEmpty   → emit CollectionEmpty()
          │
          ▼
-CollectionSection (BlocBuilder)
+_CollectionView (BlocBuilder)
          │
          ├── CollectionLoaded → PageView of _PlantCard
-         ├── CollectionEmpty  → empty state text
+         ├── CollectionEmpty  → empty state text (i18n)
          └── CollectionLoading → CircularProgressIndicator
          │
     tap on card
@@ -82,19 +90,29 @@ onTapPlant(plant) callback → ZeimotoAppShell → Navigator.push(PlantDetailPla
 
 ## `CollectionSection`
 
-`StatelessWidget` that receives an `onTapPlant(Plant)` callback.
+**Feature entry widget** (ADR 0002): creates its own `BlocProvider<CollectionCubit>` internally by reading `PlantRepository` from the ambient `RepositoryProvider`. Delegates presentation to `_CollectionView`.
 
-It does not handle navigation directly: the parent (`ZeimotoAppShell`) decides where to navigate. This makes the widget testable in isolation.
+Receives an `onTapPlant(Plant)` callback. Does not handle navigation directly — the parent (`ZeimotoAppShell`) decides where to navigate. This makes the widget testable in isolation using `RepositoryProvider.value`.
 
 ---
+
+## `CollectionCubit`
+
+On construction:
+1. Calls `_loadPlants()` to load plants immediately.
+2. Subscribes to `PlantRepository.changes`; every event triggers `_loadPlants()` again.
+
+`_loadPlants()` **explicitly** sorts plants by `createdAt` desc (does not rely on the repository implementation). In `close()` the subscription is cancelled.
 
 ## `PlantDetailPlaceholder`
 
 Minimal screen that shows:
 - Placeholder photo (gradient + emoji glyph)
-- Nickname (also in AppBar)
+- Nickname in `AppBar.title` (not duplicated in body)
 - Species name (italic)
-- Placeholder text for future details
+- Placeholder text for future details (i18n: `plantDetailComingSoon`)
+
+Uses `SafeArea(top: false)` in the body since `AppBar` already handles the top inset.
 
 Will be replaced by a rich detail screen in future issues.
 
@@ -106,9 +124,9 @@ When `PlantRepository.plants` is empty, the section shows a fixed text. A CTA to
 
 ---
 
-## Note: live update
+## Live update
 
-Live update (a newly created plant appearing at the top of the carousel without restarting the app) is **deferred to A11**. In A5 the cubit populates once on construction; in A11 the parent will handle refresh after returning from the wizard.
+Live update is implemented via `PlantRepository.changes`: each time a plant is added to the repository, `CollectionCubit` receives a notification and reloads the list. The carousel updates without restarting the app.
 
 ---
 
@@ -116,5 +134,5 @@ Live update (a newly created plant appearing at the top of the carousel without 
 
 | Test file | Behaviours verified |
 |-----------|---------------------|
-| `test/features/collection/collection_cubit_test.dart` | Plants loaded sorted by createdAt desc, empty state when repo empty |
+| `test/features/collection/collection_cubit_test.dart` | Plants loaded and sorted by createdAt desc, empty state when repo empty |
 | `test/features/collection/collection_section_test.dart` | Carousel visible, tap calls callback with correct plant, empty state, navigation to PlantDetailPlaceholder |

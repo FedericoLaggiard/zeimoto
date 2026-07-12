@@ -16,8 +16,7 @@ graph TD
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
     PF --> CSV[CustomScrollView]
-    CSV --> BP[BlocProvider&lt;CollectionCubit&gt;]
-    BP --> CS[CollectionSection]
+    CSV --> CS[CollectionSection\n└ BlocProvider interna]
     CS --> PV[PageView · carousel card]
     PB --> AB[AgentBar\nh=60dp · inerta]
 ```
@@ -52,7 +51,7 @@ L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
 
 Al momento ospita:
-- **Sezione Collezione** — `BlocProvider<CollectionCubit>` + `CollectionSection`; il callback `onTapPlant` spinge `PlantDetailPlaceholder` sul navigator.
+- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` spinge `PlantDetailPlaceholder` sul navigator.
 
 ---
 
