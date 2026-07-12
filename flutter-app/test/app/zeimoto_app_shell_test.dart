@@ -239,24 +239,30 @@ void main() {
           80,
           scrollable: scrollable,
         );
-        final collectionOffset =
-            tester.state<ScrollableState>(scrollable).position.pixels;
+        final collectionOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
 
         await tester.scrollUntilVisible(
           find.text(l10n.calendar_section_title),
           80,
           scrollable: scrollable,
         );
-        final calOffset =
-            tester.state<ScrollableState>(scrollable).position.pixels;
+        final calOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
 
         await tester.scrollUntilVisible(
           find.text(l10n.focus_plant_section_title),
           80,
           scrollable: scrollable,
         );
-        final focusOffset =
-            tester.state<ScrollableState>(scrollable).position.pixels;
+        final focusOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
 
         // Each section must require more scrolling than the previous one
         expect(
@@ -294,6 +300,54 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(AgentBar), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'ultimo contenuto non è nascosto dalla barra con safe-area bottom inset',
+      (WidgetTester tester) async {
+        // Simulate a device with a 34 px bottom system inset (home indicator).
+        // Before the fix, Positioned.fill(bottom: agentBarHeight) did not
+        // account for this inset, so the last 34 px of scroll content were
+        // hidden behind the agent bar.
+        const bottomInset = 34.0;
+
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              padding: EdgeInsets.only(bottom: bottomInset),
+            ),
+            child: widget,
+          ),
+        );
+
+        // Scroll to the bottom of the list
+        await tester.scrollUntilVisible(
+          find.byType(WikiDelGiornoSection),
+          100,
+          scrollable: find.byType(Scrollable).first,
+        );
+
+        // Drag to max extent so the very last pixel of content is shown
+        final scrollable = find.byType(Scrollable).first;
+        await tester.drag(scrollable, const Offset(0, -500));
+        await tester.pumpAndSettle();
+
+        // The bottom of the wiki card must sit at or above the agent bar top.
+        // If not, content is hidden behind the bar.
+        final wikiBottom =
+            tester.getBottomLeft(find.byType(WikiDelGiornoSection)).dy;
+        final agentBarTop =
+            tester.getTopLeft(find.byType(AgentBar)).dy;
+
+        expect(
+          wikiBottom,
+          lessThanOrEqualTo(agentBarTop),
+          reason:
+              'Il contenuto finale non deve sovrapporsi alla agent bar '
+              '(safe-area bottom inset non considerato)',
+        );
       },
     );
 

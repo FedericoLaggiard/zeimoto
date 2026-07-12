@@ -40,9 +40,13 @@ class ZeimotoAppShell extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Stack(
         children: [
-          // Scrollable content area
+          // Scrollable content area — bottom is offset by both the agent bar
+          // height and the system bottom inset (home indicator) so content is
+          // never hidden behind the pinned bar.
           Positioned.fill(
-            bottom: ZeimotoSpacing.agentBarHeight,
+            bottom:
+                ZeimotoSpacing.agentBarHeight +
+                MediaQuery.of(context).padding.bottom,
             child: SafeArea(
               bottom: false,
               child: CustomScrollView(
