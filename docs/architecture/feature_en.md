@@ -8,9 +8,9 @@ Overview of the Zeimoto Flutter application architecture at the end of MVP A1–
 
 ```
 flutter-app/lib/
-├── main.dart                     # Entry point; root RepositoryProvider
+├── main.dart                     # Entry point; root RepositoryProvider + GoRouter
 ├── app/
-│   └── zeimoto_app_shell.dart   # Main shell + AgentBar + Collection section
+│   └── zeimoto_app_shell.dart   # Main shell + AgentBar + FAB
 ├── core/
 │   └── design/
 │       └── zeimoto_theme.dart   # Palette, spacing, ThemeData
@@ -26,6 +26,9 @@ flutter-app/lib/
 │       ├── collection_cubit.dart
 │       ├── collection_section.dart
 │       └── plant_detail_placeholder.dart
+├── routing/
+│   ├── routes.dart              # AppRoutes — path constants (single source of truth)
+│   └── app_router.dart          # buildAppRouter() factory + re-export of routes.dart
 └── l10n/
     ├── app_it.arb               # Italian strings (template)
     ├── app_en.arb               # English strings
@@ -87,13 +90,15 @@ graph TD
 
 ## Dependency injection
 
-`PlantRepository` is constructed once at `main.dart` via `RepositoryProvider` (from `flutter_bloc`). Feature cubits read the repository via `context.read<PlantRepository>()` inside their `BlocProvider.create` callback.
+`PlantRepository` is constructed once at `main.dart` via `RepositoryProvider` (from `flutter_bloc`). The `GoRouter` is created by `buildAppRouter()` and passed to `MaterialApp.router`. Feature cubits read the repository via `context.read<PlantRepository>()` inside their `BlocProvider.create` callback.
 
 ```mermaid
 graph TD
-    A[RepositoryProvider&lt;PlantRepository&gt;\nmain.dart] --> B[MaterialApp]
-    B --> C[ZeimotoAppShell]
-    B --> D[AddPlantWizard]
+    A[RepositoryProvider&lt;PlantRepository&gt;\nmain.dart] --> B[MaterialApp.router\nrouterConfig: GoRouter]
+    B --> GR[GoRouter\nbuildAppRouter]
+    GR --> C[ZeimotoAppShell]
+    GR --> D[AddPlantWizard]
+    GR --> DPP[PlantDetailPlaceholder]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
     C --> F[CollectionSection\ninternal BlocProvider&lt;CollectionCubit&gt;\ncontext.read PlantRepository]
 ```
@@ -107,6 +112,7 @@ graph TD
 | [0001](../adr/0001-feature-based-architecture.md) | Feature-based architecture under `lib/features/` |
 | [0002](../adr/0002-flutter-bloc-state-management.md) | `flutter_bloc` as state-management seam |
 | [0003](../adr/0003-business-logic-in-cubits.md) | Business logic lives in Cubits; no `*Flow` intermediaries |
+| [0004](../adr/0004-routing-go-router.md) | Centralised routing with go_router in `lib/routing/` |
 
 ---
 
@@ -115,5 +121,6 @@ graph TD
 | Layer | Strategy | File location |
 |-------|----------|---------------|
 | Cubit | Pure unit tests, no widgets | `test/features/<name>/*_cubit_test.dart` |
-| Widget | Widget tests with `RepositoryProvider.value` + fake repo | `test/features/<name>/*_test.dart` |
+| Widget | Widget tests with local `GoRouter` + `RepositoryProvider.value` + fake/in-memory repo | `test/features/<name>/*_test.dart` |
+| App Shell | Widget tests with real `buildAppRouter()` + `InMemoryPlantRepository` | `test/app/*_test.dart` |
 | Domain | Pure unit tests | `test/domain/*_test.dart` |
