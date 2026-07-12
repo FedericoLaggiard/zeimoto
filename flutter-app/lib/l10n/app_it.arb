@@ -62,13 +62,13 @@
     "description": "Testo segnaposto nella schermata di dettaglio pianta"
   },
 
-  "agentBarHintText": "Cosa vuoi fare oggi?",
-  "@agentBarHintText": {
+  "agent_bar_hint_text": "Cosa vuoi fare oggi?",
+  "@agent_bar_hint_text": {
     "description": "Testo segnaposto del campo dell'agent bar"
   },
 
-  "agentBarNewPlantTooltip": "Nuova pianta",
-  "@agentBarNewPlantTooltip": {
-    "description": "Tooltip del pulsante di apertura del wizard di creazione pianta nell'agent bar"
+  "agent_bar_new_plant_tooltip": "Nuova pianta",
+  "@agent_bar_new_plant_tooltip": {
+    "description": "Tooltip del FAB di apertura del wizard di creazione pianta"
   }
 }

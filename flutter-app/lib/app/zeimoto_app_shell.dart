@@ -27,7 +27,7 @@ class ZeimotoAppShell extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: ZeimotoSpacing.agentBarHeight),
         child: FloatingActionButton(
           key: const Key('add_plant_fab'),
-          tooltip: l10n.agentBarNewPlantTooltip,
+          tooltip: l10n.agent_bar_new_plant_tooltip,
           onPressed: () => context.push(AppRoutes.addPlant),
           child: const Icon(Icons.add),
         ),
@@ -120,7 +120,7 @@ class AgentBar extends StatelessWidget {
       child: AbsorbPointer(
         child: TextField(
           decoration: InputDecoration(
-            hintText: l10n.agentBarHintText,
+            hintText: l10n.agent_bar_hint_text,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(

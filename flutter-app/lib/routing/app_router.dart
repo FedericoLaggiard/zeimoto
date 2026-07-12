@@ -47,9 +47,14 @@ GoRouter buildAppRouter() {
       // ── Plant detail ─────────────────────────────────────────────────────
       // Detail view for a single plant.
       // Contract: `state.extra` must be a [Plant] object.
+      // The redirect guard below ensures a missing or wrong extra redirects to
+      // home instead of crashing with a force-unwrap error.
       GoRoute(
         path: AppRoutes.plantDetail,
+        redirect: (context, state) =>
+            state.extra is Plant ? null : AppRoutes.home,
         pageBuilder: (context, state) {
+          // Safe: redirect guard above guarantees extra is a Plant.
           final plant = state.extra! as Plant;
           return MaterialPage(child: PlantDetailPlaceholder(plant: plant));
         },

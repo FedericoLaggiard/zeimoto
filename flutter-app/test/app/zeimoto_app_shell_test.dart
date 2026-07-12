@@ -86,7 +86,7 @@ void main() {
       // hard-coded Italian string, so the test stays correct if the ARB value
       // ever changes.
       final l10n = lookupAppLocalizations(const Locale('it'));
-      expect(find.text(l10n.agentBarHintText), findsWidgets);
+      expect(find.text(l10n.agent_bar_hint_text), findsWidgets);
     });
 
     testWidgets('FAB is visible to trigger wizard', (

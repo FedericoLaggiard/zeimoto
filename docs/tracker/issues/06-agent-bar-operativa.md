@@ -14,9 +14,8 @@ L'agent bar rimane pinned in basso; la home scrolla sotto senza coprirla.
 
 ## Acceptance criteria
 
-- [x] L'agent bar mostra il campo "Cosa vuoi fare oggi?"
-- [x] Un FAB visibile consente di aprire il wizard (A4) come route full-page
-- [x] Il tap sulla CTA apre il wizard (A4) come route full-page
+- [x] L'agent bar mostra il campo "Cosa vuoi fare oggi?" (affordance visiva, non interattivo)
+- [x] Un FAB (`FloatingActionButton`, key `add_plant_fab`) sopra l'agent bar apre il wizard (A4) come route full-page
 - [x] Dopo il salvataggio dal wizard, l'agent bar è nuovamente visibile e la home è aggiornata (test: `after saving a plant the collection shows the new plant`)
 - [x] Il testo digitato nel campo non produce alcuna azione (nessun crash, nessuna chiamata esterna)
 - [x] L'agent bar è pinned: non scorre con il contenuto

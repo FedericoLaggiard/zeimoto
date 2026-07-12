@@ -168,13 +168,13 @@ abstract class AppLocalizations {
   ///
   /// In it, this message translates to:
   /// **'Cosa vuoi fare oggi?'**
-  String get agentBarHintText;
+  String get agent_bar_hint_text;
 
-  /// Tooltip del pulsante di apertura del wizard di creazione pianta nell'agent bar
+  /// Tooltip del FAB di apertura del wizard di creazione pianta
   ///
   /// In it, this message translates to:
   /// **'Nuova pianta'**
-  String get agentBarNewPlantTooltip;
+  String get agent_bar_new_plant_tooltip;
 }
 
 class _AppLocalizationsDelegate

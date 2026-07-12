@@ -44,8 +44,8 @@ class AppLocalizationsIt extends AppLocalizations {
   String get plantDetailComingSoon => 'Dettagli completi disponibili a breve';
 
   @override
-  String get agentBarHintText => 'Cosa vuoi fare oggi?';
+  String get agent_bar_hint_text => 'Cosa vuoi fare oggi?';
 
   @override
-  String get agentBarNewPlantTooltip => 'Nuova pianta';
+  String get agent_bar_new_plant_tooltip => 'Nuova pianta';
 }
