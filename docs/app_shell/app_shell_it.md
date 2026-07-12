@@ -18,8 +18,11 @@ graph TD
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
     PF --> CSV[CustomScrollView]
+    CSV --> AIA[AiAssistantSection\nstatica · mock]
     CSV --> CS[CollectionSection\n└ BlocProvider interna]
     CS --> PV[PageView · carousel card]
+    CSV --> FPS[FocusPlantSection\n└ BlocProvider&lt;FocusCubit&gt; interna]
+    CSV --> CAL[CalendarSection\nstatica · eventi vs task]
     PB --> AB[AgentBar\nh=60dp · solo affordance]
 ```
 
@@ -53,7 +56,10 @@ L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
 
 Al momento ospita:
+- **Sezione Assistente AI** — `AiAssistantSection` (statica, contenuto mock).
 - **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` chiama `PlantDetailRoute(plant).push(context)` (typed route via go_router).
+- **Sezione Focus Pianta** — `FocusPlantSection` (feature entry widget che crea il proprio `BlocProvider<FocusCubit>` internamente); pesca casuale da `PlantRepository`; il callback `onTapPlant` chiama `PlantDetailRoute(plant).push(context)`.
+- **Sezione Calendario** — `CalendarSection` (statica, dati mock; mostra eventi passati e task suggeriti in blocchi distinti).
 - **FAB** — `FloatingActionButton` con `key: 'add_plant_fab'` posizionato sopra l'`AgentBar` (padding bottom = `agentBarHeight`); chiama `context.push(AppRoutes.addPlant)`.
 
 La navigazione è **sempre delegata al layer `lib/routing/`** (costanti `AppRoutes` e wrapper typed). Nessuna schermata di feature viene importata direttamente (ADR-0001, ADR-0004).

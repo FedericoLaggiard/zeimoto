@@ -1,6 +1,6 @@
 # Architettura Generale
 
-Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A5.
+Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A9 e A14.
 
 ---
 
@@ -21,14 +21,23 @@ flutter-app/lib/
 │   │   ├── plant_creation_state.dart
 │   │   ├── plant_creation_cubit.dart
 │   │   └── add_plant_wizard.dart
-│   └── collection/
-│       ├── collection_state.dart
-│       ├── collection_cubit.dart
-│       ├── collection_section.dart
-│       └── plant_detail_placeholder.dart
+│   ├── ai_assistant/
+│   │   └── ai_assistant_section.dart
+│   ├── calendar/
+│   │   └── calendar_section.dart
+│   ├── collection/
+│   │   ├── collection_state.dart
+│   │   ├── collection_cubit.dart
+│   │   ├── collection_section.dart
+│   │   └── plant_detail_placeholder.dart
+│   └── focus/
+│       ├── focus_state.dart
+│       ├── focus_cubit.dart
+│       └── focus_plant_section.dart
 ├── routing/
 │   ├── routes.dart              # AppRoutes — costanti dei path (sorgente unica di verità)
-│   └── app_router.dart          # buildAppRouter() factory + re-export di routes.dart
+│   ├── app_router.dart          # buildAppRouter() factory + re-export di routes.dart
+│   └── plant_detail_route.dart  # typed route (GoRouteData) per /plant-detail
 └── l10n/
     ├── app_it.arb               # Stringhe italiano (template)
     ├── app_en.arb               # Stringhe inglese
@@ -44,7 +53,10 @@ graph TD
     subgraph Presentazione
         AS[ZeimotoAppShell]
         APW[AddPlantWizard]
+        AIA[AiAssistantSection]
         CS[CollectionSection]
+        FPS[FocusPlantSection]
+        CAL[CalendarSection]
         DPP[PlantDetailPlaceholder]
     end
 
@@ -53,6 +65,8 @@ graph TD
         PCS[PlantCreationState]
         CC[CollectionCubit]
         CST[CollectionState]
+        FC[FocusCubit]
+        FS[FocusState]
     end
 
     subgraph Dominio
@@ -72,15 +86,20 @@ graph TD
 
     AS --> TH
     AS --> L10N
-    AS --> CC
+    AS --> AIA
     AS --> CS
+    AS --> FPS
+    AS --> CAL
     CS --> DPP
+    FPS --> DPP
     APW --> PCC
     APW --> L10N
     PCC --> PCS
     PCC --> PR
     CC --> CST
     CC --> PR
+    FC --> FS
+    FC --> PR
     PR --> P
     PR --> PP
     IMPR -->|implements| PR
@@ -101,6 +120,7 @@ graph TD
     GR --> DPP[PlantDetailPlaceholder]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
     C --> F[CollectionSection\nBlocProvider&lt;CollectionCubit&gt; interno\ncontext.read PlantRepository]
+    C --> G[FocusPlantSection\nBlocProvider&lt;FocusCubit&gt; interno\ncontext.read PlantRepository]
 ```
 
 ---
