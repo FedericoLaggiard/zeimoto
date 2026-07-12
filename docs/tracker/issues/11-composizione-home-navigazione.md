@@ -1,6 +1,6 @@
 # A11 — Composizione Home + navigazione end-to-end
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -25,13 +25,13 @@ Seam Home Section Composition — test da coprire:
 
 ## Acceptance criteria
 
-- [ ] Le 5 sezioni sono composte nell'home nell'ordine corretto
-- [ ] L'agent bar resta visibile e pinned mentre si scorre tutta la home
-- [ ] Widget test verifica la presenza e l'ordine delle 5 sezioni
-- [ ] Widget test verifica che la CTA agent bar apra il wizard
-- [ ] Widget test verifica che il tap su card Collezione apra il dettaglio corretto
-- [ ] Widget test verifica che il tap su card Focus Pianta apra il dettaglio corretto
-- [ ] I test usano `flutter_test` (già in `dev_dependencies`), nessun harness custom
+- [X] Le 5 sezioni sono composte nell'home nell'ordine corretto
+- [X] L'agent bar resta visibile e pinned mentre si scorre tutta la home
+- [X] Widget test verifica la presenza e l'ordine delle 5 sezioni
+- [X] Widget test verifica che la CTA agent bar apra il wizard
+- [X] Widget test verifica che il tap su card Collezione apra il dettaglio corretto
+- [X] Widget test verifica che il tap su card Focus Pianta apra il dettaglio corretto
+- [X] I test usano `flutter_test` (già in `dev_dependencies`), nessun harness custom
 
 ## Blocked by
 
