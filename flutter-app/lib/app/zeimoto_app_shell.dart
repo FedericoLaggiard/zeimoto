@@ -6,6 +6,7 @@ import '../features/ai_assistant/ai_assistant_section.dart';
 import '../features/calendar/calendar_section.dart';
 import '../features/collection/collection_section.dart';
 import '../features/focus/focus_plant_section.dart';
+import '../features/wiki/wiki_del_giorno_section.dart';
 import '../l10n/app_localizations.dart';
 import '../routing/plant_detail_route.dart';
 import '../routing/routes.dart';
@@ -89,6 +90,17 @@ class ZeimotoAppShell extends StatelessWidget {
                     ),
                   ),
                   const SliverToBoxAdapter(child: CalendarSection()),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Text(
+                        l10n.wiki_section_title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: WikiDelGiornoSection()),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 ],
               ),
             ),

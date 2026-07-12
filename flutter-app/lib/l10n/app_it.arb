@@ -129,5 +129,30 @@
   "agent_bar_new_plant_tooltip": "Nuova pianta",
   "@agent_bar_new_plant_tooltip": {
     "description": "Tooltip del FAB di apertura del wizard di creazione pianta"
-  }
+  },
+
+  "wiki_section_title": "Wiki del Giorno",
+  "@wiki_section_title": {
+    "description": "Titolo della sezione Wiki del Giorno nella home"
+  },
+
+  "wiki_reading_label": "LETTURA CONSIGLIATA",
+  "@wiki_reading_label": {
+    "description": "Etichetta badge sopra la card dell'articolo wiki"
+  },
+
+  "wiki_article_1_title": "Tecnica del Nebari",
+  "wiki_article_1_body": "Come sviluppare radici di superficie visibili e armoniose attraverso tecniche di esposizione progressiva.",
+
+  "wiki_article_2_title": "Potatura di raffinazione",
+  "wiki_article_2_body": "Principi guida per la potatura fine: timing, angolatura e strumenti per rami sottili.",
+
+  "wiki_article_3_title": "Rinvaso primaverile",
+  "wiki_article_3_body": "Finestre temporali e indicatori visivi per il corretto rinvaso stagionale.",
+
+  "wiki_article_4_title": "Substrati e permeabilità",
+  "wiki_article_4_body": "Composizioni ottimali per diverse specie: akadama, pomice, lava vulcanica.",
+
+  "wiki_article_5_title": "Filo di alluminio vs rame",
+  "wiki_article_5_body": "Differenze pratiche nell'uso dei due materiali: forza, impronta e durata stagionale."
 }

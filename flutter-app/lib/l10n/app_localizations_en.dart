@@ -113,4 +113,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agent_bar_new_plant_tooltip => 'New plant';
+
+  @override
+  String get wiki_section_title => 'Wiki of the Day';
+
+  @override
+  String get wiki_reading_label => 'RECOMMENDED READING';
+
+  @override
+  String get wiki_article_1_title => 'Nebari technique';
+
+  @override
+  String get wiki_article_1_body =>
+      'How to develop visible and harmonious surface roots through progressive exposure techniques.';
+
+  @override
+  String get wiki_article_2_title => 'Refinement pruning';
+
+  @override
+  String get wiki_article_2_body =>
+      'Guiding principles for fine pruning: timing, angle, and tools for thin branches.';
+
+  @override
+  String get wiki_article_3_title => 'Spring repotting';
+
+  @override
+  String get wiki_article_3_body =>
+      'Time windows and visual indicators for correct seasonal repotting.';
+
+  @override
+  String get wiki_article_4_title => 'Substrates and permeability';
+
+  @override
+  String get wiki_article_4_body =>
+      'Optimal compositions for different species: akadama, pumice, volcanic lava.';
+
+  @override
+  String get wiki_article_5_title => 'Aluminium vs copper wire';
+
+  @override
+  String get wiki_article_5_body =>
+      'Practical differences in using the two materials: strength, imprint, and seasonal durability.';
 }

@@ -9,6 +9,7 @@ import 'package:zeimoto/features/calendar/calendar_section.dart';
 import 'package:zeimoto/features/collection/collection_section.dart';
 import 'package:zeimoto/features/collection/plant_detail_placeholder.dart';
 import 'package:zeimoto/features/focus/focus_plant_section.dart';
+import 'package:zeimoto/features/wiki/wiki_del_giorno_section.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
 import 'package:zeimoto/routing/app_router.dart';
 
@@ -173,8 +174,10 @@ void main() {
 
         final l10n = lookupAppLocalizations(const Locale('it'));
 
+        // Scroll to the section title first so that both the title and the
+        // blocks below it are inside the 600px test viewport.
         await tester.scrollUntilVisible(
-          find.byKey(const Key('calendar_past_events_block')),
+          find.text(l10n.calendar_section_title),
           300,
           scrollable: find.byType(Scrollable).first,
         );
@@ -195,6 +198,26 @@ void main() {
         expect(find.text(l10n.calendar_suggested_badge), findsNWidgets(3));
       },
     );
+
+    testWidgets('home shows wiki del giorno section title and article', (
+      WidgetTester tester,
+    ) async {
+      final (:widget, :repo) = buildApp();
+      await tester.pumpWidget(widget);
+
+      final l10n = lookupAppLocalizations(const Locale('it'));
+
+      await tester.scrollUntilVisible(
+        find.byType(WikiDelGiornoSection),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(WikiDelGiornoSection), findsOneWidget);
+      expect(find.text(l10n.wiki_section_title), findsOneWidget);
+      expect(find.text(l10n.wiki_reading_label), findsOneWidget);
+    });
 
     testWidgets('FAB is visible to trigger wizard', (
       WidgetTester tester,

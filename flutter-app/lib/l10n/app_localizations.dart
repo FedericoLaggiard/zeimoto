@@ -301,6 +301,78 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Nuova pianta'**
   String get agent_bar_new_plant_tooltip;
+
+  /// Titolo della sezione Wiki del Giorno nella home
+  ///
+  /// In it, this message translates to:
+  /// **'Wiki del Giorno'**
+  String get wiki_section_title;
+
+  /// Etichetta badge sopra la card dell'articolo wiki
+  ///
+  /// In it, this message translates to:
+  /// **'LETTURA CONSIGLIATA'**
+  String get wiki_reading_label;
+
+  /// No description provided for @wiki_article_1_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Tecnica del Nebari'**
+  String get wiki_article_1_title;
+
+  /// No description provided for @wiki_article_1_body.
+  ///
+  /// In it, this message translates to:
+  /// **'Come sviluppare radici di superficie visibili e armoniose attraverso tecniche di esposizione progressiva.'**
+  String get wiki_article_1_body;
+
+  /// No description provided for @wiki_article_2_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Potatura di raffinazione'**
+  String get wiki_article_2_title;
+
+  /// No description provided for @wiki_article_2_body.
+  ///
+  /// In it, this message translates to:
+  /// **'Principi guida per la potatura fine: timing, angolatura e strumenti per rami sottili.'**
+  String get wiki_article_2_body;
+
+  /// No description provided for @wiki_article_3_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Rinvaso primaverile'**
+  String get wiki_article_3_title;
+
+  /// No description provided for @wiki_article_3_body.
+  ///
+  /// In it, this message translates to:
+  /// **'Finestre temporali e indicatori visivi per il corretto rinvaso stagionale.'**
+  String get wiki_article_3_body;
+
+  /// No description provided for @wiki_article_4_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Substrati e permeabilità'**
+  String get wiki_article_4_title;
+
+  /// No description provided for @wiki_article_4_body.
+  ///
+  /// In it, this message translates to:
+  /// **'Composizioni ottimali per diverse specie: akadama, pomice, lava vulcanica.'**
+  String get wiki_article_4_body;
+
+  /// No description provided for @wiki_article_5_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Filo di alluminio vs rame'**
+  String get wiki_article_5_title;
+
+  /// No description provided for @wiki_article_5_body.
+  ///
+  /// In it, this message translates to:
+  /// **'Differenze pratiche nell\'uso dei due materiali: forza, impronta e durata stagionale.'**
+  String get wiki_article_5_body;
 }
 
 class _AppLocalizationsDelegate

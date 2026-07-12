@@ -46,5 +46,23 @@
   "plant_detail_coming_soon": "Full details coming soon",
 
   "agent_bar_hint_text": "What would you like to do today?",
-  "agent_bar_new_plant_tooltip": "New plant"
+  "agent_bar_new_plant_tooltip": "New plant",
+
+  "wiki_section_title": "Wiki of the Day",
+  "wiki_reading_label": "RECOMMENDED READING",
+
+  "wiki_article_1_title": "Nebari technique",
+  "wiki_article_1_body": "How to develop visible and harmonious surface roots through progressive exposure techniques.",
+
+  "wiki_article_2_title": "Refinement pruning",
+  "wiki_article_2_body": "Guiding principles for fine pruning: timing, angle, and tools for thin branches.",
+
+  "wiki_article_3_title": "Spring repotting",
+  "wiki_article_3_body": "Time windows and visual indicators for correct seasonal repotting.",
+
+  "wiki_article_4_title": "Substrates and permeability",
+  "wiki_article_4_body": "Optimal compositions for different species: akadama, pumice, volcanic lava.",
+
+  "wiki_article_5_title": "Aluminium vs copper wire",
+  "wiki_article_5_body": "Practical differences in using the two materials: strength, imprint, and seasonal durability."
 }

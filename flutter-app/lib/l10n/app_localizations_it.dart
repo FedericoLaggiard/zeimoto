@@ -117,4 +117,45 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get agent_bar_new_plant_tooltip => 'Nuova pianta';
+
+  @override
+  String get wiki_section_title => 'Wiki del Giorno';
+
+  @override
+  String get wiki_reading_label => 'LETTURA CONSIGLIATA';
+
+  @override
+  String get wiki_article_1_title => 'Tecnica del Nebari';
+
+  @override
+  String get wiki_article_1_body =>
+      'Come sviluppare radici di superficie visibili e armoniose attraverso tecniche di esposizione progressiva.';
+
+  @override
+  String get wiki_article_2_title => 'Potatura di raffinazione';
+
+  @override
+  String get wiki_article_2_body =>
+      'Principi guida per la potatura fine: timing, angolatura e strumenti per rami sottili.';
+
+  @override
+  String get wiki_article_3_title => 'Rinvaso primaverile';
+
+  @override
+  String get wiki_article_3_body =>
+      'Finestre temporali e indicatori visivi per il corretto rinvaso stagionale.';
+
+  @override
+  String get wiki_article_4_title => 'Substrati e permeabilità';
+
+  @override
+  String get wiki_article_4_body =>
+      'Composizioni ottimali per diverse specie: akadama, pomice, lava vulcanica.';
+
+  @override
+  String get wiki_article_5_title => 'Filo di alluminio vs rame';
+
+  @override
+  String get wiki_article_5_body =>
+      'Differenze pratiche nell\'uso dei due materiali: forza, impronta e durata stagionale.';
 }
