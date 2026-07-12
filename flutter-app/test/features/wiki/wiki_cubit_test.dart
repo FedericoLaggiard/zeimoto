@@ -17,16 +17,18 @@ const _articleC = WikiArticle(title: 'Rinvaso', body: 'Finestre temporali...');
 
 void main() {
   group('WikiCubit', () {
-    test('initial state is WikiLoaded with article at index returned by pickIndex',
-        () {
-      final cubit = WikiCubit(
-        articles: const [_articleA, _articleB, _articleC],
-        pickIndex: (_) => 1,
-      );
+    test(
+      'initial state is WikiLoaded with article at index returned by pickIndex',
+      () {
+        final cubit = WikiCubit(
+          articles: const [_articleA, _articleB, _articleC],
+          pickIndex: (_) => 1,
+        );
 
-      expect(cubit.state, isA<WikiLoaded>());
-      expect((cubit.state as WikiLoaded).article, _articleB);
-    });
+        expect(cubit.state, isA<WikiLoaded>());
+        expect((cubit.state as WikiLoaded).article, _articleB);
+      },
+    );
 
     test('pickIndex receives articles.length as upper bound', () {
       int capturedMax = -1;
@@ -41,23 +43,25 @@ void main() {
       expect(capturedMax, 3);
     });
 
-    test('state does not change after initial selection (single call to pickIndex)',
-        () {
-      var callCount = 0;
-      final cubit = WikiCubit(
-        articles: const [_articleA, _articleB],
-        pickIndex: (max) {
-          callCount += 1;
-          return 0;
-        },
-      );
+    test(
+      'state does not change after initial selection (single call to pickIndex)',
+      () {
+        var callCount = 0;
+        final cubit = WikiCubit(
+          articles: const [_articleA, _articleB],
+          pickIndex: (max) {
+            callCount += 1;
+            return 0;
+          },
+        );
 
-      final firstState = cubit.state;
+        final firstState = cubit.state;
 
-      // Additional reads must not trigger another pick
-      expect(cubit.state, same(firstState));
-      expect(callCount, 1);
-    });
+        // Additional reads must not trigger another pick
+        expect(cubit.state, same(firstState));
+        expect(callCount, 1);
+      },
+    );
 
     test('selects first article when pickIndex returns 0', () {
       final cubit = WikiCubit(

@@ -25,11 +25,26 @@ class WikiDelGiornoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final articles = <WikiArticle>[
-      WikiArticle(title: l10n.wiki_article_1_title, body: l10n.wiki_article_1_body),
-      WikiArticle(title: l10n.wiki_article_2_title, body: l10n.wiki_article_2_body),
-      WikiArticle(title: l10n.wiki_article_3_title, body: l10n.wiki_article_3_body),
-      WikiArticle(title: l10n.wiki_article_4_title, body: l10n.wiki_article_4_body),
-      WikiArticle(title: l10n.wiki_article_5_title, body: l10n.wiki_article_5_body),
+      WikiArticle(
+        title: l10n.wiki_article_1_title,
+        body: l10n.wiki_article_1_body,
+      ),
+      WikiArticle(
+        title: l10n.wiki_article_2_title,
+        body: l10n.wiki_article_2_body,
+      ),
+      WikiArticle(
+        title: l10n.wiki_article_3_title,
+        body: l10n.wiki_article_3_body,
+      ),
+      WikiArticle(
+        title: l10n.wiki_article_4_title,
+        body: l10n.wiki_article_4_body,
+      ),
+      WikiArticle(
+        title: l10n.wiki_article_5_title,
+        body: l10n.wiki_article_5_body,
+      ),
     ];
 
     return BlocProvider(

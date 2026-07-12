@@ -16,9 +16,7 @@ Widget buildHarness({required int Function(int) pickIndex}) {
     locale: const Locale('it'),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    home: Scaffold(
-      body: WikiDelGiornoSection(pickIndex: pickIndex),
-    ),
+    home: Scaffold(body: WikiDelGiornoSection(pickIndex: pickIndex)),
   );
 }
 
@@ -50,7 +48,9 @@ void main() {
       expect(find.text(l10n.wiki_article_5_body), findsOneWidget);
     });
 
-    testWidgets('displays the reading label badge', (WidgetTester tester) async {
+    testWidgets('displays the reading label badge', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(buildHarness(pickIndex: (_) => 0));
 
       final l10n = lookupAppLocalizations(const Locale('it'));
