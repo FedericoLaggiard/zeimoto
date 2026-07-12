@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../domain/plants.dart';
 import '../features/add_plant/add_plant_wizard.dart';
-import '../features/collection/plant_detail_placeholder.dart';
 import '../app/zeimoto_app_shell.dart';
+import 'plant_detail_route.dart';
 import 'routes.dart';
 
 export 'routes.dart';
@@ -44,21 +43,10 @@ GoRouter buildAppRouter() {
             const MaterialPage(fullscreenDialog: true, child: AddPlantWizard()),
       ),
 
-      // ── Plant detail ─────────────────────────────────────────────────────
-      // Detail view for a single plant.
-      // Contract: `state.extra` must be a [Plant] object.
-      // The redirect guard below ensures a missing or wrong extra redirects to
-      // home instead of crashing with a force-unwrap error.
-      GoRoute(
-        path: AppRoutes.plantDetail,
-        redirect: (context, state) =>
-            state.extra is Plant ? null : AppRoutes.home,
-        pageBuilder: (context, state) {
-          // Safe: redirect guard above guarantees extra is a Plant.
-          final plant = state.extra! as Plant;
-          return MaterialPage(child: PlantDetailPlaceholder(plant: plant));
-        },
-      ),
+      // ── Typed routes (generated) ─────────────────────────────────────────
+      // Includes PlantDetailRoute, whose constructor enforces required
+      // `Plant` input at compile time.
+      ...$appRoutes,
     ],
   );
 }

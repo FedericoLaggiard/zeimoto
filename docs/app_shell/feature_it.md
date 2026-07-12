@@ -53,10 +53,10 @@ L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
 
 Al momento ospita:
-- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` chiama `context.push(AppRoutes.plantDetail, extra: plant)` via go_router.
+- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` chiama `PlantDetailRoute(plant).push(context)` (typed route via go_router).
 - **FAB** — `FloatingActionButton` con `key: 'add_plant_fab'` posizionato sopra l'`AgentBar` (padding bottom = `agentBarHeight`); chiama `context.push(AppRoutes.addPlant)`.
 
-La navigazione è **sempre delegata a `AppRoutes`** (`lib/routing/routes.dart`). Nessuna schermata di feature viene importata direttamente (ADR-0001, ADR-0004).
+La navigazione è **sempre delegata al layer `lib/routing/`** (costanti `AppRoutes` e wrapper typed). Nessuna schermata di feature viene importata direttamente (ADR-0001, ADR-0004).
 
 ---
 

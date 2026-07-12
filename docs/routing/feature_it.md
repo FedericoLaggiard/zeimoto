@@ -1,6 +1,6 @@
 # Routing
 
-Il layer di routing (`lib/routing/`) è la **sorgente unica di verità** per tutta la navigazione dell'applicazione. Nessun widget può referenziare direttamente un'altra schermata: usa sempre le costanti di `AppRoutes` e le API di go_router.
+Il layer di routing (`lib/routing/`) è la **sorgente unica di verità** per tutta la navigazione dell'applicazione. Nessun widget può referenziare direttamente un'altra schermata: usa sempre API di go_router tramite costanti `AppRoutes` oppure wrapper typed (`GoRouteData`) definiti nel routing layer.
 
 Vedi [ADR-0004](../adr/0004-routing-go-router.md) per le regole vincolanti e la motivazione della scelta.
 
@@ -11,11 +11,13 @@ Vedi [ADR-0004](../adr/0004-routing-go-router.md) per le regole vincolanti e la 
 ```
 lib/routing/
 ├── routes.dart       # AppRoutes — costanti dei path (importa questo nei widget)
-└── app_router.dart   # buildAppRouter() — factory del GoRouter (importa questo in main.dart)
-                      # re-esporta routes.dart
+├── app_router.dart   # buildAppRouter() — factory del GoRouter (importa questo in main.dart)
+│                     # re-esporta routes.dart
+└── plant_detail_route.dart   # typed route (GoRouteData) per /plant-detail
 ```
 
 Il codice che ha bisogno solo delle costanti (es. widget che chiamano `context.push`) importa **`routes.dart`**.
+Il codice che naviga verso route con payload obbligatorio può importare il wrapper typed da `lib/routing/` (es. `PlantDetailRoute`).
 Il codice che costruisce l'app (es. `main.dart`) importa **`app_router.dart`**.
 
 ---
@@ -39,7 +41,7 @@ Per aggiungere una nuova rotta: dichiarare la costante in `routes.dart`, poi agg
 ```mermaid
 graph LR
     HOME[/ home] -->|context.push addPlant| WIZ[/add-plant\nAddPlantWizard\nfullscreenDialog]
-    HOME -->|context.push plantDetail\nextra: Plant| DET[/plant-detail\nPlantDetailPlaceholder]
+  HOME -->|PlantDetailRoute(plant).push\nextra typed: Plant| DET[/plant-detail\nPlantDetailPlaceholder]
     WIZ -->|context.pop\non save o close| HOME
     DET -->|context.pop| HOME
 ```
@@ -48,7 +50,7 @@ graph LR
 
 ## Factory del router (`buildAppRouter`)
 
-Definita in `lib/routing/app_router.dart`. Ritorna un `GoRouter` con le tre rotte top-level:
+Definita in `lib/routing/app_router.dart`. Ritorna un `GoRouter` con route manuali per shell e wizard, e route typed aggregate generate da `go_router_builder`:
 
 ```dart
 GoRouter buildAppRouter() {
@@ -59,8 +61,8 @@ GoRouter buildAppRouter() {
       GoRoute(path: AppRoutes.home,        builder: ...),
       // Wizard add-plant (fullscreen dialog, nessun extra)
       GoRoute(path: AppRoutes.addPlant,    pageBuilder: ...),
-      // Plant detail (extra: Plant obbligatorio)
-      GoRoute(path: AppRoutes.plantDetail, pageBuilder: ...),
+      // Typed routes generate (es. PlantDetailRoute)
+      ...$appRoutes,
     ],
   );
 }
@@ -78,9 +80,13 @@ Il `GoRouter` viene creato in `_ZeimotoAppState` (un `StatefulWidget`) per garan
 // In qualsiasi widget con un BuildContext
 context.push(AppRoutes.addPlant);
 
-// Con payload (extra obbligatorio per plantDetail)
-context.push(AppRoutes.plantDetail, extra: plant);
+// Con payload obbligatorio: preferire route typed
+PlantDetailRoute(plant).push(context);
 ```
+
+Regola pratica:
+- Usa `context.push(AppRoutes.<name>)` per route senza payload obbligatorio.
+- Usa wrapper typed (`GoRouteData`) per route con payload obbligatorio, così il contratto è verificato a compile-time.
 
 ### Tornare indietro
 
@@ -109,7 +115,7 @@ import '../features/add_plant/add_plant_wizard.dart'; // ← violazione ADR-0001
 |-------|---------|------|
 | `AppRoutes.home` | — | Nessun extra |
 | `AppRoutes.addPlant` | — | Nessun extra; il wizard legge il repository dall'ambiente |
-| `AppRoutes.plantDetail` | `Plant` (obbligatorio) | `state.extra! as Plant`; non serializzabile: usare ID quando si introdurrà la persistenza |
+| `AppRoutes.plantDetail` | `Plant` (obbligatorio) | Contratto esposto tramite `PlantDetailRoute(plant)`; il parser generated usa `state.extra as Plant`. Non serializzabile: usare ID quando si introdurrà la persistenza |
 
 ---
 
@@ -139,7 +145,7 @@ Il `RepositoryProvider` deve essere **esterno** a `MaterialApp.router` così che
 ## Aggiungere una nuova rotta — checklist
 
 1. [ ] Dichiarare la costante in `lib/routing/routes.dart`
-2. [ ] Aggiungere la `GoRoute` in `buildAppRouter()` con commento esplicativo
-3. [ ] Documentare il contratto `extra` se presente
+2. [ ] Aggiungere route manuale o typed route (`GoRouteData`) nel layer routing
+3. [ ] Se c'è payload obbligatorio, preferire wrapper typed e documentarne il contratto
 4. [ ] Aggiornare questa pagina (tabelle costanti e contratti)
 5. [ ] Test: verificare navigazione verso e da questa schermata

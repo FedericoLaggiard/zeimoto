@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/design/zeimoto_theme.dart';
 import '../features/collection/collection_section.dart';
 import '../l10n/app_localizations.dart';
+import '../routing/plant_detail_route.dart';
 import '../routing/routes.dart';
 
 /// App Shell main entry point for Zeimoto MVP.
@@ -56,7 +57,7 @@ class ZeimotoAppShell extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: CollectionSection(
                       onTapPlant: (plant) =>
-                          context.push(AppRoutes.plantDetail, extra: plant),
+                          PlantDetailRoute(plant).push(context),
                     ),
                   ),
                 ],
