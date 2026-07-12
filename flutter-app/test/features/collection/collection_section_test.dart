@@ -200,5 +200,61 @@ void main() {
       // The detail page should show the plant's nickname in title
       expect(find.text('acero_01'), findsWidgets); // in both card and detail
     });
+
+    testWidgets('empty state shows CTA button', (WidgetTester tester) async {
+      final repo = _FakeRepo();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ZeimotoTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('it'),
+          home: Scaffold(
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
+              child: CollectionSection(onTapPlant: (_) {}, onAddPlant: () {}),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.byKey(const Key('collection_add_plant_cta_button')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tapping empty-state CTA calls onAddPlant', (
+      WidgetTester tester,
+    ) async {
+      final repo = _FakeRepo();
+      var called = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ZeimotoTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('it'),
+          home: Scaffold(
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
+              child: CollectionSection(
+                onTapPlant: (_) {},
+                onAddPlant: () => called = true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(
+        find.byKey(const Key('collection_add_plant_cta_button')),
+      );
+      await tester.pump();
+
+      expect(called, isTrue);
+    });
   });
 }

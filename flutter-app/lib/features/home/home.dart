@@ -72,6 +72,7 @@ class Home extends StatelessWidget {
                     child: CollectionSection(
                       onTapPlant: (plant) =>
                           PlantDetailRoute(plant).push(context),
+                      onAddPlant: () => context.push(AppRoutes.addPlant),
                     ),
                   ),
                   SliverToBoxAdapter(

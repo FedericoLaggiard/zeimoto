@@ -57,6 +57,16 @@
     "description": "Messaggio stato vuoto della sezione Collezione"
   },
 
+  "collection_add_plant_cta": "Aggiungi la tua prima pianta",
+  "@collection_add_plant_cta": {
+    "description": "CTA nello stato vuoto della sezione Collezione"
+  },
+
+  "wizard_save_feedback": "Pianta aggiunta alla collezione",
+  "@wizard_save_feedback": {
+    "description": "Messaggio snackbar alla conferma del salvataggio nel wizard"
+  },
+
   "focus_plant_section_title": "Focus Pianta",
   "@focus_plant_section_title": {
     "description": "Titolo della sezione Focus Pianta nella home"

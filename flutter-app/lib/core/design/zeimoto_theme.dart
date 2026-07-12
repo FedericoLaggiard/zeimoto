@@ -72,6 +72,12 @@ class ZeimotoTheme {
         elevation: 0,
         centerTitle: false,
       ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          disabledBackgroundColor: ZeimotoColors.washiDeep,
+          disabledForegroundColor: ZeimotoColors.charcoalSoft,
+        ),
+      ),
     );
   }
 }

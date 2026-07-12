@@ -158,6 +158,18 @@ abstract class AppLocalizations {
   /// **'Nessuna pianta nella collezione'**
   String get collection_empty;
 
+  /// CTA nello stato vuoto della sezione Collezione
+  ///
+  /// In it, this message translates to:
+  /// **'Aggiungi la tua prima pianta'**
+  String get collection_add_plant_cta;
+
+  /// Messaggio snackbar alla conferma del salvataggio nel wizard
+  ///
+  /// In it, this message translates to:
+  /// **'Pianta aggiunta alla collezione'**
+  String get wizard_save_feedback;
+
   /// Titolo della sezione Focus Pianta nella home
   ///
   /// In it, this message translates to:

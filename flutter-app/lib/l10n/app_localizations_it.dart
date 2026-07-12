@@ -41,6 +41,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get collection_empty => 'Nessuna pianta nella collezione';
 
   @override
+  String get collection_add_plant_cta => 'Aggiungi la tua prima pianta';
+
+  @override
+  String get wizard_save_feedback => 'Pianta aggiunta alla collezione';
+
+  @override
   String get focus_plant_section_title => 'Focus Pianta';
 
   @override

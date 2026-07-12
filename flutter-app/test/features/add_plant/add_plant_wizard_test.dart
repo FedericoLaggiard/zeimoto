@@ -299,4 +299,25 @@ void main() {
     expect(repo.plants, hasLength(1));
     expect(repo.plants.first.nickname, 'Momo');
   });
+
+  testWidgets('completing wizard shows save feedback snackbar', (tester) async {
+    await tester.pumpWidget(_buildNavigatorSubject(repo));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('wizard_next_button')));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('wizard_species_item_0')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('wizard_next_button')));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('wizard_save_button')));
+    await tester.pump(); // trigger listener, show snackbar
+
+    expect(find.byType(SnackBar), findsAtLeastNWidgets(1));
+  });
 }
