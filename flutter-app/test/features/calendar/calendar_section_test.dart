@@ -25,7 +25,6 @@ void main() {
 
       final l10n = lookupAppLocalizations(const Locale('it'));
 
-      expect(find.text(l10n.calendar_section_title), findsOneWidget);
       expect(
         find.byKey(const Key('calendar_past_events_block')),
         findsOneWidget,
