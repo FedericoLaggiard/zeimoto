@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:zeimoto/l10n/app_localizations.dart';
 
 import 'app/zeimoto_app_shell.dart';
 import 'core/design/zeimoto_theme.dart';
@@ -17,6 +18,8 @@ class ZeimotoApp extends StatelessWidget {
       title: 'Zeimoto',
       debugShowCheckedModeBanner: !kReleaseMode,
       theme: ZeimotoTheme.light,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const ZeimotoAppShell(),
     );
   }

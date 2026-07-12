@@ -1,0 +1,49 @@
+{
+  "@@locale": "it",
+
+  "wizardClose": "Chiudi",
+  "@wizardClose": {
+    "description": "Tooltip per il pulsante di chiusura (✕) del wizard"
+  },
+
+  "wizardStepPhotoHeading": "Scegli una foto",
+  "@wizardStepPhotoHeading": {
+    "description": "Titolo del primo step del wizard di creazione pianta"
+  },
+
+  "wizardStepSpeciesHeading": "Seleziona la specie",
+  "@wizardStepSpeciesHeading": {
+    "description": "Titolo del secondo step del wizard di creazione pianta"
+  },
+
+  "wizardStepNicknameHeading": "Dai un nome",
+  "@wizardStepNicknameHeading": {
+    "description": "Titolo del terzo step del wizard di creazione pianta"
+  },
+
+  "wizardButtonNext": "Avanti",
+  "@wizardButtonNext": {
+    "description": "Etichetta del pulsante di avanzamento al passo successivo"
+  },
+
+  "wizardButtonSave": "Salva",
+  "@wizardButtonSave": {
+    "description": "Etichetta del pulsante finale per salvare la pianta"
+  },
+
+  "wizardSpeciesFieldHint": "Inserisci una specie…",
+  "@wizardSpeciesFieldHint": {
+    "description": "Testo segnaposto del campo di inserimento manuale della specie"
+  },
+
+  "wizardNicknameFieldHint": "Lascia vuoto per usare: {defaultName}",
+  "@wizardNicknameFieldHint": {
+    "description": "Testo segnaposto del campo nickname che mostra il nome generato automaticamente",
+    "placeholders": {
+      "defaultName": {
+        "type": "String",
+        "example": "palmatum_01"
+      }
+    }
+  }
+}
