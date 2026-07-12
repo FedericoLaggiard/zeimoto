@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
 
 import 'app/zeimoto_app_shell.dart';
 import 'core/design/zeimoto_theme.dart';
+import 'domain/plants.dart';
 
 void main() {
   runApp(const ZeimotoApp());
@@ -14,13 +16,16 @@ class ZeimotoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Zeimoto',
-      debugShowCheckedModeBanner: !kReleaseMode,
-      theme: ZeimotoTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const ZeimotoAppShell(),
+    return RepositoryProvider<PlantRepository>(
+      create: (_) => InMemoryPlantRepository(),
+      child: MaterialApp(
+        title: 'Zeimoto',
+        debugShowCheckedModeBanner: !kReleaseMode,
+        theme: ZeimotoTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const ZeimotoAppShell(),
+      ),
     );
   }
 }

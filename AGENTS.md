@@ -1,5 +1,7 @@
 # AGENTS
 
+**RISPONDI SEMPRE IN ITALIANO**
+
 ## Agent skills
 
 ### Issue tracker
