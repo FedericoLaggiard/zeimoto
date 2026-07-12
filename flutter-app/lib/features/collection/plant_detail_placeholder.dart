@@ -56,7 +56,7 @@ class PlantDetailPlaceholder extends StatelessWidget {
               const SizedBox(height: 24),
               // Placeholder for future rich details
               Text(
-                AppLocalizations.of(context)!.plantDetailComingSoon,
+                AppLocalizations.of(context)!.plant_detail_coming_soon,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

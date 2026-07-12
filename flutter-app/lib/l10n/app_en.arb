@@ -1,18 +1,18 @@
 {
   "@@locale": "en",
 
-  "wizardClose": "Close",
-  "wizardStepPhotoHeading": "Choose a photo",
-  "wizardStepSpeciesHeading": "Select the species",
-  "wizardStepNicknameHeading": "Give it a name",
-  "wizardButtonNext": "Next",
-  "wizardButtonSave": "Save",
-  "wizardSpeciesFieldHint": "Enter a species…",
-  "wizardNicknameFieldHint": "Leave empty to use: {defaultName}",
+  "wizard_close": "Close",
+  "wizard_step_photo_heading": "Choose a photo",
+  "wizard_step_species_heading": "Select the species",
+  "wizard_step_nickname_heading": "Give it a name",
+  "wizard_button_next": "Next",
+  "wizard_button_save": "Save",
+  "wizard_species_field_hint": "Enter a species\u2026",
+  "wizard_nickname_field_hint": "Leave empty to use: {defaultName}",
 
-  "collectionSectionTitle": "Your Collection",
-  "collectionEmpty": "No plants in your collection yet",
-  "plantDetailComingSoon": "Full details coming soon",
+  "collection_section_title": "Your Collection",
+  "collection_empty": "No plants in your collection yet",
+  "plant_detail_coming_soon": "Full details coming soon",
 
   "agent_bar_hint_text": "What would you like to do today?",
   "agent_bar_new_plant_tooltip": "New plant"

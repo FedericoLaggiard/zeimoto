@@ -102,67 +102,67 @@ abstract class AppLocalizations {
   ///
   /// In it, this message translates to:
   /// **'Chiudi'**
-  String get wizardClose;
+  String get wizard_close;
 
   /// Titolo del primo step del wizard di creazione pianta
   ///
   /// In it, this message translates to:
   /// **'Scegli una foto'**
-  String get wizardStepPhotoHeading;
+  String get wizard_step_photo_heading;
 
   /// Titolo del secondo step del wizard di creazione pianta
   ///
   /// In it, this message translates to:
   /// **'Seleziona la specie'**
-  String get wizardStepSpeciesHeading;
+  String get wizard_step_species_heading;
 
   /// Titolo del terzo step del wizard di creazione pianta
   ///
   /// In it, this message translates to:
   /// **'Dai un nome'**
-  String get wizardStepNicknameHeading;
+  String get wizard_step_nickname_heading;
 
   /// Etichetta del pulsante di avanzamento al passo successivo
   ///
   /// In it, this message translates to:
   /// **'Avanti'**
-  String get wizardButtonNext;
+  String get wizard_button_next;
 
   /// Etichetta del pulsante finale per salvare la pianta
   ///
   /// In it, this message translates to:
   /// **'Salva'**
-  String get wizardButtonSave;
+  String get wizard_button_save;
 
   /// Testo segnaposto del campo di inserimento manuale della specie
   ///
   /// In it, this message translates to:
   /// **'Inserisci una specie…'**
-  String get wizardSpeciesFieldHint;
+  String get wizard_species_field_hint;
 
   /// Testo segnaposto del campo nickname che mostra il nome generato automaticamente
   ///
   /// In it, this message translates to:
   /// **'Lascia vuoto per usare: {defaultName}'**
-  String wizardNicknameFieldHint(String defaultName);
+  String wizard_nickname_field_hint(String defaultName);
 
   /// Titolo della sezione carosello nella home
   ///
   /// In it, this message translates to:
   /// **'La Tua Collezione'**
-  String get collectionSectionTitle;
+  String get collection_section_title;
 
   /// Messaggio stato vuoto della sezione Collezione
   ///
   /// In it, this message translates to:
   /// **'Nessuna pianta nella collezione'**
-  String get collectionEmpty;
+  String get collection_empty;
 
   /// Testo segnaposto nella schermata di dettaglio pianta
   ///
   /// In it, this message translates to:
   /// **'Dettagli completi disponibili a breve'**
-  String get plantDetailComingSoon;
+  String get plant_detail_coming_soon;
 
   /// Testo segnaposto del campo dell'agent bar
   ///

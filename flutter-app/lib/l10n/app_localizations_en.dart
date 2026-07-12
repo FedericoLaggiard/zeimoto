@@ -9,39 +9,39 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get wizardClose => 'Close';
+  String get wizard_close => 'Close';
 
   @override
-  String get wizardStepPhotoHeading => 'Choose a photo';
+  String get wizard_step_photo_heading => 'Choose a photo';
 
   @override
-  String get wizardStepSpeciesHeading => 'Select the species';
+  String get wizard_step_species_heading => 'Select the species';
 
   @override
-  String get wizardStepNicknameHeading => 'Give it a name';
+  String get wizard_step_nickname_heading => 'Give it a name';
 
   @override
-  String get wizardButtonNext => 'Next';
+  String get wizard_button_next => 'Next';
 
   @override
-  String get wizardButtonSave => 'Save';
+  String get wizard_button_save => 'Save';
 
   @override
-  String get wizardSpeciesFieldHint => 'Enter a species…';
+  String get wizard_species_field_hint => 'Enter a species…';
 
   @override
-  String wizardNicknameFieldHint(String defaultName) {
+  String wizard_nickname_field_hint(String defaultName) {
     return 'Leave empty to use: $defaultName';
   }
 
   @override
-  String get collectionSectionTitle => 'Your Collection';
+  String get collection_section_title => 'Your Collection';
 
   @override
-  String get collectionEmpty => 'No plants in your collection yet';
+  String get collection_empty => 'No plants in your collection yet';
 
   @override
-  String get plantDetailComingSoon => 'Full details coming soon';
+  String get plant_detail_coming_soon => 'Full details coming soon';
 
   @override
   String get agent_bar_hint_text => 'What would you like to do today?';

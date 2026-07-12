@@ -67,9 +67,7 @@ MaterialApp.router(
 <schermata>_<elemento>_<ruolo>
 ```
 
-**snake_case** (dal A6 in poi). Esempi: `agent_bar_hint_text`, `agent_bar_new_plant_tooltip`.
-
-> **Nota storica:** le chiavi precedenti ad A6 (`wizardButtonNext`, `collectionSectionTitle`, ecc.) usano camelCase. Non vengono rinominate per retrocompatibilità. Tutte le chiavi nuove **devono** usare snake_case.
+**snake_case** — tutte le chiavi, senza eccezioni. Esempi: `wizard_button_next`, `collection_empty`, `agent_bar_hint_text`.
 
 ---
 

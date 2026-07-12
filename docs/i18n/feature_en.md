@@ -47,7 +47,7 @@ MaterialApp.router(
 
 | Key | Type | IT | EN |
 |-----|------|----|----|
-| `wizardClose` | string | Chiudi | Close |
+| `wizard_close` | string | Chiudi | Close |
 | `wizardStepPhotoHeading` | string | Scegli una foto | Choose a photo |
 | `wizardStepSpeciesHeading` | string | Seleziona la specie | Select the species |
 | `wizardStepNicknameHeading` | string | Dai un nome | Give it a name |
@@ -67,9 +67,7 @@ MaterialApp.router(
 <screen>_<element>_<role>
 ```
 
-**snake_case** (from A6 onwards). Examples: `agent_bar_hint_text`, `agent_bar_new_plant_tooltip`.
-
-> **Historical note:** keys added before A6 (`wizardButtonNext`, `collectionSectionTitle`, etc.) use camelCase. They are not renamed for backward compatibility. All **new** keys must use snake_case.
+**snake_case** — all keys, without exception. Examples: `wizard_button_next`, `collection_empty`, `agent_bar_hint_text`.
 
 ---
 

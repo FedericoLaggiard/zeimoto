@@ -46,7 +46,7 @@ class ZeimotoAppShell extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                       child: Text(
-                        l10n.collectionSectionTitle,
+                        l10n.collection_section_title,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
