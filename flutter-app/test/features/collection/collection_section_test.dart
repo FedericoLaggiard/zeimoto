@@ -213,10 +213,7 @@ void main() {
           home: Scaffold(
             body: RepositoryProvider<PlantRepository>.value(
               value: repo,
-              child: CollectionSection(
-                onTapPlant: (_) {},
-                onAddPlant: () {},
-              ),
+              child: CollectionSection(onTapPlant: (_) {}, onAddPlant: () {}),
             ),
           ),
         ),
@@ -252,7 +249,9 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('collection_add_plant_cta_button')));
+      await tester.tap(
+        find.byKey(const Key('collection_add_plant_cta_button')),
+      );
       await tester.pump();
 
       expect(called, isTrue);

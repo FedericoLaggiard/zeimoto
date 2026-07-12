@@ -300,9 +300,7 @@ void main() {
     expect(repo.plants.first.nickname, 'Momo');
   });
 
-  testWidgets('completing wizard shows save feedback snackbar', (
-    tester,
-  ) async {
+  testWidgets('completing wizard shows save feedback snackbar', (tester) async {
     await tester.pumpWidget(_buildNavigatorSubject(repo));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
