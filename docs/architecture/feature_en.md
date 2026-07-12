@@ -1,6 +1,6 @@
 # General Architecture
 
-Overview of the Zeimoto Flutter application architecture at the end of MVP A1–A4.
+Overview of the Zeimoto Flutter application architecture at the end of MVP A1–A5.
 
 ---
 
@@ -10,17 +10,22 @@ Overview of the Zeimoto Flutter application architecture at the end of MVP A1–
 flutter-app/lib/
 ├── main.dart                     # Entry point; root RepositoryProvider
 ├── app/
-│   └── zeimoto_app_shell.dart   # Main shell + AgentBar
+│   └── zeimoto_app_shell.dart   # Main shell + AgentBar + Collection section
 ├── core/
 │   └── design/
 │       └── zeimoto_theme.dart   # Palette, spacing, ThemeData
 ├── domain/
 │   └── plants.dart              # Domain types, repository interface, in-memory impl.
 ├── features/
-│   └── add_plant/
-│       ├── plant_creation_state.dart
-│       ├── plant_creation_cubit.dart
-│       └── add_plant_wizard.dart
+│   ├── add_plant/
+│   │   ├── plant_creation_state.dart
+│   │   ├── plant_creation_cubit.dart
+│   │   └── add_plant_wizard.dart
+│   └── collection/
+│       ├── collection_state.dart
+│       ├── collection_cubit.dart
+│       ├── collection_section.dart
+│       └── plant_detail_placeholder.dart
 └── l10n/
     ├── app_it.arb               # Italian strings (template)
     ├── app_en.arb               # English strings
@@ -36,11 +41,15 @@ graph TD
     subgraph Presentation
         AS[ZeimotoAppShell]
         APW[AddPlantWizard]
+        CS[CollectionSection]
+        DPP[PlantDetailPlaceholder]
     end
 
     subgraph FeatureState["Feature State (Cubit)"]
         PCC[PlantCreationCubit]
         PCS[PlantCreationState]
+        CC[CollectionCubit]
+        CST[CollectionState]
     end
 
     subgraph Domain
@@ -60,10 +69,15 @@ graph TD
 
     AS --> TH
     AS --> L10N
+    AS --> CC
+    AS --> CS
+    CS --> DPP
     APW --> PCC
     APW --> L10N
     PCC --> PCS
     PCC --> PR
+    CC --> CST
+    CC --> PR
     PR --> P
     PR --> PP
     IMPR -->|implements| PR
@@ -81,6 +95,7 @@ graph TD
     B --> C[ZeimotoAppShell]
     B --> D[AddPlantWizard]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
+    C --> F[BlocProvider&lt;CollectionCubit&gt;\ncontext.read PlantRepository]
 ```
 
 ---

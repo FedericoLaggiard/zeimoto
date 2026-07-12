@@ -15,7 +15,10 @@ graph TD
     Scaffold --> Stack
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
-    PF --> CSV[CustomScrollView\nsezioni future]
+    PF --> CSV[CustomScrollView]
+    CSV --> BP[BlocProvider&lt;CollectionCubit&gt;]
+    BP --> CS[CollectionSection]
+    CS --> PV[PageView · carousel card]
     PB --> AB[AgentBar\nh=60dp · inerta]
 ```
 
@@ -45,6 +48,9 @@ L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare
 ## `ZeimotoAppShell`
 
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
+
+Al momento ospita:
+- **Sezione Collezione** — `BlocProvider<CollectionCubit>` + `CollectionSection`; il callback `onTapPlant` spinge `PlantDetailPlaceholder` sul navigator.
 
 ---
 
@@ -82,4 +88,5 @@ Il testo segnaposto "Cosa vuoi fare oggi?" è hardcoded in questa versione; verr
 
 | Test file | Comportamenti verificati |
 |-----------|--------------------------|
-| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder, AgentBar inerta |
+| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder, AgentBar inerta || `test/features/collection/collection_cubit_test.dart` | Piante ordinate desc, empty state |
+| `test/features/collection/collection_section_test.dart` | Carousel visibile, tap chiama callback, empty state widget, navigazione a PlantDetailPlaceholder |
