@@ -1,6 +1,6 @@
 # Architettura Generale
 
-Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A4.
+Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MVP A1–A5.
 
 ---
 
@@ -10,17 +10,22 @@ Panoramica dell'architettura dell'applicazione Flutter Zeimoto al termine del MV
 flutter-app/lib/
 ├── main.dart                     # Entry point; RepositoryProvider radice
 ├── app/
-│   └── zeimoto_app_shell.dart   # Shell principale + AgentBar
+│   └── zeimoto_app_shell.dart   # Shell principale + AgentBar + sezione Collezione
 ├── core/
 │   └── design/
 │       └── zeimoto_theme.dart   # Palette, spaziatura, ThemeData
 ├── domain/
 │   └── plants.dart              # Tipi di dominio, interfaccia repository, impl. in-memory
 ├── features/
-│   └── add_plant/
-│       ├── plant_creation_state.dart
-│       ├── plant_creation_cubit.dart
-│       └── add_plant_wizard.dart
+│   ├── add_plant/
+│   │   ├── plant_creation_state.dart
+│   │   ├── plant_creation_cubit.dart
+│   │   └── add_plant_wizard.dart
+│   └── collection/
+│       ├── collection_state.dart
+│       ├── collection_cubit.dart
+│       ├── collection_section.dart
+│       └── plant_detail_placeholder.dart
 └── l10n/
     ├── app_it.arb               # Stringhe italiano (template)
     ├── app_en.arb               # Stringhe inglese
@@ -36,11 +41,15 @@ graph TD
     subgraph Presentazione
         AS[ZeimotoAppShell]
         APW[AddPlantWizard]
+        CS[CollectionSection]
+        DPP[PlantDetailPlaceholder]
     end
 
     subgraph StatoFeature["Stato Feature (Cubit)"]
         PCC[PlantCreationCubit]
         PCS[PlantCreationState]
+        CC[CollectionCubit]
+        CST[CollectionState]
     end
 
     subgraph Dominio
@@ -60,10 +69,15 @@ graph TD
 
     AS --> TH
     AS --> L10N
+    AS --> CC
+    AS --> CS
+    CS --> DPP
     APW --> PCC
     APW --> L10N
     PCC --> PCS
     PCC --> PR
+    CC --> CST
+    CC --> PR
     PR --> P
     PR --> PP
     IMPR -->|implements| PR
@@ -81,6 +95,7 @@ graph TD
     B --> C[ZeimotoAppShell]
     B --> D[AddPlantWizard]
     D --> E[BlocProvider&lt;PlantCreationCubit&gt;\ncontext.read PlantRepository]
+    C --> F[CollectionSection\nBlocProvider&lt;CollectionCubit&gt; interno\ncontext.read PlantRepository]
 ```
 
 ---

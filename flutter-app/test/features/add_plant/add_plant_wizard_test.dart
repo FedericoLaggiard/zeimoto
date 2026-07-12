@@ -16,6 +16,9 @@ class _FakeRepo implements PlantRepository {
   List<Plant> get plants => List.unmodifiable(_plants);
 
   @override
+  Stream<void> get changes => Stream.empty();
+
+  @override
   Plant add({
     required String species,
     String? nickname,

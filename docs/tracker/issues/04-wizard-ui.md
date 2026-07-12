@@ -1,6 +1,6 @@
 # A4 — Wizard UI 3 step collegato al seam
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 

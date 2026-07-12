@@ -15,7 +15,9 @@ graph TD
     Scaffold --> Stack
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
-    PF --> CSV[CustomScrollView\nsezioni future]
+    PF --> CSV[CustomScrollView]
+    CSV --> CS[CollectionSection\n└ BlocProvider interna]
+    CS --> PV[PageView · carousel card]
     PB --> AB[AgentBar\nh=60dp · inerta]
 ```
 
@@ -40,11 +42,16 @@ Il `Scaffold` ha `backgroundColor: ZeimotoColors.washi` (`#F5F1E8`).
 
 L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare spazio fisso all'`AgentBar` in basso, senza sovrapposizioni.
 
+**SafeArea constraint**: il `CustomScrollView` è wrappato in `SafeArea(bottom: false)` per proteggere il contenuto dal notch iOS e dalla status bar, mentre lascia lo spazio per l'`AgentBar` che è gestito separatamente.
+
 ---
 
 ## `ZeimotoAppShell`
 
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
+
+Al momento ospita:
+- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` spinge `PlantDetailPlaceholder` sul navigator.
 
 ---
 
@@ -82,4 +89,5 @@ Il testo segnaposto "Cosa vuoi fare oggi?" è hardcoded in questa versione; verr
 
 | Test file | Comportamenti verificati |
 |-----------|--------------------------|
-| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder, AgentBar inerta |
+| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder, AgentBar inerta || `test/features/collection/collection_cubit_test.dart` | Piante ordinate desc, empty state |
+| `test/features/collection/collection_section_test.dart` | Carousel visibile, tap chiama callback, empty state widget, navigazione a PlantDetailPlaceholder |

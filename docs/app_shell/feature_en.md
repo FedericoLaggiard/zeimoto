@@ -15,7 +15,9 @@ graph TD
     Scaffold --> Stack
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
-    PF --> CSV[CustomScrollView\nfuture sections]
+    PF --> CSV[CustomScrollView]
+    CSV --> CS[CollectionSection\n└ internal BlocProvider]
+    CS --> PV[PageView · carousel cards]
     PB --> AB[AgentBar\nh=60dp · inert]
 ```
 
@@ -40,11 +42,16 @@ The `Scaffold` has `backgroundColor: ZeimotoColors.washi` (`#F5F1E8`).
 
 The scrollable area is positioned with `Positioned.fill(bottom: 60)` to leave a fixed 60dp slot for the `AgentBar` with no overlap.
 
+**SafeArea constraint**: the `CustomScrollView` is wrapped in `SafeArea(bottom: false)` to protect content from iOS notch and status bar, while leaving space for the `AgentBar` which is managed separately.
+
 ---
 
 ## `ZeimotoAppShell`
 
 `StatelessWidget`. Holds no state; sections and data are injected by feature Cubits.
+
+Currently hosts:
+- **Collection section** — `CollectionSection` (feature entry widget that creates its own `BlocProvider<CollectionCubit>` internally); the `onTapPlant` callback pushes `PlantDetailPlaceholder` onto the navigator.
 
 ---
 
@@ -83,3 +90,5 @@ The placeholder text "Cosa vuoi fare oggi?" is hardcoded in this version; it wil
 | Test file | Behaviours verified |
 |-----------|---------------------|
 | `test/app/zeimoto_app_shell_test.dart` | Washi background, AgentBar visible and pinned, scrollable area, placeholder text, AgentBar inert |
+| `test/features/collection/collection_cubit_test.dart` | Plants sorted desc, empty state |
+| `test/features/collection/collection_section_test.dart` | Carousel visible, tap calls callback, empty state widget, navigation to PlantDetailPlaceholder |

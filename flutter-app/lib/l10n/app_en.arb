@@ -8,5 +8,9 @@
   "wizardButtonNext": "Next",
   "wizardButtonSave": "Save",
   "wizardSpeciesFieldHint": "Enter a species…",
-  "wizardNicknameFieldHint": "Leave empty to use: {defaultName}"
+  "wizardNicknameFieldHint": "Leave empty to use: {defaultName}",
+
+  "collectionSectionTitle": "Your Collection",
+  "collectionEmpty": "No plants in your collection yet",
+  "plantDetailComingSoon": "Full details coming soon"
 }

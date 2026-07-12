@@ -1,6 +1,6 @@
 # A1 — App Shell skeleton
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 

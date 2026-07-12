@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../core/design/zeimoto_theme.dart';
+import '../features/collection/collection_section.dart';
+import '../features/collection/plant_detail_placeholder.dart';
+import '../l10n/app_localizations.dart';
 
 /// App Shell main entry point for Zeimoto MVP.
 ///
@@ -19,14 +22,35 @@ class ZeimotoAppShell extends StatelessWidget {
           Positioned.fill(
             bottom: ZeimotoSpacing
                 .agentBarHeight, // Leave space for pinned agent bar
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Container(
-                    // Empty for now; sections will be added in subsequent issues
+            child: SafeArea(
+              bottom: false, // Don't inset from bottom; AgentBar handles it
+              child: CustomScrollView(
+                slivers: [
+                  // Section title
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Text(
+                        AppLocalizations.of(context)!.collectionSectionTitle,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  // Collection Section — owns its own BlocProvider internally
+                  SliverToBoxAdapter(
+                    child: CollectionSection(
+                      onTapPlant: (plant) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                PlantDetailPlaceholder(plant: plant),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           // Pinned agent bar
@@ -34,7 +58,10 @@ class ZeimotoAppShell extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: AgentBar(height: ZeimotoSpacing.agentBarHeight),
+            child: SafeArea(
+              top: false,
+              child: AgentBar(height: ZeimotoSpacing.agentBarHeight),
+            ),
           ),
         ],
       ),

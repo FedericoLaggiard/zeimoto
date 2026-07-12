@@ -98,6 +98,10 @@ Funzione pura che genera il nickname di default quando l'utente non ne fornisce 
 ```dart
 abstract interface class PlantRepository {
   List<Plant> get plants;          // ordinata per createdAt decrescente
+
+  /// Emette un evento void ogni volta che una pianta viene aggiunta.
+  Stream<void> get changes;
+
   Plant add({
     required String species,
     String? nickname,              // null → genera defaultNickname
@@ -123,6 +127,8 @@ Implementazione in-memory usata nel MVP. Al costruttore, carica 5 piante di seed
 | Ulmus parvifolia | olmo pigro |
 
 Il getter `plants` restituisce sempre la lista ordinata per `createdAt` decrescente (piante più recenti prime).
+
+Dopo ogni chiamata a `add()`, l'implementazione emette un evento su `changes` (tramite `StreamController.broadcast()`) per notificare i sottoscrittori (es. `CollectionCubit`) che la collezione è cambiata.
 
 ---
 
