@@ -31,9 +31,10 @@ output-localization-file: app_localizations.dart
 ## Configuration in `main.dart`
 
 ```dart
-MaterialApp(
+MaterialApp.router(
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
+  routerConfig: _router,
   ...
 )
 ```
@@ -53,8 +54,11 @@ MaterialApp(
 | `wizardButtonNext` | string | Avanti | Next |
 | `wizardButtonSave` | string | Salva | Save |
 | `wizardSpeciesFieldHint` | string | Inserisci una specie… | Enter a species… |
-| `wizardNicknameFieldHint` | parametric string (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} |
-
+| `wizardNicknameFieldHint` | parametric string (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} || `collectionSectionTitle` | string | La Tua Collezione | Your Collection |
+| `collectionEmpty` | string | Nessuna pianta nella collezione | No plants in your collection yet |
+| `plantDetailComingSoon` | string | Dettagli completi disponibili a breve | Full details coming soon |
+| `agent_bar_hint_text` | string | Cosa vuoi fare oggi? | What would you like to do today? |
+| `agent_bar_new_plant_tooltip` | string | Nuova pianta | New plant |
 ---
 
 ## Naming convention
@@ -63,7 +67,9 @@ MaterialApp(
 <screen>_<element>_<role>
 ```
 
-**camelCase.** Examples: `wizardButtonNext`, `wizardStepPhotoHeading`, `wizardNicknameFieldHint`.
+**snake_case** (from A6 onwards). Examples: `agent_bar_hint_text`, `agent_bar_new_plant_tooltip`.
+
+> **Historical note:** keys added before A6 (`wizardButtonNext`, `collectionSectionTitle`, etc.) use camelCase. They are not renamed for backward compatibility. All **new** keys must use snake_case.
 
 ---
 
@@ -89,12 +95,17 @@ MaterialApp(
 Widget tests that require `AppLocalizations` must wrap the subject with:
 
 ```dart
-MaterialApp(
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  locale: const Locale('it'),
-  home: ...,
+RepositoryProvider<PlantRepository>(
+  create: (_) => InMemoryPlantRepository(),
+  child: MaterialApp.router(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('it'),
+    routerConfig: buildAppRouter(),
+  ),
 )
 ```
 
-Localised strings are not searched for directly in tests — widget `Key`s are used to locate interactive components instead.
+For tests that don’t require navigation (e.g. isolated feature widget tests), a plain `MaterialApp` with `home:` and `localizationsDelegates` is sufficient.
+
+To assert localised strings: use `lookupAppLocalizations(const Locale('it')).<key>` instead of hard-coded string literals.
