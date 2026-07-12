@@ -47,13 +47,10 @@ void main() {
       const customHeight = 80.0;
       await tester.pumpWidget(buildWidget(height: customHeight));
 
-      final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.byType(TextField),
-          matching: find.byType(Container),
-        ).first,
+      final renderBox = tester.renderObject<RenderBox>(
+        find.byType(AgentBar),
       );
-      expect(container.constraints?.maxHeight, customHeight);
+      expect(renderBox.size.height, closeTo(customHeight, 1));
     });
   });
 }
