@@ -1,6 +1,6 @@
 # A7 — Sezione Assistente AI (statica)
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -14,11 +14,11 @@ Il copy deve rispettare la filosofia di prodotto: nessuna frase che suggerisca a
 
 ## Acceptance criteria
 
-- [ ] La sezione è visibile nella home come widget autonomo
-- [ ] Il contenuto è mock/statico (testo identico o ispirato al prototipo)
-- [ ] Nessuna chiamata a servizi esterni o AI
-- [ ] Il copy non attribuisce all'AI un ruolo decisionale
-- [ ] Nessun comportamento interattivo (in questo slice)
+- [x] La sezione è visibile nella home come widget autonomo
+- [x] Il contenuto è mock/statico (testo identico o ispirato al prototipo)
+- [x] Nessuna chiamata a servizi esterni o AI
+- [x] Il copy non attribuisce all'AI un ruolo decisionale
+- [x] Nessun comportamento interattivo (in questo slice)
 
 ## Blocked by
 
