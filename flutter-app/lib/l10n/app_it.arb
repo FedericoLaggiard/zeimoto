@@ -45,5 +45,20 @@
         "example": "palmatum_01"
       }
     }
+  },
+
+  "collectionSectionTitle": "La Tua Collezione",
+  "@collectionSectionTitle": {
+    "description": "Titolo della sezione carosello nella home"
+  },
+
+  "collectionEmpty": "Nessuna pianta nella collezione",
+  "@collectionEmpty": {
+    "description": "Messaggio stato vuoto della sezione Collezione"
+  },
+
+  "plantDetailComingSoon": "Dettagli completi disponibili a breve",
+  "@plantDetailComingSoon": {
+    "description": "Testo segnaposto nella schermata di dettaglio pianta"
   }
 }

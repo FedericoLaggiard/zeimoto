@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:ui';
 
@@ -98,6 +99,9 @@ String defaultNickname(String species, int existingCount, {String? nickname}) {
 abstract interface class PlantRepository {
   List<Plant> get plants;
 
+  /// Emits a void event each time a plant is added to the repository.
+  Stream<void> get changes;
+
   Plant add({
     required String species,
     String? nickname,
@@ -123,6 +127,10 @@ class InMemoryPlantRepository implements PlantRepository {
   final DateTime Function() _now;
   final Uuid _uuid;
   final List<Plant> _plants = <Plant>[];
+  final _changesController = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> get changes => _changesController.stream;
 
   @override
   List<Plant> get plants {
@@ -146,6 +154,7 @@ class InMemoryPlantRepository implements PlantRepository {
     );
 
     _plants.add(plant);
+    _changesController.add(null);
     return plant;
   }
 

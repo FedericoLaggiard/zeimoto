@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/domain/plants.dart';
-import 'package:zeimoto/features/collection/collection_cubit.dart';
 import 'package:zeimoto/features/collection/collection_section.dart';
 import 'package:zeimoto/features/collection/plant_detail_placeholder.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
@@ -21,6 +20,9 @@ class _FakeRepo implements PlantRepository {
       ..sort((left, right) => right.createdAt.compareTo(left.createdAt));
     return List.unmodifiable(sorted);
   }
+
+  @override
+  Stream<void> get changes => Stream.empty();
 
   @override
   Plant add({
@@ -55,7 +57,9 @@ class _FakeRepo implements PlantRepository {
 // ---------------------------------------------------------------------------
 void main() {
   group('CollectionSection widget', () {
-    testWidgets('shows carousel of plants from repository', (WidgetTester tester) async {
+    testWidgets('shows carousel of plants from repository', (
+      WidgetTester tester,
+    ) async {
       final repo = _FakeRepo();
       final now = DateTime.now();
       repo.addWithTime(
@@ -77,11 +81,9 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: BlocProvider(
-              create: (_) => CollectionCubit(repo),
-              child: CollectionSection(
-                onTapPlant: (_) {},
-              ),
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
+              child: CollectionSection(onTapPlant: (_) {}),
             ),
           ),
         ),
@@ -93,7 +95,9 @@ void main() {
       expect(find.byType(PageView), findsOneWidget);
     });
 
-    testWidgets('tapping a card calls onTapPlant callback', (WidgetTester tester) async {
+    testWidgets('tapping a card calls onTapPlant callback', (
+      WidgetTester tester,
+    ) async {
       final repo = _FakeRepo();
       final now = DateTime.now();
       final plant = repo.addWithTime(
@@ -110,11 +114,9 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: BlocProvider(
-              create: (_) => CollectionCubit(repo),
-              child: CollectionSection(
-                onTapPlant: (p) => tappedPlant = p,
-              ),
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
+              child: CollectionSection(onTapPlant: (p) => tappedPlant = p),
             ),
           ),
         ),
@@ -128,7 +130,9 @@ void main() {
       expect(tappedPlant?.id, plant.id);
     });
 
-    testWidgets('shows empty state when repository is empty', (WidgetTester tester) async {
+    testWidgets('shows empty state when repository is empty', (
+      WidgetTester tester,
+    ) async {
       final repo = _FakeRepo();
 
       await tester.pumpWidget(
@@ -137,11 +141,9 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: BlocProvider(
-              create: (_) => CollectionCubit(repo),
-              child: CollectionSection(
-                onTapPlant: (_) {},
-              ),
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
+              child: CollectionSection(onTapPlant: (_) {}),
             ),
           ),
         ),
@@ -152,9 +154,9 @@ void main() {
       // (The exact empty state message depends on i18n, verify logic instead)
     });
 
-    testWidgets(
-        'tapping a plant card navigates to PlantDetailPlaceholder',
-        (WidgetTester tester) async {
+    testWidgets('tapping a plant card navigates to PlantDetailPlaceholder', (
+      WidgetTester tester,
+    ) async {
       final repo = _FakeRepo();
       final now = DateTime.now();
       final plant = repo.addWithTime(
@@ -170,12 +172,13 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: BlocProvider(
-              create: (_) => CollectionCubit(repo),
+            body: RepositoryProvider<PlantRepository>.value(
+              value: repo,
               child: CollectionSection(
                 onTapPlant: (selectedPlant) {
-                  Navigator.of(tester.element(find.byType(CollectionSection)))
-                      .push(
+                  Navigator.of(
+                    tester.element(find.byType(CollectionSection)),
+                  ).push(
                     MaterialPageRoute(
                       builder: (_) =>
                           PlantDetailPlaceholder(plant: selectedPlant),

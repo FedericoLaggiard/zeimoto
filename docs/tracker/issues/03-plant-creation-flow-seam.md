@@ -1,6 +1,6 @@
 # A3 — Plant Creation Flow seam (headless + test)
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 

@@ -7,15 +7,31 @@ import '../../l10n/app_localizations.dart';
 import 'collection_cubit.dart';
 import 'collection_state.dart';
 
-/// CollectionSection — displays a horizontal carousel of plants.
+/// CollectionSection — feature entry widget for the collection carousel.
 ///
-/// Reads from [CollectionCubit] (injected via BlocProvider by parent).
+/// Creates its own [CollectionCubit] via [BlocProvider], reading
+/// [PlantRepository] from the ambient [RepositoryProvider].
 /// When a plant card is tapped, calls [onTapPlant] callback.
 class CollectionSection extends StatelessWidget {
-  const CollectionSection({
-    super.key,
-    required this.onTapPlant,
-  });
+  const CollectionSection({super.key, required this.onTapPlant});
+
+  final ValueChanged<Plant> onTapPlant;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (ctx) => CollectionCubit(ctx.read<PlantRepository>()),
+      child: _CollectionView(onTapPlant: onTapPlant),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Internal view — consumes CollectionCubit
+// ---------------------------------------------------------------------------
+
+class _CollectionView extends StatelessWidget {
+  const _CollectionView({required this.onTapPlant});
 
   final ValueChanged<Plant> onTapPlant;
 
@@ -25,7 +41,10 @@ class CollectionSection extends StatelessWidget {
       builder: (context, state) {
         return switch (state) {
           CollectionLoading() => _buildLoading(),
-          CollectionLoaded(plants: final plants) => _buildCarousel(context, plants),
+          CollectionLoaded(plants: final plants) => _buildCarousel(
+            context,
+            plants,
+          ),
           CollectionEmpty() => _buildEmpty(context),
         };
       },
@@ -39,9 +58,7 @@ class CollectionSection extends StatelessWidget {
   Widget _buildLoading() {
     return const SizedBox(
       height: 340,
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -52,10 +69,7 @@ class CollectionSection extends StatelessWidget {
         itemCount: plants.length,
         itemBuilder: (ctx, i) {
           final plant = plants[i];
-          return _PlantCard(
-            plant: plant,
-            onTap: () => onTapPlant(plant),
-          );
+          return _PlantCard(plant: plant, onTap: () => onTapPlant(plant));
         },
       ),
     );
@@ -67,7 +81,7 @@ class CollectionSection extends StatelessWidget {
       height: 340,
       child: Center(
         child: Text(
-          'Nessuna pianta nella collezione', // i18n key: collection_empty
+          l10n.collectionEmpty,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
@@ -80,10 +94,7 @@ class CollectionSection extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _PlantCard extends StatelessWidget {
-  const _PlantCard({
-    required this.plant,
-    required this.onTap,
-  });
+  const _PlantCard({required this.plant, required this.onTap});
 
   final Plant plant;
   final VoidCallback onTap;
@@ -127,9 +138,9 @@ class _PlantCard extends StatelessWidget {
             Text(
               plant.species,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontStyle: FontStyle.italic,
-                    color: ZeimotoColors.charcoalSoft,
-                  ),
+                fontStyle: FontStyle.italic,
+                color: ZeimotoColors.charcoalSoft,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

@@ -1,6 +1,6 @@
 # A2 — Dominio Pianta + PlantRepository in-memory
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
