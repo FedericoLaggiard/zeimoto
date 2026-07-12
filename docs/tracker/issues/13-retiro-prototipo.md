@@ -1,6 +1,6 @@
 # A13 — Retiro prototipo
 
-Status: ready-for-human
+Status: done
 
 ## Parent
 
@@ -22,11 +22,11 @@ Passaggi:
 
 ## Acceptance criteria
 
-- [ ] La sezione "Verdict" di `flutter-app/lib/prototype/app_shell/NOTES.md` è compilata e firmata dal maintainer
-- [ ] `lib/prototype/` è stata rimossa dal repository
-- [ ] Nessun import o riferimento a `lib/prototype/` esiste nel codice sotto `lib/`
-- [ ] `flutter test` passa senza errori dopo la rimozione
-- [ ] `flutter analyze` non riporta warning relativi alla rimozione
+- [x] La sezione "Verdict" di `flutter-app/lib/prototype/app_shell/NOTES.md` è compilata e firmata dal maintainer
+- [x] `lib/prototype/` è stata rimossa dal repository
+- [x] Nessun import o riferimento a `lib/prototype/` esiste nel codice sotto `lib/`
+- [x] `flutter test` passa senza errori dopo la rimozione (83/83)
+- [x] `flutter analyze` non riporta warning relativi alla rimozione
 
 ## Blocked by
 
