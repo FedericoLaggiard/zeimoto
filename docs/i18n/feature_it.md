@@ -47,16 +47,17 @@ MaterialApp.router(
 
 | Chiave | Tipo | IT | EN |
 |--------|------|----|----|
-| `wizardClose` | stringa | Chiudi | Close |
-| `wizardStepPhotoHeading` | stringa | Scegli una foto | Choose a photo |
-| `wizardStepSpeciesHeading` | stringa | Seleziona la specie | Select the species |
-| `wizardStepNicknameHeading` | stringa | Dai un nome | Give it a name |
-| `wizardButtonNext` | stringa | Avanti | Next |
-| `wizardButtonSave` | stringa | Salva | Save |
-| `wizardSpeciesFieldHint` | stringa | Inserisci una specie… | Enter a species… |
-| `wizardNicknameFieldHint` | stringa parametrica (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} || `collectionSectionTitle` | stringa | La Tua Collezione | Your Collection |
-| `collectionEmpty` | stringa | Nessuna pianta nella collezione | No plants in your collection yet |
-| `plantDetailComingSoon` | stringa | Dettagli completi disponibili a breve | Full details coming soon |
+| `wizard_close` | stringa | Chiudi | Close |
+| `wizard_step_photo_heading` | stringa | Scegli una foto | Choose a photo |
+| `wizard_step_species_heading` | stringa | Seleziona la specie | Select the species |
+| `wizard_step_nickname_heading` | stringa | Dai un nome | Give it a name |
+| `wizard_button_next` | stringa | Avanti | Next |
+| `wizard_button_save` | stringa | Salva | Save |
+| `wizard_species_field_hint` | stringa | Inserisci una specie… | Enter a species… |
+| `wizard_nickname_field_hint` | stringa parametrica (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} |
+| `collection_section_title` | stringa | La Tua Collezione | Your Collection |
+| `collection_empty` | stringa | Nessuna pianta nella collezione | No plants in your collection yet |
+| `plant_detail_coming_soon` | stringa | Dettagli completi disponibili a breve | Full details coming soon |
 | `agent_bar_hint_text` | stringa | Cosa vuoi fare oggi? | What would you like to do today? |
 | `agent_bar_new_plant_tooltip` | stringa | Nuova pianta | New plant |
 ---

@@ -48,15 +48,16 @@ MaterialApp.router(
 | Key | Type | IT | EN |
 |-----|------|----|----|
 | `wizard_close` | string | Chiudi | Close |
-| `wizardStepPhotoHeading` | string | Scegli una foto | Choose a photo |
-| `wizardStepSpeciesHeading` | string | Seleziona la specie | Select the species |
-| `wizardStepNicknameHeading` | string | Dai un nome | Give it a name |
-| `wizardButtonNext` | string | Avanti | Next |
-| `wizardButtonSave` | string | Salva | Save |
-| `wizardSpeciesFieldHint` | string | Inserisci una specie… | Enter a species… |
-| `wizardNicknameFieldHint` | parametric string (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} || `collectionSectionTitle` | string | La Tua Collezione | Your Collection |
-| `collectionEmpty` | string | Nessuna pianta nella collezione | No plants in your collection yet |
-| `plantDetailComingSoon` | string | Dettagli completi disponibili a breve | Full details coming soon |
+| `wizard_step_photo_heading` | string | Scegli una foto | Choose a photo |
+| `wizard_step_species_heading` | string | Seleziona la specie | Select the species |
+| `wizard_step_nickname_heading` | string | Dai un nome | Give it a name |
+| `wizard_button_next` | string | Avanti | Next |
+| `wizard_button_save` | string | Salva | Save |
+| `wizard_species_field_hint` | string | Inserisci una specie… | Enter a species… |
+| `wizard_nickname_field_hint` | parametric string (`defaultName`) | Lascia vuoto per usare: {defaultName} | Leave empty to use: {defaultName} |
+| `collection_section_title` | string | La Tua Collezione | Your Collection |
+| `collection_empty` | string | Nessuna pianta nella collezione | No plants in your collection yet |
+| `plant_detail_coming_soon` | string | Dettagli completi disponibili a breve | Full details coming soon |
 | `agent_bar_hint_text` | string | Cosa vuoi fare oggi? | What would you like to do today? |
 | `agent_bar_new_plant_tooltip` | string | Nuova pianta | New plant |
 ---
