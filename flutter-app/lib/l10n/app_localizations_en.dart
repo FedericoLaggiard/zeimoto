@@ -41,6 +41,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collection_empty => 'No plants in your collection yet';
 
   @override
+  String get focus_plant_section_title => 'Plant Focus';
+
+  @override
+  String get focus_plant_empty => 'No plants available';
+
+  @override
   String get ai_assistant_section_title => 'AI Assistant';
 
   @override

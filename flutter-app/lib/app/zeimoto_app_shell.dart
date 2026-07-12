@@ -5,6 +5,7 @@ import '../core/design/zeimoto_theme.dart';
 import '../features/ai_assistant/ai_assistant_section.dart';
 import '../features/calendar/calendar_section.dart';
 import '../features/collection/collection_section.dart';
+import '../features/focus/focus_plant_section.dart';
 import '../l10n/app_localizations.dart';
 import '../routing/plant_detail_route.dart';
 import '../routing/routes.dart';
@@ -59,6 +60,21 @@ class ZeimotoAppShell extends StatelessWidget {
                   // Navigation to plant detail is delegated to the router.
                   SliverToBoxAdapter(
                     child: CollectionSection(
+                      onTapPlant: (plant) =>
+                          PlantDetailRoute(plant).push(context),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Text(
+                        l10n.focus_plant_section_title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: FocusPlantSection(
                       onTapPlant: (plant) =>
                           PlantDetailRoute(plant).push(context),
                     ),

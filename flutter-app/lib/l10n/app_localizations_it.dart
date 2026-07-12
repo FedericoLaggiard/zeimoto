@@ -41,6 +41,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get collection_empty => 'Nessuna pianta nella collezione';
 
   @override
+  String get focus_plant_section_title => 'Focus Pianta';
+
+  @override
+  String get focus_plant_empty => 'Nessuna pianta disponibile';
+
+  @override
   String get ai_assistant_section_title => 'Assistente AI';
 
   @override

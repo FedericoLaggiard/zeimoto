@@ -158,6 +158,18 @@ abstract class AppLocalizations {
   /// **'Nessuna pianta nella collezione'**
   String get collection_empty;
 
+  /// Titolo della sezione Focus Pianta nella home
+  ///
+  /// In it, this message translates to:
+  /// **'Focus Pianta'**
+  String get focus_plant_section_title;
+
+  /// Messaggio stato vuoto della sezione Focus Pianta
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna pianta disponibile'**
+  String get focus_plant_empty;
+
   /// Titolo della sezione statica Assistente AI nella home
   ///
   /// In it, this message translates to:
