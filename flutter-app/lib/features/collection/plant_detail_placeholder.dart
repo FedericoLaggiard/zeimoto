@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
@@ -16,7 +17,7 @@ class PlantDetailPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => Navigator.of(context).pop()),
+        leading: BackButton(onPressed: () => context.pop()),
         title: Text(plant.nickname),
       ),
       body: SafeArea(
@@ -55,7 +56,7 @@ class PlantDetailPlaceholder extends StatelessWidget {
               const SizedBox(height: 24),
               // Placeholder for future rich details
               Text(
-                AppLocalizations.of(context)!.plantDetailComingSoon,
+                AppLocalizations.of(context)!.plant_detail_coming_soon,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

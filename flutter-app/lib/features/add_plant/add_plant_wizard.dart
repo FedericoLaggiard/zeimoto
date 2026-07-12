@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
@@ -56,7 +57,7 @@ class _WizardViewState extends State<_WizardView> {
     return BlocListener<PlantCreationCubit, PlantCreationState>(
       listener: (context, state) {
         if (state is PlantCreationSaved) {
-          Navigator.of(context).maybePop();
+          context.pop();
         }
       },
       child: BlocBuilder<PlantCreationCubit, PlantCreationState>(
@@ -73,8 +74,8 @@ class _WizardViewState extends State<_WizardView> {
                 IconButton(
                   key: const Key('wizard_close_button'),
                   icon: const Icon(Icons.close),
-                  tooltip: l10n.wizardClose,
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  tooltip: l10n.wizard_close,
+                  onPressed: () => context.pop(),
                 ),
               ],
               bottom: PreferredSize(
@@ -138,7 +139,7 @@ class _StepFoto extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Text(
-            l10n.wizardStepPhotoHeading,
+            l10n.wizard_step_photo_heading,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
@@ -189,7 +190,7 @@ class _StepFoto extends StatelessWidget {
           child: ElevatedButton(
             key: const Key('wizard_next_button'),
             onPressed: onNext,
-            child: Text(l10n.wizardButtonNext),
+            child: Text(l10n.wizard_button_next),
           ),
         ),
       ],
@@ -224,7 +225,7 @@ class _StepSpecie extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Text(
-            l10n.wizardStepSpeciesHeading,
+            l10n.wizard_step_species_heading,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
@@ -234,7 +235,7 @@ class _StepSpecie extends StatelessWidget {
             key: const Key('wizard_species_field'),
             controller: speciesController,
             decoration: InputDecoration(
-              hintText: l10n.wizardSpeciesFieldHint,
+              hintText: l10n.wizard_species_field_hint,
               border: const OutlineInputBorder(),
             ),
             onChanged: onSpeciesChanged,
@@ -262,7 +263,7 @@ class _StepSpecie extends StatelessWidget {
           child: ElevatedButton(
             key: const Key('wizard_next_button'),
             onPressed: onNext,
-            child: Text(l10n.wizardButtonNext),
+            child: Text(l10n.wizard_button_next),
           ),
         ),
       ],
@@ -295,7 +296,7 @@ class _StepNickname extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Text(
-            l10n.wizardStepNicknameHeading,
+            l10n.wizard_step_nickname_heading,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
@@ -305,7 +306,7 @@ class _StepNickname extends StatelessWidget {
             key: const Key('wizard_nickname_field'),
             controller: nicknameController,
             decoration: InputDecoration(
-              hintText: l10n.wizardNicknameFieldHint(defaultName),
+              hintText: l10n.wizard_nickname_field_hint(defaultName),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -316,7 +317,7 @@ class _StepNickname extends StatelessWidget {
           child: ElevatedButton(
             key: const Key('wizard_save_button'),
             onPressed: onSave,
-            child: Text(l10n.wizardButtonSave),
+            child: Text(l10n.wizard_button_save),
           ),
         ),
       ],

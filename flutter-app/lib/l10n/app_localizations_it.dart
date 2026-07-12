@@ -9,37 +9,44 @@ class AppLocalizationsIt extends AppLocalizations {
   AppLocalizationsIt([String locale = 'it']) : super(locale);
 
   @override
-  String get wizardClose => 'Chiudi';
+  String get wizard_close => 'Chiudi';
 
   @override
-  String get wizardStepPhotoHeading => 'Scegli una foto';
+  String get wizard_step_photo_heading => 'Scegli una foto';
 
   @override
-  String get wizardStepSpeciesHeading => 'Seleziona la specie';
+  String get wizard_step_species_heading => 'Seleziona la specie';
 
   @override
-  String get wizardStepNicknameHeading => 'Dai un nome';
+  String get wizard_step_nickname_heading => 'Dai un nome';
 
   @override
-  String get wizardButtonNext => 'Avanti';
+  String get wizard_button_next => 'Avanti';
 
   @override
-  String get wizardButtonSave => 'Salva';
+  String get wizard_button_save => 'Salva';
 
   @override
-  String get wizardSpeciesFieldHint => 'Inserisci una specie…';
+  String get wizard_species_field_hint => 'Inserisci una specie…';
 
   @override
-  String wizardNicknameFieldHint(String defaultName) {
+  String wizard_nickname_field_hint(String defaultName) {
     return 'Lascia vuoto per usare: $defaultName';
   }
 
   @override
-  String get collectionSectionTitle => 'La Tua Collezione';
+  String get collection_section_title => 'La Tua Collezione';
 
   @override
-  String get collectionEmpty => 'Nessuna pianta nella collezione';
+  String get collection_empty => 'Nessuna pianta nella collezione';
 
   @override
-  String get plantDetailComingSoon => 'Dettagli completi disponibili a breve';
+  String get plant_detail_coming_soon =>
+      'Dettagli completi disponibili a breve';
+
+  @override
+  String get agent_bar_hint_text => 'Cosa vuoi fare oggi?';
+
+  @override
+  String get agent_bar_new_plant_tooltip => 'Nuova pianta';
 }

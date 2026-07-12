@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
@@ -54,23 +55,40 @@ Widget _buildSubject(_FakeRepo repo) {
   );
 }
 
-/// Wraps [AddPlantWizard] behind a Navigator push — for tests that need
-/// Navigator.pop() to be observable (close / save).
+/// Wraps [AddPlantWizard] behind a GoRouter push — for tests that need
+/// pop() to be observable (close / save).
 Widget _buildNavigatorSubject(_FakeRepo repo) {
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => Scaffold(
+          body: ElevatedButton(
+            onPressed: () => context.push('/wizard'),
+            child: const Text('open'),
+          ),
+        ),
+        routes: [
+          GoRoute(
+            path: 'wizard',
+            pageBuilder: (context, state) => const MaterialPage(
+              fullscreenDialog: true,
+              child: AddPlantWizard(),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+
   return RepositoryProvider<PlantRepository>.value(
     value: repo,
-    child: MaterialApp(
+    child: MaterialApp.router(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('it'),
-      home: Builder(
-        builder: (context) => ElevatedButton(
-          onPressed: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const AddPlantWizard())),
-          child: const Text('open'),
-        ),
-      ),
+      routerConfig: router,
     ),
   );
 }

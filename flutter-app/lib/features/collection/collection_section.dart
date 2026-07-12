@@ -81,7 +81,7 @@ class _CollectionView extends StatelessWidget {
       height: 340,
       child: Center(
         child: Text(
-          l10n.collectionEmpty,
+          l10n.collection_empty,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),

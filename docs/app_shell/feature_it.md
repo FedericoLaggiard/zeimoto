@@ -9,16 +9,18 @@ L'App Shell (`lib/app/zeimoto_app_shell.dart`) è il contenitore principale dell
 ```mermaid
 graph TD
     ZeimotoApp --> RP[RepositoryProvider&lt;PlantRepository&gt;]
-    RP --> MA[MaterialApp\ntheme · i18n · home]
-    MA --> ZAS[ZeimotoAppShell]
+    RP --> MAR[MaterialApp.router\ntheme · i18n · routerConfig]
+    MAR --> GR[GoRouter\nlib/routing/app_router.dart]
+    GR --> ZAS[ZeimotoAppShell]
     ZAS --> Scaffold
+    Scaffold --> FAB[FloatingActionButton\nadd_plant_fab]
     Scaffold --> Stack
     Stack --> PF[Positioned.fill\nbottom=agentBarHeight]
     Stack --> PB[Positioned bottom=0]
     PF --> CSV[CustomScrollView]
     CSV --> CS[CollectionSection\n└ BlocProvider interna]
     CS --> PV[PageView · carousel card]
-    PB --> AB[AgentBar\nh=60dp · inerta]
+    PB --> AB[AgentBar\nh=60dp · solo affordance]
 ```
 
 ---
@@ -31,10 +33,10 @@ graph TD
 │   Area scrollabile (sezioni MVP)   │
 │   CustomScrollView                 │
 │                                    │
-│                                    │
+│                              [+]   │  ← FAB (FloatingActionButton)
 │                                    │
 ├────────────────────────────────────┤  ← agentBarHeight = 60dp
-│   AgentBar  (pinned, inerta)       │
+│   AgentBar  (pinned, affordance)   │
 └────────────────────────────────────┘
 ```
 
@@ -51,7 +53,10 @@ L'area scrollabile è posizionata con `Positioned.fill(bottom: 60)` per lasciare
 `StatelessWidget`. Non detiene stato; le sezioni e i dati vengono iniettati dalle feature.
 
 Al momento ospita:
-- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` spinge `PlantDetailPlaceholder` sul navigator.
+- **Sezione Collezione** — `CollectionSection` (feature entry widget che crea il proprio `BlocProvider<CollectionCubit>` internamente); il callback `onTapPlant` chiama `context.push(AppRoutes.plantDetail, extra: plant)` via go_router.
+- **FAB** — `FloatingActionButton` con `key: 'add_plant_fab'` posizionato sopra l'`AgentBar` (padding bottom = `agentBarHeight`); chiama `context.push(AppRoutes.addPlant)`.
+
+La navigazione è **sempre delegata a `AppRoutes`** (`lib/routing/routes.dart`). Nessuna schermata di feature viene importata direttamente (ADR-0001, ADR-0004).
 
 ---
 
@@ -65,9 +70,10 @@ Al momento ospita:
 | Sfondo | `ZeimotoColors.washi` |
 | Bordo superiore | `charcoal @ 10%` |
 | Ombra | `charcoal @ 5%`, blur 8dp, offset (0, −2) |
-| Stato attuale | **Inerta** — `AbsorbPointer` + `IgnorePointer` avvolgono il campo testo |
+| Campo testo | Solo affordance visiva — `AbsorbPointer` impedisce focus e tastiera |
+| CTA | **FAB sullo Scaffold** (non nella barra) — vedi `ZeimotoAppShell` |
 
-Il testo segnaposto "Cosa vuoi fare oggi?" è hardcoded in questa versione; verrà internazionalizzato e reso interattivo nella issue A6.
+Il testo segnaposto è localizzato (`l10n.agentBarHintText` = "Cosa vuoi fare oggi?"). Il campo non è interattivo in questo slice: l'intent detection è demandata a un futuro slice.
 
 ---
 
@@ -89,5 +95,6 @@ Il testo segnaposto "Cosa vuoi fare oggi?" è hardcoded in questa versione; verr
 
 | Test file | Comportamenti verificati |
 |-----------|--------------------------|
-| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder, AgentBar inerta || `test/features/collection/collection_cubit_test.dart` | Piante ordinate desc, empty state |
+| `test/app/zeimoto_app_shell_test.dart` | Background washi, AgentBar visibile e pinned, area scrollabile, testo placeholder localizzato, FAB visibile, FAB apre wizard, chiusura wizard ritorna alla shell, campo non accetta input, collezione aggiornata dopo salvataggio |
+| `test/features/collection/collection_cubit_test.dart` | Piante ordinate desc, empty state |
 | `test/features/collection/collection_section_test.dart` | Carousel visibile, tap chiama callback, empty state widget, navigazione a PlantDetailPlaceholder |
