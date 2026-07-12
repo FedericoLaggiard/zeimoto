@@ -15,6 +15,26 @@
   "ai_assistant_section_title": "AI Assistant",
   "ai_assistant_card_label": "Contextual observations",
   "ai_assistant_card_message": "The app observes, suggests, and remembers your collection context, but it does not replace the bonsai grower.",
+
+  "calendar_section_title": "Calendar",
+  "calendar_past_events_title": "Past events",
+  "calendar_suggested_tasks_title": "Suggested tasks",
+  "calendar_suggested_badge": "suggested",
+
+  "calendar_past_event_1_title": "Maple repot completed",
+  "calendar_past_event_1_date": "Jul 10",
+  "calendar_past_event_2_title": "Elm defoliation completed",
+  "calendar_past_event_2_date": "Jul 7",
+  "calendar_past_event_3_title": "Extra watering completed",
+  "calendar_past_event_3_date": "Jul 3",
+
+  "calendar_suggested_task_1_title": "Check pine substrate moisture",
+  "calendar_suggested_task_1_date": "tomorrow",
+  "calendar_suggested_task_2_title": "Assess sun shielding for azalea",
+  "calendar_suggested_task_2_date": "in 2 days",
+  "calendar_suggested_task_3_title": "Plan a light fertilization",
+  "calendar_suggested_task_3_date": "this week",
+
   "plant_detail_coming_soon": "Full details coming soon",
 
   "agent_bar_hint_text": "What would you like to do today?",

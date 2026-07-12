@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/design/zeimoto_theme.dart';
 import '../features/ai_assistant/ai_assistant_section.dart';
+import '../features/calendar/calendar_section.dart';
 import '../features/collection/collection_section.dart';
 import '../l10n/app_localizations.dart';
 import '../routing/plant_detail_route.dart';
@@ -62,6 +63,7 @@ class ZeimotoAppShell extends StatelessWidget {
                           PlantDetailRoute(plant).push(context),
                     ),
                   ),
+                  const SliverToBoxAdapter(child: CalendarSection()),
                 ],
               ),
             ),

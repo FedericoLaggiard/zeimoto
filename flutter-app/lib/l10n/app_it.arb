@@ -72,6 +72,40 @@
     "description": "Copy statico della card Assistente AI con postura non decisionale"
   },
 
+  "calendar_section_title": "Calendario",
+  "@calendar_section_title": {
+    "description": "Titolo della sezione Calendario nella home"
+  },
+
+  "calendar_past_events_title": "Eventi passati",
+  "@calendar_past_events_title": {
+    "description": "Titolo del blocco storico con azioni gia' eseguite"
+  },
+
+  "calendar_suggested_tasks_title": "Task suggeriti",
+  "@calendar_suggested_tasks_title": {
+    "description": "Titolo del blocco con task suggeriti dall'AI"
+  },
+
+  "calendar_suggested_badge": "suggerito",
+  "@calendar_suggested_badge": {
+    "description": "Badge che indica un task proposto e non ancora approvato"
+  },
+
+  "calendar_past_event_1_title": "Rinvaso acero completato",
+  "calendar_past_event_1_date": "10 lug",
+  "calendar_past_event_2_title": "Defogliazione olmo completata",
+  "calendar_past_event_2_date": "7 lug",
+  "calendar_past_event_3_title": "Irrigazione straordinaria completata",
+  "calendar_past_event_3_date": "3 lug",
+
+  "calendar_suggested_task_1_title": "Controlla umidita' substrato del pino",
+  "calendar_suggested_task_1_date": "domani",
+  "calendar_suggested_task_2_title": "Valuta schermatura sole per azalea",
+  "calendar_suggested_task_2_date": "tra 2 giorni",
+  "calendar_suggested_task_3_title": "Programma fertilizzazione leggera",
+  "calendar_suggested_task_3_date": "questa settimana",
+
   "plant_detail_coming_soon": "Dettagli completi disponibili a breve",
   "@plant_detail_coming_soon": {
     "description": "Testo segnaposto nella schermata di dettaglio pianta"

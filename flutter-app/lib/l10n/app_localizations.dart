@@ -176,6 +176,102 @@ abstract class AppLocalizations {
   /// **'L\'app osserva, suggerisce e ricorda il contesto della tua collezione, ma non sostituisce il bonsaista.'**
   String get ai_assistant_card_message;
 
+  /// Titolo della sezione Calendario nella home
+  ///
+  /// In it, this message translates to:
+  /// **'Calendario'**
+  String get calendar_section_title;
+
+  /// Titolo del blocco storico con azioni gia' eseguite
+  ///
+  /// In it, this message translates to:
+  /// **'Eventi passati'**
+  String get calendar_past_events_title;
+
+  /// Titolo del blocco con task suggeriti dall'AI
+  ///
+  /// In it, this message translates to:
+  /// **'Task suggeriti'**
+  String get calendar_suggested_tasks_title;
+
+  /// Badge che indica un task proposto e non ancora approvato
+  ///
+  /// In it, this message translates to:
+  /// **'suggerito'**
+  String get calendar_suggested_badge;
+
+  /// No description provided for @calendar_past_event_1_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Rinvaso acero completato'**
+  String get calendar_past_event_1_title;
+
+  /// No description provided for @calendar_past_event_1_date.
+  ///
+  /// In it, this message translates to:
+  /// **'10 lug'**
+  String get calendar_past_event_1_date;
+
+  /// No description provided for @calendar_past_event_2_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Defogliazione olmo completata'**
+  String get calendar_past_event_2_title;
+
+  /// No description provided for @calendar_past_event_2_date.
+  ///
+  /// In it, this message translates to:
+  /// **'7 lug'**
+  String get calendar_past_event_2_date;
+
+  /// No description provided for @calendar_past_event_3_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Irrigazione straordinaria completata'**
+  String get calendar_past_event_3_title;
+
+  /// No description provided for @calendar_past_event_3_date.
+  ///
+  /// In it, this message translates to:
+  /// **'3 lug'**
+  String get calendar_past_event_3_date;
+
+  /// No description provided for @calendar_suggested_task_1_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Controlla umidita\' substrato del pino'**
+  String get calendar_suggested_task_1_title;
+
+  /// No description provided for @calendar_suggested_task_1_date.
+  ///
+  /// In it, this message translates to:
+  /// **'domani'**
+  String get calendar_suggested_task_1_date;
+
+  /// No description provided for @calendar_suggested_task_2_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Valuta schermatura sole per azalea'**
+  String get calendar_suggested_task_2_title;
+
+  /// No description provided for @calendar_suggested_task_2_date.
+  ///
+  /// In it, this message translates to:
+  /// **'tra 2 giorni'**
+  String get calendar_suggested_task_2_date;
+
+  /// No description provided for @calendar_suggested_task_3_title.
+  ///
+  /// In it, this message translates to:
+  /// **'Programma fertilizzazione leggera'**
+  String get calendar_suggested_task_3_title;
+
+  /// No description provided for @calendar_suggested_task_3_date.
+  ///
+  /// In it, this message translates to:
+  /// **'questa settimana'**
+  String get calendar_suggested_task_3_date;
+
   /// Testo segnaposto nella schermata di dettaglio pianta
   ///
   /// In it, this message translates to:

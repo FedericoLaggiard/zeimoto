@@ -51,6 +51,58 @@ class AppLocalizationsIt extends AppLocalizations {
       'L\'app osserva, suggerisce e ricorda il contesto della tua collezione, ma non sostituisce il bonsaista.';
 
   @override
+  String get calendar_section_title => 'Calendario';
+
+  @override
+  String get calendar_past_events_title => 'Eventi passati';
+
+  @override
+  String get calendar_suggested_tasks_title => 'Task suggeriti';
+
+  @override
+  String get calendar_suggested_badge => 'suggerito';
+
+  @override
+  String get calendar_past_event_1_title => 'Rinvaso acero completato';
+
+  @override
+  String get calendar_past_event_1_date => '10 lug';
+
+  @override
+  String get calendar_past_event_2_title => 'Defogliazione olmo completata';
+
+  @override
+  String get calendar_past_event_2_date => '7 lug';
+
+  @override
+  String get calendar_past_event_3_title =>
+      'Irrigazione straordinaria completata';
+
+  @override
+  String get calendar_past_event_3_date => '3 lug';
+
+  @override
+  String get calendar_suggested_task_1_title =>
+      'Controlla umidita\' substrato del pino';
+
+  @override
+  String get calendar_suggested_task_1_date => 'domani';
+
+  @override
+  String get calendar_suggested_task_2_title =>
+      'Valuta schermatura sole per azalea';
+
+  @override
+  String get calendar_suggested_task_2_date => 'tra 2 giorni';
+
+  @override
+  String get calendar_suggested_task_3_title =>
+      'Programma fertilizzazione leggera';
+
+  @override
+  String get calendar_suggested_task_3_date => 'questa settimana';
+
+  @override
   String get plant_detail_coming_soon =>
       'Dettagli completi disponibili a breve';
 
