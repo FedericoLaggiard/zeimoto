@@ -1,6 +1,6 @@
 # A5 — Sezione Collezione (carosello)
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 

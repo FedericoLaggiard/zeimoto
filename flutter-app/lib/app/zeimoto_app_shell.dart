@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../core/design/zeimoto_theme.dart';
+import '../domain/plants.dart';
+import '../features/collection/collection_cubit.dart';
+import '../features/collection/collection_section.dart';
+import '../features/collection/plant_detail_placeholder.dart';
 
 /// App Shell main entry point for Zeimoto MVP.
 ///
@@ -21,9 +26,36 @@ class ZeimotoAppShell extends StatelessWidget {
                 .agentBarHeight, // Leave space for pinned agent bar
             child: CustomScrollView(
               slivers: [
+                // Section title + spacing
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    child: Text(
+                      'La Tua Collezione',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                ),
+                // Collection Section carousel
+                SliverToBoxAdapter(
+                  child: BlocProvider(
+                    create: (ctx) => CollectionCubit(ctx.read<PlantRepository>()),
+                    child: CollectionSection(
+                      onTapPlant: (plant) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                PlantDetailPlaceholder(plant: plant),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Other sections will be added in subsequent issues
                 SliverToBoxAdapter(
                   child: Container(
-                    // Empty for now; sections will be added in subsequent issues
+                    // Placeholder for future sections
                   ),
                 ),
               ],
