@@ -15,3 +15,10 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## Todo
+
+- [ ] implementare switch lingua 
+- [ ] il widget in home del calendario dovrebbe mostrare prima i suggeriti, poi i vecchi eventi
+- [ ] la home deve vivere in un componente separato, non in app

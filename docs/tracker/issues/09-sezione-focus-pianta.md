@@ -1,6 +1,6 @@
 # A9 — Sezione Focus Pianta
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 

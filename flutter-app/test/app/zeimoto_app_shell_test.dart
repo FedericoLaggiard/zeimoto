@@ -7,6 +7,8 @@ import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
 import 'package:zeimoto/features/calendar/calendar_section.dart';
 import 'package:zeimoto/features/collection/collection_section.dart';
+import 'package:zeimoto/features/collection/plant_detail_placeholder.dart';
+import 'package:zeimoto/features/focus/focus_plant_section.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
 import 'package:zeimoto/routing/app_router.dart';
 
@@ -100,6 +102,67 @@ void main() {
 
       expect(find.text(l10n.ai_assistant_section_title), findsOneWidget);
       expect(find.text(l10n.ai_assistant_card_message), findsOneWidget);
+    });
+
+    testWidgets('home shows focus section title and content card', (
+      WidgetTester tester,
+    ) async {
+      final (:widget, :repo) = buildApp();
+      await tester.pumpWidget(widget);
+
+      final l10n = lookupAppLocalizations(const Locale('it'));
+
+      // Scroll to the section title — it sits just above FocusPlantSection in
+      // the sliver list, so once the title is visible the card is also in the
+      // viewport (title ~50 px + card 340 px fit in the 600 px test viewport).
+      await tester.scrollUntilVisible(
+        find.text(l10n.focus_plant_section_title),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.focus_plant_section_title), findsOneWidget);
+      expect(find.byType(FocusPlantSection), findsOneWidget);
+      final hasAnyNickname = repo.plants.any(
+        (plant) => find
+            .descendant(
+              of: find.byType(FocusPlantSection),
+              matching: find.text(plant.nickname),
+            )
+            .evaluate()
+            .isNotEmpty,
+      );
+      expect(hasAnyNickname, isTrue);
+    });
+
+    testWidgets('tapping focus plant card opens plant detail placeholder', (
+      WidgetTester tester,
+    ) async {
+      final (:widget, :repo) = buildApp();
+      await tester.pumpWidget(widget);
+
+      await tester.scrollUntilVisible(
+        find.byType(FocusPlantSection),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(FocusPlantSection),
+          matching: find.byType(GestureDetector),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PlantDetailPlaceholder), findsOneWidget);
+
+      final hasAnyNicknameInDetail = repo.plants.any(
+        (plant) => find.text(plant.nickname).evaluate().isNotEmpty,
+      );
+      expect(hasAnyNicknameInDetail, isTrue);
     });
 
     testWidgets(
@@ -204,27 +267,43 @@ void main() {
       final initialCount = repo.plants.length;
 
       // Open wizard
-      await tester.tap(find.byKey(const Key('add_plant_fab')));
+      final addPlantFab = find.byKey(const Key('add_plant_fab'));
+      expect(addPlantFab, findsOneWidget);
+      await tester.tap(addPlantFab);
       await tester.pumpAndSettle();
 
       // Step 1 — select first photo
-      await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
+      final photoItem = find.byKey(const Key('wizard_photo_item_0'));
+      expect(photoItem, findsOneWidget);
+      await tester.ensureVisible(photoItem);
+      await tester.tap(photoItem);
       await tester.pump();
 
       // Advance to step 2
-      await tester.tap(find.byKey(const Key('wizard_next_button')));
+      final nextButton = find.byKey(const Key('wizard_next_button'));
+      expect(nextButton, findsOneWidget);
+      await tester.ensureVisible(nextButton);
+      await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
       // Step 2 — select first species from list
-      await tester.tap(find.byKey(const Key('wizard_species_item_0')));
+      final speciesItem = find.byKey(const Key('wizard_species_item_0'));
+      expect(speciesItem, findsOneWidget);
+      await tester.ensureVisible(speciesItem);
+      await tester.tap(speciesItem);
       await tester.pump();
 
       // Advance to step 3
-      await tester.tap(find.byKey(const Key('wizard_next_button')));
+      expect(nextButton, findsOneWidget);
+      await tester.ensureVisible(nextButton);
+      await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
       // Step 3 — save (nickname is optional)
-      await tester.tap(find.byKey(const Key('wizard_save_button')));
+      final saveButton = find.byKey(const Key('wizard_save_button'));
+      expect(saveButton, findsOneWidget);
+      await tester.ensureVisible(saveButton);
+      await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
       // Wizard is gone, shell is back

@@ -12,6 +12,14 @@
 
   "collection_section_title": "Your Collection",
   "collection_empty": "No plants in your collection yet",
+  "focus_plant_section_title": "Plant Focus",
+  "@focus_plant_section_title": {
+    "description": "Title of the Focus Plant section on the home screen"
+  },
+  "focus_plant_empty": "No plants available",
+  "@focus_plant_empty": {
+    "description": "Empty-state message for the Focus Plant section"
+  },
   "ai_assistant_section_title": "AI Assistant",
   "ai_assistant_card_label": "Contextual observations",
   "ai_assistant_card_message": "The app observes, suggests, and remembers your collection context, but it does not replace the bonsai grower.",

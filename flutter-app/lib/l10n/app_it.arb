@@ -57,6 +57,16 @@
     "description": "Messaggio stato vuoto della sezione Collezione"
   },
 
+  "focus_plant_section_title": "Focus Pianta",
+  "@focus_plant_section_title": {
+    "description": "Titolo della sezione Focus Pianta nella home"
+  },
+
+  "focus_plant_empty": "Nessuna pianta disponibile",
+  "@focus_plant_empty": {
+    "description": "Messaggio stato vuoto della sezione Focus Pianta"
+  },
+
   "ai_assistant_section_title": "Assistente AI",
   "@ai_assistant_section_title": {
     "description": "Titolo della sezione statica Assistente AI nella home"
