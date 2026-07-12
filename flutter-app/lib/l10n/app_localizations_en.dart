@@ -51,6 +51,55 @@ class AppLocalizationsEn extends AppLocalizations {
       'The app observes, suggests, and remembers your collection context, but it does not replace the bonsai grower.';
 
   @override
+  String get calendar_section_title => 'Calendar';
+
+  @override
+  String get calendar_past_events_title => 'Past events';
+
+  @override
+  String get calendar_suggested_tasks_title => 'Suggested tasks';
+
+  @override
+  String get calendar_suggested_badge => 'suggested';
+
+  @override
+  String get calendar_past_event_1_title => 'Maple repot completed';
+
+  @override
+  String get calendar_past_event_1_date => 'Jul 10';
+
+  @override
+  String get calendar_past_event_2_title => 'Elm defoliation completed';
+
+  @override
+  String get calendar_past_event_2_date => 'Jul 7';
+
+  @override
+  String get calendar_past_event_3_title => 'Extra watering completed';
+
+  @override
+  String get calendar_past_event_3_date => 'Jul 3';
+
+  @override
+  String get calendar_suggested_task_1_title => 'Check pine substrate moisture';
+
+  @override
+  String get calendar_suggested_task_1_date => 'tomorrow';
+
+  @override
+  String get calendar_suggested_task_2_title =>
+      'Assess sun shielding for azalea';
+
+  @override
+  String get calendar_suggested_task_2_date => 'in 2 days';
+
+  @override
+  String get calendar_suggested_task_3_title => 'Plan a light fertilization';
+
+  @override
+  String get calendar_suggested_task_3_date => 'this week';
+
+  @override
   String get plant_detail_coming_soon => 'Full details coming soon';
 
   @override

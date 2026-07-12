@@ -5,6 +5,7 @@ import 'package:zeimoto/app/zeimoto_app_shell.dart';
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
+import 'package:zeimoto/features/calendar/calendar_section.dart';
 import 'package:zeimoto/features/collection/collection_section.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
 import 'package:zeimoto/routing/app_router.dart';
@@ -100,6 +101,37 @@ void main() {
       expect(find.text(l10n.ai_assistant_section_title), findsOneWidget);
       expect(find.text(l10n.ai_assistant_card_message), findsOneWidget);
     });
+
+    testWidgets(
+      'home shows static calendar with distinct past/suggested blocks',
+      (WidgetTester tester) async {
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(widget);
+
+        final l10n = lookupAppLocalizations(const Locale('it'));
+
+        await tester.scrollUntilVisible(
+          find.byKey(const Key('calendar_past_events_block')),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(CalendarSection), findsOneWidget);
+        expect(find.text(l10n.calendar_section_title), findsOneWidget);
+        expect(
+          find.byKey(const Key('calendar_past_events_block')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('calendar_suggested_tasks_block')),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.calendar_past_events_title), findsOneWidget);
+        expect(find.text(l10n.calendar_suggested_tasks_title), findsOneWidget);
+        expect(find.text(l10n.calendar_suggested_badge), findsNWidgets(3));
+      },
+    );
 
     testWidgets('FAB is visible to trigger wizard', (
       WidgetTester tester,
@@ -201,6 +233,14 @@ void main() {
 
       // Repository has one more plant
       expect(repo.plants.length, initialCount + 1);
+
+      // Calendar section can push the collection below the initial viewport.
+      await tester.scrollUntilVisible(
+        find.byType(CollectionSection),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
 
       // CollectionSection has rebuilt and shows the new plant
       expect(find.byType(CollectionSection), findsOneWidget);
