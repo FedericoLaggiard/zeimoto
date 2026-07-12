@@ -69,6 +69,16 @@ class ZeimotoAppShell extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                       child: Text(
+                        l10n.calendar_section_title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: CalendarSection()),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Text(
                         l10n.focus_plant_section_title,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
@@ -80,16 +90,6 @@ class ZeimotoAppShell extends StatelessWidget {
                           PlantDetailRoute(plant).push(context),
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: Text(
-                        l10n.calendar_section_title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: CalendarSection()),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
