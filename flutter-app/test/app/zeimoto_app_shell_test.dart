@@ -150,53 +150,51 @@ void main() {
       );
     });
 
-    testWidgets(
-      'after saving a plant the collection shows the new plant',
-      (WidgetTester tester) async {
-        final (:widget, :repo) = buildApp();
-        await tester.pumpWidget(widget);
+    testWidgets('after saving a plant the collection shows the new plant', (
+      WidgetTester tester,
+    ) async {
+      final (:widget, :repo) = buildApp();
+      await tester.pumpWidget(widget);
 
-        // Count plants before
-        final initialCount = repo.plants.length;
+      // Count plants before
+      final initialCount = repo.plants.length;
 
-        // Open wizard
-        await tester.tap(find.byKey(const Key('add_plant_fab')));
-        await tester.pumpAndSettle();
+      // Open wizard
+      await tester.tap(find.byKey(const Key('add_plant_fab')));
+      await tester.pumpAndSettle();
 
-        // Step 1 — select first photo
-        await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
-        await tester.pump();
+      // Step 1 — select first photo
+      await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
+      await tester.pump();
 
-        // Advance to step 2
-        await tester.tap(find.byKey(const Key('wizard_next_button')));
-        await tester.pumpAndSettle();
+      // Advance to step 2
+      await tester.tap(find.byKey(const Key('wizard_next_button')));
+      await tester.pumpAndSettle();
 
-        // Step 2 — select first species from list
-        await tester.tap(find.byKey(const Key('wizard_species_item_0')));
-        await tester.pump();
+      // Step 2 — select first species from list
+      await tester.tap(find.byKey(const Key('wizard_species_item_0')));
+      await tester.pump();
 
-        // Advance to step 3
-        await tester.tap(find.byKey(const Key('wizard_next_button')));
-        await tester.pumpAndSettle();
+      // Advance to step 3
+      await tester.tap(find.byKey(const Key('wizard_next_button')));
+      await tester.pumpAndSettle();
 
-        // Step 3 — save (nickname is optional)
-        await tester.tap(find.byKey(const Key('wizard_save_button')));
-        await tester.pumpAndSettle();
+      // Step 3 — save (nickname is optional)
+      await tester.tap(find.byKey(const Key('wizard_save_button')));
+      await tester.pumpAndSettle();
 
-        // Wizard is gone, shell is back
-        expect(find.byType(AddPlantWizard), findsNothing);
-        expect(find.byType(ZeimotoAppShell), findsOneWidget);
+      // Wizard is gone, shell is back
+      expect(find.byType(AddPlantWizard), findsNothing);
+      expect(find.byType(ZeimotoAppShell), findsOneWidget);
 
-        // Repository has one more plant
-        expect(repo.plants.length, initialCount + 1);
+      // Repository has one more plant
+      expect(repo.plants.length, initialCount + 1);
 
-        // CollectionSection has rebuilt and shows the new plant
-        expect(find.byType(CollectionSection), findsOneWidget);
-        // The new plant's auto-generated nickname must appear in the carousel
-        final newPlant = repo.plants.first; // sorted most-recent first
-        expect(find.text(newPlant.nickname), findsWidgets);
-      },
-    );
+      // CollectionSection has rebuilt and shows the new plant
+      expect(find.byType(CollectionSection), findsOneWidget);
+      // The new plant's auto-generated nickname must appear in the carousel
+      final newPlant = repo.plants.first; // sorted most-recent first
+      expect(find.text(newPlant.nickname), findsWidgets);
+    });
   });
 }
-

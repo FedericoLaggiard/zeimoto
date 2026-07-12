@@ -6,28 +6,9 @@ import '../domain/plants.dart';
 import '../features/add_plant/add_plant_wizard.dart';
 import '../features/collection/plant_detail_placeholder.dart';
 import '../app/zeimoto_app_shell.dart';
+import 'routes.dart';
 
-// ---------------------------------------------------------------------------
-// Route path constants — single source of truth for navigation
-// ---------------------------------------------------------------------------
-
-/// Centralised route constants for Zeimoto.
-///
-/// All navigation calls in the app MUST use these constants instead of
-/// hard-coded path strings. This is the **architectural seam** that keeps
-/// feature widgets decoupled from each other and from the app shell.
-///
-/// See ADR-0004 for the routing policy.
-abstract final class AppRoutes {
-  /// Home — ZeimotoAppShell with the main content.
-  static const home = '/';
-
-  /// Add Plant wizard — opens as a full-page dialog route.
-  static const addPlant = '/add-plant';
-
-  /// Plant detail — `extra` must be a [Plant] object.
-  static const plantDetail = '/plant-detail';
-}
+export 'routes.dart';
 
 // ---------------------------------------------------------------------------
 // Router factory
@@ -35,34 +16,45 @@ abstract final class AppRoutes {
 
 /// Creates and returns the application [GoRouter].
 ///
-/// The repository must be provided so that routes which need to create
-/// BLoC providers (e.g. the wizard) can read it from context.
+/// All routes reference [AppRoutes] constants — never raw strings.
+/// Each [GoRoute] carries an inline comment describing the screen it owns
+/// and any contract it expects (e.g. required `extra` type).
 ///
-/// Callers (typically [ZeimotoApp.build]) must wrap this router inside a
-/// [RepositoryProvider] so the ambient repository is available to all routes.
+/// Callers must wrap this router inside a [RepositoryProvider] so that
+/// every route can access the ambient [PlantRepository] from context.
 GoRouter buildAppRouter() {
   return GoRouter(
     initialLocation: AppRoutes.home,
     routes: [
+      // ── Home ────────────────────────────────────────────────────────────
+      // Root shell: ZeimotoAppShell with scrollable content sections and
+      // the pinned agent bar at the bottom.
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const ZeimotoAppShell(),
-        routes: [
-          GoRoute(
-            path: 'add-plant',
-            pageBuilder: (context, state) => const MaterialPage(
-              fullscreenDialog: true,
-              child: AddPlantWizard(),
-            ),
-          ),
-          GoRoute(
-            path: 'plant-detail',
-            pageBuilder: (context, state) {
-              final plant = state.extra! as Plant;
-              return MaterialPage(child: PlantDetailPlaceholder(plant: plant));
-            },
-          ),
-        ],
+      ),
+
+      // ── Add Plant wizard ─────────────────────────────────────────────────
+      // Full-page dialog (fullscreenDialog: true) for the 3-step plant
+      // creation flow.  Opens from the FAB in ZeimotoAppShell.
+      // No `extra` required.
+      GoRoute(
+        path: AppRoutes.addPlant,
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: AddPlantWizard(),
+        ),
+      ),
+
+      // ── Plant detail ─────────────────────────────────────────────────────
+      // Detail view for a single plant.
+      // Contract: `state.extra` must be a [Plant] object.
+      GoRoute(
+        path: AppRoutes.plantDetail,
+        pageBuilder: (context, state) {
+          final plant = state.extra! as Plant;
+          return MaterialPage(child: PlantDetailPlaceholder(plant: plant));
+        },
       ),
     ],
   );

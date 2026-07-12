@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/design/zeimoto_theme.dart';
 import '../features/collection/collection_section.dart';
 import '../l10n/app_localizations.dart';
-import '../routing/app_router.dart';
+import '../routing/routes.dart';
 
 /// App Shell main entry point for Zeimoto MVP.
 ///
@@ -102,9 +102,9 @@ class AgentBar extends StatelessWidget {
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withValues(
-              alpha: 0.1,
-            ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -124,9 +124,9 @@ class AgentBar extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.onSurface.withValues(
-                  alpha: 0.2,
-                ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ),
             contentPadding: const EdgeInsets.symmetric(
