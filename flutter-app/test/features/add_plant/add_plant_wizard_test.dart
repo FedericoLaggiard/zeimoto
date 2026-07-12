@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zeimoto/app/add_plant_wizard.dart';
-import 'package:zeimoto/domain/plant_creation_flow.dart';
+
 import 'package:zeimoto/domain/plants.dart';
+import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
 import 'package:zeimoto/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
@@ -35,42 +36,62 @@ class _FakeRepo implements PlantRepository {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-Widget _buildSubject(AddPlantWizard wizard) {
-  return MaterialApp(
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    locale: const Locale('it'),
-    home: wizard,
+
+/// Wraps [AddPlantWizard] as the MaterialApp home — for tests that don't
+/// need a full navigator stack.
+Widget _buildSubject(_FakeRepo repo) {
+  return RepositoryProvider<PlantRepository>.value(
+    value: repo,
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('it'),
+      home: const AddPlantWizard(),
+    ),
+  );
+}
+
+/// Wraps [AddPlantWizard] behind a Navigator push — for tests that need
+/// Navigator.pop() to be observable (close / save).
+Widget _buildNavigatorSubject(_FakeRepo repo) {
+  return RepositoryProvider<PlantRepository>.value(
+    value: repo,
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('it'),
+      home: Builder(
+        builder: (context) => ElevatedButton(
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddPlantWizard())),
+          child: const Text('open'),
+        ),
+      ),
+    ),
   );
 }
 
 void main() {
   late _FakeRepo repo;
-  late PlantCreationFlow flow;
 
-  setUp(() {
-    repo = _FakeRepo();
-    flow = PlantCreationFlow(repo);
-  });
+  setUp(() => repo = _FakeRepo());
 
   // -------------------------------------------------------------------------
-  // Cycle 1 — tracer bullet: wizard opens on step Foto
+  // Step Foto
   // -------------------------------------------------------------------------
   group('step Foto', () {
     testWidgets('wizard opens showing the photo grid', (tester) async {
-      await tester.pumpWidget(_buildSubject(AddPlantWizard(flow: flow)));
+      await tester.pumpWidget(_buildSubject(repo));
       await tester.pump();
 
       expect(find.byKey(const Key('wizard_photo_grid')), findsOneWidget);
     });
 
-    // -----------------------------------------------------------------------
-    // Cycle 2 — Avanti disabled with no photo selected
-    // -----------------------------------------------------------------------
     testWidgets('"Avanti" is disabled when no photo is selected', (
       tester,
     ) async {
-      await tester.pumpWidget(_buildSubject(AddPlantWizard(flow: flow)));
+      await tester.pumpWidget(_buildSubject(repo));
       await tester.pump();
 
       final btn = tester.widget<ElevatedButton>(
@@ -79,13 +100,10 @@ void main() {
       expect(btn.onPressed, isNull);
     });
 
-    // -----------------------------------------------------------------------
-    // Cycle 3 — select photo → Avanti enabled → advances to step Specie
-    // -----------------------------------------------------------------------
     testWidgets(
       'selecting a photo enables "Avanti" and advances to step Specie',
       (tester) async {
-        await tester.pumpWidget(_buildSubject(AddPlantWizard(flow: flow)));
+        await tester.pumpWidget(_buildSubject(repo));
         await tester.pump();
 
         await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
@@ -105,11 +123,11 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
-  // Cycle 4 — step Specie: Avanti disabled when species is empty
+  // Step Specie
   // -------------------------------------------------------------------------
   group('step Specie', () {
-    Future<void> _advanceToStepSpecie(WidgetTester tester) async {
-      await tester.pumpWidget(_buildSubject(AddPlantWizard(flow: flow)));
+    Future<void> advanceToStepSpecie(WidgetTester tester) async {
+      await tester.pumpWidget(_buildSubject(repo));
       await tester.pump();
       await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
       await tester.pump();
@@ -118,7 +136,7 @@ void main() {
     }
 
     testWidgets('"Avanti" is disabled when species is empty', (tester) async {
-      await _advanceToStepSpecie(tester);
+      await advanceToStepSpecie(tester);
 
       final btn = tester.widget<ElevatedButton>(
         find.byKey(const Key('wizard_next_button')),
@@ -126,11 +144,8 @@ void main() {
       expect(btn.onPressed, isNull);
     });
 
-    // -----------------------------------------------------------------------
-    // Cycle 5 — typing species enables Avanti
-    // -----------------------------------------------------------------------
     testWidgets('typing a species enables "Avanti"', (tester) async {
-      await _advanceToStepSpecie(tester);
+      await advanceToStepSpecie(tester);
 
       await tester.enterText(
         find.byKey(const Key('wizard_species_field')),
@@ -144,13 +159,10 @@ void main() {
       expect(btn.onPressed, isNotNull);
     });
 
-    // -----------------------------------------------------------------------
-    // Cycle 6 — tapping a seed species enables Avanti
-    // -----------------------------------------------------------------------
     testWidgets('tapping a seed species from the list enables "Avanti"', (
       tester,
     ) async {
-      await _advanceToStepSpecie(tester);
+      await advanceToStepSpecie(tester);
 
       await tester.tap(find.byKey(const Key('wizard_species_item_0')));
       await tester.pump();
@@ -163,11 +175,11 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
-  // Cycle 7 — step Nickname: Salva always enabled
+  // Step Nickname
   // -------------------------------------------------------------------------
   group('step Nickname', () {
-    Future<void> _advanceToStepNickname(WidgetTester tester) async {
-      await tester.pumpWidget(_buildSubject(AddPlantWizard(flow: flow)));
+    Future<void> advanceToStepNickname(WidgetTester tester) async {
+      await tester.pumpWidget(_buildSubject(repo));
       await tester.pump();
       await tester.tap(find.byKey(const Key('wizard_photo_item_0')));
       await tester.pump();
@@ -179,8 +191,10 @@ void main() {
       await tester.pump();
     }
 
-    testWidgets('"Salva" is enabled even with empty nickname', (tester) async {
-      await _advanceToStepNickname(tester);
+    testWidgets('"Salva" is enabled even with an empty nickname', (
+      tester,
+    ) async {
+      await advanceToStepNickname(tester);
 
       final btn = tester.widget<ElevatedButton>(
         find.byKey(const Key('wizard_save_button')),
@@ -190,27 +204,12 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
-  // Cycle 8 — ✕ closes without saving
+  // Close without saving
   // -------------------------------------------------------------------------
   testWidgets('closing the wizard does not save to the repository', (
     tester,
   ) async {
-    // Wrap in a Navigator so pop() works in tests.
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('it'),
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => AddPlantWizard(flow: flow)),
-            ),
-            child: const Text('open'),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(_buildNavigatorSubject(repo));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
@@ -221,26 +220,12 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
-  // Cycle 9 — happy path: plant appears in repository after save
+  // Happy path
   // -------------------------------------------------------------------------
   testWidgets('completing the wizard saves the plant to the repository', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('it'),
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => AddPlantWizard(flow: flow)),
-            ),
-            child: const Text('open'),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(_buildNavigatorSubject(repo));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
@@ -250,7 +235,7 @@ void main() {
     await tester.tap(find.byKey(const Key('wizard_next_button')));
     await tester.pump();
 
-    // Step 2 — select first species from list
+    // Step 2 — select first species from the seed list
     await tester.tap(find.byKey(const Key('wizard_species_item_0')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('wizard_next_button')));

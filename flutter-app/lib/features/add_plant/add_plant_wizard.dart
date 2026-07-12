@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../domain/plant_creation_flow.dart';
-import '../domain/plants.dart';
-import '../l10n/app_localizations.dart';
+import '../../domain/plants.dart';
+import '../../l10n/app_localizations.dart';
+import 'plant_creation_cubit.dart';
+import 'plant_creation_state.dart';
 
 /// Full-page 3-step wizard for adding a new plant.
 ///
@@ -10,26 +12,35 @@ import '../l10n/app_localizations.dart';
 /// Step 2 — Specie: choose from [kSeedSpecies] or type manually.
 /// Step 3 — Nickname: optional free-text; defaults to [defaultNickname].
 ///
-/// The wizard contains no domain logic; it only collects input and delegates
-/// to [PlantCreationFlow.execute]. No sensitive data is ever logged.
-class AddPlantWizard extends StatefulWidget {
-  const AddPlantWizard({super.key, required this.flow});
-
-  final PlantCreationFlow flow;
+/// The wizard is navigation-agnostic: it creates its own [PlantCreationCubit]
+/// from the ambient [PlantRepository] (via [RepositoryProvider]) and pops the
+/// route when [PlantCreationSaved] is emitted.
+class AddPlantWizard extends StatelessWidget {
+  const AddPlantWizard({super.key});
 
   @override
-  State<AddPlantWizard> createState() => _AddPlantWizardState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (ctx) => PlantCreationCubit(ctx.read<PlantRepository>()),
+      child: const _WizardView(),
+    );
+  }
 }
 
-class _AddPlantWizardState extends State<AddPlantWizard> {
-  int _step = 0; // 0 = Foto, 1 = Specie, 2 = Nickname
+// ---------------------------------------------------------------------------
+// View — thin StatefulWidget to manage TextEditingController lifecycle only
+// ---------------------------------------------------------------------------
 
-  PlaceholderPhoto? _selectedPhoto;
-  String _species = '';
+class _WizardView extends StatefulWidget {
+  const _WizardView();
+
+  @override
+  State<_WizardView> createState() => _WizardViewState();
+}
+
+class _WizardViewState extends State<_WizardView> {
   final TextEditingController _speciesController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
-
-  static final List<PlaceholderPhoto> _palette = PlaceholderPhoto.palette;
 
   @override
   void dispose() {
@@ -38,65 +49,64 @@ class _AddPlantWizardState extends State<AddPlantWizard> {
     super.dispose();
   }
 
-  void _close() => Navigator.of(context).pop();
-
-  void _next() => setState(() => _step++);
-
-  void _save() {
-    widget.flow.execute(
-      cover: _selectedPhoto!,
-      species: _species,
-      nickname: _nicknameController.text.trim().isEmpty
-          ? null
-          : _nicknameController.text.trim(),
-    );
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            key: const Key('wizard_close_button'),
-            icon: const Icon(Icons.close),
-            tooltip: l10n.wizardClose,
-            onPressed: _close,
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4),
-          child: LinearProgressIndicator(
-            value: (_step + 1) / 3,
-            backgroundColor: Colors.black12,
-          ),
-        ),
-      ),
-      body: switch (_step) {
-        0 => _StepFoto(
-          palette: _palette,
-          selected: _selectedPhoto,
-          onSelect: (photo) => setState(() => _selectedPhoto = photo),
-          onNext: _selectedPhoto != null ? _next : null,
-        ),
-        1 => _StepSpecie(
-          speciesController: _speciesController,
-          species: _species,
-          onSpeciesChanged: (value) => setState(() {
-            _species = value;
-          }),
-          onNext: _species.trim().isNotEmpty ? _next : null,
-        ),
-        _ => _StepNickname(
-          nicknameController: _nicknameController,
-          defaultName: defaultNickname(_species, 0),
-          onSave: _save,
-        ),
+    return BlocListener<PlantCreationCubit, PlantCreationState>(
+      listener: (context, state) {
+        if (state is PlantCreationSaved) {
+          Navigator.of(context).maybePop();
+        }
       },
+      child: BlocBuilder<PlantCreationCubit, PlantCreationState>(
+        // Only rebuild while collecting; the listener handles the saved state.
+        buildWhen: (_, next) => next is PlantCreationCollecting,
+        builder: (context, state) {
+          final collecting = state as PlantCreationCollecting;
+          final cubit = context.read<PlantCreationCubit>();
+
+          return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  key: const Key('wizard_close_button'),
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.wizardClose,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(4),
+                child: LinearProgressIndicator(
+                  value: (collecting.step.index + 1) / 3,
+                  backgroundColor: Colors.black12,
+                ),
+              ),
+            ),
+            body: switch (collecting.step) {
+              WizardStep.foto => _StepFoto(
+                palette: PlaceholderPhoto.palette,
+                selected: collecting.selectedPhoto,
+                onSelect: cubit.selectPhoto,
+                onNext: collecting.canAdvance ? cubit.advance : null,
+              ),
+              WizardStep.specie => _StepSpecie(
+                speciesController: _speciesController,
+                species: collecting.species,
+                onSpeciesChanged: cubit.changeSpecies,
+                onNext: collecting.canAdvance ? cubit.advance : null,
+              ),
+              WizardStep.nickname => _StepNickname(
+                nicknameController: _nicknameController,
+                defaultName: defaultNickname(collecting.species, 0),
+                onSave: cubit.save,
+              ),
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -104,6 +114,7 @@ class _AddPlantWizardState extends State<AddPlantWizard> {
 // ---------------------------------------------------------------------------
 // Step 1 — Foto
 // ---------------------------------------------------------------------------
+
 class _StepFoto extends StatelessWidget {
   const _StepFoto({
     required this.palette,
@@ -189,6 +200,7 @@ class _StepFoto extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Step 2 — Specie
 // ---------------------------------------------------------------------------
+
 class _StepSpecie extends StatelessWidget {
   const _StepSpecie({
     required this.speciesController,
@@ -261,6 +273,7 @@ class _StepSpecie extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Step 3 — Nickname
 // ---------------------------------------------------------------------------
+
 class _StepNickname extends StatelessWidget {
   const _StepNickname({
     required this.nicknameController,
