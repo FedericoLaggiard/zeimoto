@@ -163,6 +163,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Dettagli completi disponibili a breve'**
   String get plantDetailComingSoon;
+
+  /// Testo segnaposto del campo dell'agent bar
+  ///
+  /// In it, this message translates to:
+  /// **'Cosa vuoi fare oggi?'**
+  String get agentBarHintText;
+
+  /// Tooltip del pulsante di apertura del wizard di creazione pianta nell'agent bar
+  ///
+  /// In it, this message translates to:
+  /// **'Nuova pianta'**
+  String get agentBarNewPlantTooltip;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/design/zeimoto_theme.dart';
+import '../features/add_plant/add_plant_wizard.dart';
 import '../features/collection/collection_section.dart';
 import '../features/collection/plant_detail_placeholder.dart';
 import '../l10n/app_localizations.dart';
@@ -71,15 +72,29 @@ class ZeimotoAppShell extends StatelessWidget {
 
 /// Agent bar component — pinned at the bottom.
 ///
-/// In A1, it displays a placeholder "Cosa vuoi fare oggi?" and is inert (no actions).
-/// It will become operativa in subsequent issues.
+/// In A6, displays an operative agent bar with:
+/// - A "Cosa vuoi fare oggi?" placeholder text field (non-interactive, for affordance)
+/// - A CTA button ("Nuova Pianta") that opens the plant creation wizard as a full-page route
+///
+/// Free text input in the field produces no action (no intent detection in this slice).
 class AgentBar extends StatelessWidget {
   final double height;
 
   const AgentBar({super.key, this.height = ZeimotoSpacing.agentBarHeight});
 
+  void _openWizard(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const AddPlantWizard(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
@@ -104,31 +119,36 @@ class AgentBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            // AbsorbPointer + IgnorePointer rendono la barra completamente inerte:
-            // nessun focus, nessuna apertura tastiera, nessun evento di input.
-            // Verrà reso interattivo in A6.
+            // Text field is non-interactive (for visual affordance) — no focus, no keyboard.
+            // Free text input is ignored in this slice.
             child: AbsorbPointer(
-              child: IgnorePointer(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Cosa vuoi fare oggi?',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.2),
-                      ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: l10n.agentBarHintText,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    isDense: true,
                   ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  isDense: true,
                 ),
               ),
             ),
+          ),
+          const SizedBox(width: 8),
+          // CTA button: opens the plant creation wizard
+          IconButton(
+            key: const Key('agent_bar_new_plant_button'),
+            icon: const Icon(Icons.add_circle),
+            tooltip: l10n.agentBarNewPlantTooltip,
+            onPressed: () => _openWizard(context),
           ),
         ],
       ),

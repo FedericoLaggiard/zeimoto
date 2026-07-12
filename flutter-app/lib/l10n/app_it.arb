@@ -60,5 +60,15 @@
   "plantDetailComingSoon": "Dettagli completi disponibili a breve",
   "@plantDetailComingSoon": {
     "description": "Testo segnaposto nella schermata di dettaglio pianta"
+  },
+
+  "agentBarHintText": "Cosa vuoi fare oggi?",
+  "@agentBarHintText": {
+    "description": "Testo segnaposto del campo dell'agent bar"
+  },
+
+  "agentBarNewPlantTooltip": "Nuova pianta",
+  "@agentBarNewPlantTooltip": {
+    "description": "Tooltip del pulsante di apertura del wizard di creazione pianta nell'agent bar"
   }
 }

@@ -12,5 +12,8 @@
 
   "collectionSectionTitle": "Your Collection",
   "collectionEmpty": "No plants in your collection yet",
-  "plantDetailComingSoon": "Full details coming soon"
+  "plantDetailComingSoon": "Full details coming soon",
+
+  "agentBarHintText": "What would you like to do today?",
+  "agentBarNewPlantTooltip": "New plant"
 }
