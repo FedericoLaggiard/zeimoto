@@ -125,11 +125,13 @@ void main() {
       expect(find.text(l10n.focus_plant_section_title), findsOneWidget);
       expect(find.byType(FocusPlantSection), findsOneWidget);
       final hasAnyNickname = repo.plants.any(
-        (plant) =>
-            find.descendant(
+        (plant) => find
+            .descendant(
               of: find.byType(FocusPlantSection),
               matching: find.text(plant.nickname),
-            ).evaluate().isNotEmpty,
+            )
+            .evaluate()
+            .isNotEmpty,
       );
       expect(hasAnyNickname, isTrue);
     });
