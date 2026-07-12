@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
@@ -56,7 +57,7 @@ class _WizardViewState extends State<_WizardView> {
     return BlocListener<PlantCreationCubit, PlantCreationState>(
       listener: (context, state) {
         if (state is PlantCreationSaved) {
-          Navigator.of(context).maybePop();
+          context.pop();
         }
       },
       child: BlocBuilder<PlantCreationCubit, PlantCreationState>(
@@ -74,7 +75,7 @@ class _WizardViewState extends State<_WizardView> {
                   key: const Key('wizard_close_button'),
                   icon: const Icon(Icons.close),
                   tooltip: l10n.wizardClose,
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () => context.pop(),
                 ),
               ],
               bottom: PreferredSize(
