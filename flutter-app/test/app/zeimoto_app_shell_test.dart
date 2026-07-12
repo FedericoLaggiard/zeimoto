@@ -5,7 +5,6 @@ import 'package:zeimoto/app/zeimoto_app_shell.dart';
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/add_plant_wizard.dart';
-import 'package:zeimoto/features/ai_assistant/ai_assistant_section.dart';
 import 'package:zeimoto/features/calendar/calendar_section.dart';
 import 'package:zeimoto/features/collection/collection_section.dart';
 import 'package:zeimoto/features/collection/plant_detail_placeholder.dart';
@@ -236,6 +235,14 @@ void main() {
         // is lower in the page. If the order is wrong the second
         // scrollUntilVisible will overshoot the max extent and throw.
         await tester.scrollUntilVisible(
+          find.text(l10n.collection_section_title),
+          80,
+          scrollable: scrollable,
+        );
+        final collectionOffset =
+            tester.state<ScrollableState>(scrollable).position.pixels;
+
+        await tester.scrollUntilVisible(
           find.text(l10n.calendar_section_title),
           80,
           scrollable: scrollable,
@@ -251,6 +258,12 @@ void main() {
         final focusOffset =
             tester.state<ScrollableState>(scrollable).position.pixels;
 
+        // Each section must require more scrolling than the previous one
+        expect(
+          calOffset,
+          greaterThan(collectionOffset),
+          reason: 'Collezione deve precedere Calendario nella home',
+        );
         expect(
           focusOffset,
           greaterThan(calOffset),
