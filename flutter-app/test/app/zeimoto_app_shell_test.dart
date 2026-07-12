@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zeimoto/app/zeimoto_app_shell.dart';
+import 'package:zeimoto/features/home/home.dart';
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/widgets/agent_bar.dart';
 import 'package:zeimoto/domain/plants.dart';
@@ -15,7 +15,7 @@ import 'package:zeimoto/l10n/app_localizations.dart';
 import 'package:zeimoto/routing/app_router.dart';
 
 void main() {
-  group('ZeimotoAppShell', () {
+  group('Home', () {
     /// Builds a fully-wired app using the real GoRouter and a fresh
     /// [InMemoryPlantRepository].  The repository is exposed so tests can
     /// inspect its state independently.
@@ -426,7 +426,7 @@ void main() {
 
       // Shell and agent bar are back
       expect(find.byType(AddPlantWizard), findsNothing);
-      expect(find.byType(ZeimotoAppShell), findsOneWidget);
+      expect(find.byType(Home), findsOneWidget);
       expect(find.byType(AgentBar), findsOneWidget);
     });
 
@@ -498,7 +498,7 @@ void main() {
 
       // Wizard is gone, shell is back
       expect(find.byType(AddPlantWizard), findsNothing);
-      expect(find.byType(ZeimotoAppShell), findsOneWidget);
+      expect(find.byType(Home), findsOneWidget);
 
       // Repository has one more plant
       expect(repo.plants.length, initialCount + 1);

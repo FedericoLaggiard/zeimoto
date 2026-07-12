@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/add_plant/add_plant_wizard.dart';
-import '../app/zeimoto_app_shell.dart';
+import '../features/home/home.dart';
 import 'plant_detail_route.dart';
 import 'routes.dart';
 
@@ -26,11 +26,10 @@ GoRouter buildAppRouter() {
     initialLocation: AppRoutes.home,
     routes: [
       // ── Home ────────────────────────────────────────────────────────────
-      // Root shell: ZeimotoAppShell with scrollable content sections and
-      // the pinned agent bar at the bottom.
+      // Feature Home: 5 sezioni scrollabili + FAB + AgentBar pinnata.
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const ZeimotoAppShell(),
+        builder: (context, state) => const Home(),
       ),
 
       // ── Add Plant wizard ─────────────────────────────────────────────────
