@@ -28,7 +28,7 @@ Definite in `lib/routing/routes.dart`:
 
 | Costante | Path | Descrizione |
 |----------|------|-------------|
-| `AppRoutes.home` | `/` | Shell principale — `ZeimotoAppShell` |
+| `AppRoutes.home` | `/` | Shell principale — `Home` |
 | `AppRoutes.addPlant` | `/add-plant` | Wizard creazione pianta (fullscreen dialog) |
 | `AppRoutes.plantDetail` | `/plant-detail` | Dettaglio singola pianta |
 

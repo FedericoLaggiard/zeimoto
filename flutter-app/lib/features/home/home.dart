@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/design/zeimoto_theme.dart';
-import '../features/ai_assistant/ai_assistant_section.dart';
-import '../features/calendar/calendar_section.dart';
-import '../features/collection/collection_section.dart';
-import '../features/focus/focus_plant_section.dart';
-import '../features/wiki/wiki_del_giorno_section.dart';
-import '../l10n/app_localizations.dart';
-import '../routing/plant_detail_route.dart';
-import '../routing/routes.dart';
+import '../../core/design/zeimoto_theme.dart';
+import '../../widgets/agent_bar.dart';
+import '../ai_assistant/ai_assistant_section.dart';
+import '../calendar/calendar_section.dart';
+import '../collection/collection_section.dart';
+import '../focus/focus_plant_section.dart';
+import '../wiki/wiki_del_giorno_section.dart';
+import '../../l10n/app_localizations.dart';
+import '../../routing/plant_detail_route.dart';
+import '../../routing/routes.dart';
 
-/// App Shell main entry point for Zeimoto MVP.
+/// Feature Home — schermata principale di Zeimoto.
 ///
-/// Mounts a [Scaffold] with washi background, a scrollable central area,
-/// a pinned agent bar at the bottom, and a FAB that opens the add-plant wizard.
+/// Composta da 5 sezioni verticali scrollabili ([AiAssistantSection],
+/// [CollectionSection], [CalendarSection], [FocusPlantSection],
+/// [WikiDelGiornoSection]), un FAB per aprire il wizard di aggiunta pianta
+/// e l'[AgentBar] pinnata in basso.
 ///
-/// Navigation is **always** delegated to [AppRoutes] — no direct imports
-/// of feature screens live here (see ADR-0001, ADR-0004).
-class ZeimotoAppShell extends StatelessWidget {
-  const ZeimotoAppShell({super.key});
+/// Non accetta input: legge il [PlantRepository] ambient via
+/// [RepositoryProvider] già montato dal router.
+///
+/// Navigation: sempre delegata ad [AppRoutes] (ADR-0001, ADR-0004).
+class Home extends StatelessWidget {
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -120,68 +125,6 @@ class ZeimotoAppShell extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Agent bar component — pinned at the bottom of the app shell.
-///
-/// Displays a non-interactive "Cosa vuoi fare oggi?" affordance field.
-/// The action to add a plant is exposed via the FAB on [ZeimotoAppShell],
-/// not inside this bar (see ADR-0004 for the routing policy).
-///
-/// The text field is wrapped in [AbsorbPointer] to prevent focus and keyboard:
-/// free-text intent detection is deferred to a future slice.
-class AgentBar extends StatelessWidget {
-  const AgentBar({super.key, this.height = ZeimotoSpacing.agentBarHeight});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ZeimotoSpacing.agentBarShadowColor,
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: AbsorbPointer(
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: l10n.agent_bar_hint_text,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.2),
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            isDense: true,
-          ),
-        ),
       ),
     );
   }
