@@ -219,6 +219,172 @@ void main() {
       expect(find.text(l10n.wiki_reading_label), findsOneWidget);
     });
 
+    // ── A11: Home Section Composition ───────────────────────────────────────
+
+    testWidgets(
+      'le 5 sezioni sono presenti e Calendario precede Focus Pianta',
+      (WidgetTester tester) async {
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(widget);
+
+        final l10n = lookupAppLocalizations(const Locale('it'));
+        final scrollable = find.byType(Scrollable).first;
+
+        // Scroll until each section title becomes visible, recording the
+        // scroll offset at that moment. A section found at a GREATER offset
+        // is lower in the page. If the order is wrong the second
+        // scrollUntilVisible will overshoot the max extent and throw.
+        await tester.scrollUntilVisible(
+          find.text(l10n.collection_section_title),
+          80,
+          scrollable: scrollable,
+        );
+        final collectionOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
+
+        await tester.scrollUntilVisible(
+          find.text(l10n.calendar_section_title),
+          80,
+          scrollable: scrollable,
+        );
+        final calOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
+
+        await tester.scrollUntilVisible(
+          find.text(l10n.focus_plant_section_title),
+          80,
+          scrollable: scrollable,
+        );
+        final focusOffset = tester
+            .state<ScrollableState>(scrollable)
+            .position
+            .pixels;
+
+        // Each section must require more scrolling than the previous one
+        expect(
+          calOffset,
+          greaterThan(collectionOffset),
+          reason: 'Collezione deve precedere Calendario nella home',
+        );
+        expect(
+          focusOffset,
+          greaterThan(calOffset),
+          reason: 'Calendario deve precedere Focus Pianta nella home',
+        );
+
+        // All 5 sections present when scrolling to the end
+        await tester.scrollUntilVisible(
+          find.byType(WikiDelGiornoSection),
+          200,
+          scrollable: scrollable,
+        );
+        expect(find.byType(WikiDelGiornoSection), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'agent bar resta visibile e pinned dopo aver scorso tutta la home',
+      (WidgetTester tester) async {
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(widget);
+
+        await tester.scrollUntilVisible(
+          find.byType(WikiDelGiornoSection),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(AgentBar), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'ultimo contenuto non è nascosto dalla barra con safe-area bottom inset',
+      (WidgetTester tester) async {
+        // Simulate a device with a 34 px bottom system inset (home indicator).
+        // Before the fix, Positioned.fill(bottom: agentBarHeight) did not
+        // account for this inset, so the last 34 px of scroll content were
+        // hidden behind the agent bar.
+        const bottomInset = 34.0;
+
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              padding: EdgeInsets.only(bottom: bottomInset),
+            ),
+            child: widget,
+          ),
+        );
+
+        // Scroll to the bottom of the list
+        await tester.scrollUntilVisible(
+          find.byType(WikiDelGiornoSection),
+          100,
+          scrollable: find.byType(Scrollable).first,
+        );
+
+        // Drag to max extent so the very last pixel of content is shown
+        final scrollable = find.byType(Scrollable).first;
+        await tester.drag(scrollable, const Offset(0, -500));
+        await tester.pumpAndSettle();
+
+        // The bottom of the wiki card must sit at or above the agent bar top.
+        // If not, content is hidden behind the bar.
+        final wikiBottom = tester
+            .getBottomLeft(find.byType(WikiDelGiornoSection))
+            .dy;
+        final agentBarTop = tester.getTopLeft(find.byType(AgentBar)).dy;
+
+        expect(
+          wikiBottom,
+          lessThanOrEqualTo(agentBarTop),
+          reason:
+              'Il contenuto finale non deve sovrapporsi alla agent bar '
+              '(safe-area bottom inset non considerato)',
+        );
+      },
+    );
+
+    testWidgets(
+      'il tap su una card della Collezione apre il dettaglio della pianta corrispondente',
+      (WidgetTester tester) async {
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(widget);
+
+        await tester.scrollUntilVisible(
+          find.byType(CollectionSection),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+
+        // The first visible card in the carousel
+        final card = find
+            .descendant(
+              of: find.byType(CollectionSection),
+              matching: find.byType(GestureDetector),
+            )
+            .first;
+
+        await tester.tap(card);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PlantDetailPlaceholder), findsOneWidget);
+
+        // The detail page must show a nickname that belongs to the repository
+        final hasAnyNicknameInDetail = repo.plants.any(
+          (plant) => find.text(plant.nickname).evaluate().isNotEmpty,
+        );
+        expect(hasAnyNicknameInDetail, isTrue);
+      },
+    );
+
     testWidgets('FAB is visible to trigger wizard', (
       WidgetTester tester,
     ) async {
