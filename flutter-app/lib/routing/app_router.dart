@@ -27,10 +27,7 @@ GoRouter buildAppRouter() {
     routes: [
       // ── Home ────────────────────────────────────────────────────────────
       // Feature Home: 5 sezioni a snap-paging + FAB + AgentBar pinnata.
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const Home(),
-      ),
+      GoRoute(path: AppRoutes.home, builder: (context, state) => const Home()),
 
       // ── Add Plant wizard ─────────────────────────────────────────────────
       // Full-page dialog (fullscreenDialog: true) for the 3-step plant

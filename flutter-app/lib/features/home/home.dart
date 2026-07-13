@@ -46,10 +46,7 @@ class Home extends StatelessWidget {
             bottom:
                 ZeimotoSpacing.agentBarHeight +
                 MediaQuery.of(context).padding.bottom,
-            child: SafeArea(
-              bottom: false,
-              child: HomePager(),
-            ),
+            child: SafeArea(bottom: false, child: HomePager()),
           ),
           // Pinned agent bar
           Positioned(

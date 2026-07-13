@@ -57,10 +57,9 @@ class SectionParallax extends StatelessWidget {
         final scale = (1.0 - delta.abs() * _kScaleReductionRate * depth)
             .clamp(_kMinScale, 1.0)
             .toDouble();
-        final opacity =
-            (1.0 - delta.abs() * _kOpacityReductionRate)
-                .clamp(_kMinOpacity, 1.0)
-                .toDouble();
+        final opacity = (1.0 - delta.abs() * _kOpacityReductionRate)
+            .clamp(_kMinOpacity, 1.0)
+            .toDouble();
 
         return Transform(
           alignment: Alignment.center,
