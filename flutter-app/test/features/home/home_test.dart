@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zeimoto/features/home/home.dart';
+import 'package:zeimoto/features/home/home_pager.dart';
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/widgets/agent_bar.dart';
 import 'package:zeimoto/domain/plants.dart';
@@ -37,6 +38,13 @@ void main() {
       return (widget: widget, repo: repo);
     }
 
+    /// Returns the [PageController] owned by the live [HomePager] state.
+    ///
+    /// This is the intended test seam for page navigation — call after
+    /// [WidgetTester.pumpWidget] so the state is mounted.
+    PageController _pagerController(WidgetTester tester) =>
+        tester.state<HomePagerState>(find.byType(HomePager)).controller;
+
     testWidgets('displays washi background', (WidgetTester tester) async {
       final (:widget, :repo) = buildApp();
       await tester.pumpWidget(widget);
@@ -62,24 +70,23 @@ void main() {
       expect(find.byType(AgentBar), findsOneWidget);
     });
 
-    testWidgets('central area is scrollable and does not cover agent bar', (
-      WidgetTester tester,
-    ) async {
-      final (:widget, :repo) = buildApp();
-      await tester.pumpWidget(widget);
+    testWidgets(
+      'central area uses PageView with 5 pages and does not cover agent bar',
+      (WidgetTester tester) async {
+        final (:widget, :repo) = buildApp();
+        await tester.pumpWidget(widget);
 
-      expect(
-        find.byWidgetPredicate(
-          (w) =>
-              w is CustomScrollView ||
-              w is ListView ||
-              w is SingleChildScrollView,
-        ),
-        findsOneWidget,
-      );
+        // PageView replaced the old CustomScrollView — snap paging is active.
+        expect(find.byType(PageView), findsOneWidget);
 
-      expect(find.byType(AgentBar), findsOneWidget);
-    });
+        // Verify 5 pages: navigate to the last one to confirm all are reachable.
+        _pagerController(tester).jumpToPage(4);
+        await tester.pumpAndSettle();
+        expect(find.byType(WikiDelGiornoSection), findsOneWidget);
+
+        expect(find.byType(AgentBar), findsOneWidget);
+      },
+    );
 
     testWidgets('agent bar shows localized placeholder text', (
       WidgetTester tester,
@@ -114,14 +121,8 @@ void main() {
 
       final l10n = lookupAppLocalizations(const Locale('it'));
 
-      // Scroll to the section title — it sits just above FocusPlantSection in
-      // the sliver list, so once the title is visible the card is also in the
-      // viewport (title ~50 px + card 340 px fit in the 600 px test viewport).
-      await tester.scrollUntilVisible(
-        find.text(l10n.focus_plant_section_title),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
+      // Page 3 — Focus Plant.
+      _pagerController(tester).jumpToPage(3);
       await tester.pumpAndSettle();
 
       expect(find.text(l10n.focus_plant_section_title), findsOneWidget);
@@ -144,11 +145,8 @@ void main() {
       final (:widget, :repo) = buildApp();
       await tester.pumpWidget(widget);
 
-      await tester.scrollUntilVisible(
-        find.byType(FocusPlantSection),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
+      // Page 3 — Focus Plant.
+      _pagerController(tester).jumpToPage(3);
       await tester.pumpAndSettle();
 
       await tester.tap(
@@ -175,13 +173,8 @@ void main() {
 
         final l10n = lookupAppLocalizations(const Locale('it'));
 
-        // Scroll to the section title first so that both the title and the
-        // blocks below it are inside the 600px test viewport.
-        await tester.scrollUntilVisible(
-          find.text(l10n.calendar_section_title),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // Page 2 — Calendar.
+        _pagerController(tester).jumpToPage(2);
         await tester.pumpAndSettle();
 
         expect(find.byType(CalendarSection), findsOneWidget);
@@ -208,11 +201,8 @@ void main() {
 
       final l10n = lookupAppLocalizations(const Locale('it'));
 
-      await tester.scrollUntilVisible(
-        find.byType(WikiDelGiornoSection),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
+      // Page 4 — Wiki del Giorno.
+      _pagerController(tester).jumpToPage(4);
       await tester.pumpAndSettle();
 
       expect(find.byType(WikiDelGiornoSection), findsOneWidget);
@@ -229,60 +219,29 @@ void main() {
         await tester.pumpWidget(widget);
 
         final l10n = lookupAppLocalizations(const Locale('it'));
-        final scrollable = find.byType(Scrollable).first;
 
-        // Scroll until each section title becomes visible, recording the
-        // scroll offset at that moment. A section found at a GREATER offset
-        // is lower in the page. If the order is wrong the second
-        // scrollUntilVisible will overshoot the max extent and throw.
-        await tester.scrollUntilVisible(
-          find.text(l10n.collection_section_title),
-          80,
-          scrollable: scrollable,
-        );
-        final collectionOffset = tester
-            .state<ScrollableState>(scrollable)
-            .position
-            .pixels;
+        // Verify each section is on the expected page (page order enforced).
+        // Page 1 — Collection.
+        _pagerController(tester).jumpToPage(1);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.collection_section_title), findsOneWidget);
+        expect(find.byType(CollectionSection), findsOneWidget);
 
-        await tester.scrollUntilVisible(
-          find.text(l10n.calendar_section_title),
-          80,
-          scrollable: scrollable,
-        );
-        final calOffset = tester
-            .state<ScrollableState>(scrollable)
-            .position
-            .pixels;
+        // Page 2 — Calendar (must come after Collection).
+        _pagerController(tester).jumpToPage(2);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.calendar_section_title), findsOneWidget);
+        expect(find.byType(CalendarSection), findsOneWidget);
 
-        await tester.scrollUntilVisible(
-          find.text(l10n.focus_plant_section_title),
-          80,
-          scrollable: scrollable,
-        );
-        final focusOffset = tester
-            .state<ScrollableState>(scrollable)
-            .position
-            .pixels;
+        // Page 3 — Focus Plant (must come after Calendar).
+        _pagerController(tester).jumpToPage(3);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.focus_plant_section_title), findsOneWidget);
+        expect(find.byType(FocusPlantSection), findsOneWidget);
 
-        // Each section must require more scrolling than the previous one
-        expect(
-          calOffset,
-          greaterThan(collectionOffset),
-          reason: 'Collezione deve precedere Calendario nella home',
-        );
-        expect(
-          focusOffset,
-          greaterThan(calOffset),
-          reason: 'Calendario deve precedere Focus Pianta nella home',
-        );
-
-        // All 5 sections present when scrolling to the end
-        await tester.scrollUntilVisible(
-          find.byType(WikiDelGiornoSection),
-          200,
-          scrollable: scrollable,
-        );
+        // Page 4 — Wiki del Giorno.
+        _pagerController(tester).jumpToPage(4);
+        await tester.pumpAndSettle();
         expect(find.byType(WikiDelGiornoSection), findsOneWidget);
       },
     );
@@ -293,11 +252,8 @@ void main() {
         final (:widget, :repo) = buildApp();
         await tester.pumpWidget(widget);
 
-        await tester.scrollUntilVisible(
-          find.byType(WikiDelGiornoSection),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // Navigate to the last page (Wiki del Giorno).
+        _pagerController(tester).jumpToPage(4);
         await tester.pumpAndSettle();
 
         expect(find.byType(AgentBar), findsOneWidget);
@@ -308,9 +264,9 @@ void main() {
       'ultimo contenuto non è nascosto dalla barra con safe-area bottom inset',
       (WidgetTester tester) async {
         // Simulate a device with a 34 px bottom system inset (home indicator).
-        // Before the fix, Positioned.fill(bottom: agentBarHeight) did not
-        // account for this inset, so the last 34 px of scroll content were
-        // hidden behind the agent bar.
+        // The PageView is positioned with Positioned.fill(bottom:
+        // agentBarHeight + padding.bottom), so by construction no page content
+        // can overlap the agent bar regardless of inset size.
         const bottomInset = 34.0;
 
         final (:widget, :repo) = buildApp();
@@ -323,30 +279,21 @@ void main() {
           ),
         );
 
-        // Scroll to the bottom of the list
-        await tester.scrollUntilVisible(
-          find.byType(WikiDelGiornoSection),
-          100,
-          scrollable: find.byType(Scrollable).first,
-        );
-
-        // Drag to max extent so the very last pixel of content is shown
-        final scrollable = find.byType(Scrollable).first;
-        await tester.drag(scrollable, const Offset(0, -500));
+        // Navigate to the last page (Wiki del Giorno).
+        _pagerController(tester).jumpToPage(4);
         await tester.pumpAndSettle();
 
-        // The bottom of the wiki card must sit at or above the agent bar top.
-        // If not, content is hidden behind the bar.
-        final wikiBottom = tester
-            .getBottomLeft(find.byType(WikiDelGiornoSection))
-            .dy;
+        expect(find.byType(WikiDelGiornoSection), findsOneWidget);
+
+        // The HomePager (paged content area) must not overlap the AgentBar.
+        final pagerBottom = tester.getBottomLeft(find.byType(HomePager)).dy;
         final agentBarTop = tester.getTopLeft(find.byType(AgentBar)).dy;
 
         expect(
-          wikiBottom,
+          pagerBottom,
           lessThanOrEqualTo(agentBarTop),
           reason:
-              'Il contenuto finale non deve sovrapporsi alla agent bar '
+              'Il PageView non deve sovrapporsi alla agent bar '
               '(safe-area bottom inset non considerato)',
         );
       },
@@ -358,11 +305,8 @@ void main() {
         final (:widget, :repo) = buildApp();
         await tester.pumpWidget(widget);
 
-        await tester.scrollUntilVisible(
-          find.byType(CollectionSection),
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // Page 1 — Collection.
+        _pagerController(tester).jumpToPage(1);
         await tester.pumpAndSettle();
 
         // The first visible card in the carousel
@@ -503,12 +447,8 @@ void main() {
       // Repository has one more plant
       expect(repo.plants.length, initialCount + 1);
 
-      // Calendar section can push the collection below the initial viewport.
-      await tester.scrollUntilVisible(
-        find.byType(CollectionSection),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
+      // Navigate to Collection page so the new plant is visible.
+      _pagerController(tester).jumpToPage(1);
       await tester.pumpAndSettle();
 
       // CollectionSection has rebuilt and shows the new plant

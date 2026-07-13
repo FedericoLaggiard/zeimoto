@@ -1,6 +1,6 @@
 # A16 — Snap paging + parallasse nella Home
 
-Status: ready
+Status: done
 
 ## Parent
 
