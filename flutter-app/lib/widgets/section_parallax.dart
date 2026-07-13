@@ -26,6 +26,21 @@ class SectionParallax extends StatelessWidget {
   final double depth;
   final Widget child;
 
+  /// Pixels translated per page-delta per depth unit (prototype Variant C).
+  static const double _kTranslateMultiplier = 124.0;
+
+  /// Scale reduction per unit |delta| per depth unit.
+  static const double _kScaleReductionRate = 0.07;
+
+  /// Opacity reduction per unit |delta| (depth-independent).
+  static const double _kOpacityReductionRate = 0.42;
+
+  /// Minimum scale — prevents a page from fully collapsing.
+  static const double _kMinScale = 0.8;
+
+  /// Minimum opacity — keeps off-screen pages faintly visible.
+  static const double _kMinOpacity = 0.5;
+
   double _delta() {
     if (!pageController.hasClients) return 0.0;
     final page = pageController.page ?? pageController.initialPage.toDouble();
@@ -38,20 +53,21 @@ class SectionParallax extends StatelessWidget {
       animation: pageController,
       builder: (context, _) {
         final delta = _delta();
-        final translateY = delta * 124.0 * depth;
-        final scale =
-            (1.0 - delta.abs() * 0.07 * depth).clamp(0.8, 1.0).toDouble();
-        final opacity = (1.0 - delta.abs() * 0.42).clamp(0.5, 1.0).toDouble();
+        final translateY = delta * _kTranslateMultiplier * depth;
+        final scale = (1.0 - delta.abs() * _kScaleReductionRate * depth)
+            .clamp(_kMinScale, 1.0)
+            .toDouble();
+        final opacity =
+            (1.0 - delta.abs() * _kOpacityReductionRate)
+                .clamp(_kMinOpacity, 1.0)
+                .toDouble();
 
         return Transform(
           alignment: Alignment.center,
           transform: Matrix4.identity()
             ..translate(0.0, translateY)
             ..scale(scale),
-          child: Opacity(
-            opacity: opacity,
-            child: child,
-          ),
+          child: Opacity(opacity: opacity, child: child),
         );
       },
     );

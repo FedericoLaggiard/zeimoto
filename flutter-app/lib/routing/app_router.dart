@@ -21,11 +21,7 @@ export 'routes.dart';
 ///
 /// Callers must wrap this router inside a [RepositoryProvider] so that
 /// every route can access the ambient [PlantRepository] from context.
-///
-/// [homePageController] is an optional test seam forwarded to [Home] →
-/// [HomePager] so that widget tests can call `jumpToPage`.  Production
-/// callers never pass this parameter.
-GoRouter buildAppRouter({PageController? homePageController}) {
+GoRouter buildAppRouter() {
   return GoRouter(
     initialLocation: AppRoutes.home,
     routes: [
@@ -33,8 +29,7 @@ GoRouter buildAppRouter({PageController? homePageController}) {
       // Feature Home: 5 sezioni a snap-paging + FAB + AgentBar pinnata.
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) =>
-            Home(pageController: homePageController),
+        builder: (context, state) => const Home(),
       ),
 
       // ── Add Plant wizard ─────────────────────────────────────────────────

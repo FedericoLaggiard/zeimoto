@@ -18,11 +18,7 @@ import 'home_pager.dart';
 ///
 /// Navigation: sempre delegata ad [AppRoutes] (ADR-0001, ADR-0004).
 class Home extends StatelessWidget {
-  const Home({super.key, this.pageController});
-
-  /// Optional [PageController] forwarded to [HomePager].
-  /// Production code never passes this; it exists solely as a test seam.
-  final PageController? pageController;
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +48,7 @@ class Home extends StatelessWidget {
                 MediaQuery.of(context).padding.bottom,
             child: SafeArea(
               bottom: false,
-              child: HomePager(controller: pageController),
+              child: HomePager(),
             ),
           ),
           // Pinned agent bar
