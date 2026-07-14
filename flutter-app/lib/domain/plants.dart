@@ -4,6 +4,16 @@ import 'dart:ui';
 
 import 'package:uuid/uuid.dart';
 
+/// Optional category for a Plant.
+///
+/// Identifiers in English to match DB storage, ARB keys, and enum names —
+/// see MISSION.md "Convenzioni di implementazione → Vocabolario".
+enum PlantCategory {
+  bonsai,
+  prebonsai,
+  yamadori,
+}
+
 class Plant {
   const Plant({
     required this.id,
