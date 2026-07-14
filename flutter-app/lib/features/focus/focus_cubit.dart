@@ -8,9 +8,9 @@ import 'focus_state.dart';
 /// Cubit that selects a random plant from [PlantRepository] once and holds it
 /// for the lifetime of the home session.
 ///
-/// The random selection is performed in the constructor and never changes.
-/// The [pickIndex] parameter is injectable for deterministic testing; in
-/// production the default [Random.nextInt] is used.
+/// The random selection is performed asynchronously after construction and
+/// never changes. The [pickIndex] parameter is injectable for deterministic
+/// testing; in production the default [Random.nextInt] is used.
 ///
 /// Emits:
 /// - [FocusLoading] initially
@@ -26,8 +26,8 @@ class FocusCubit extends Cubit<FocusState> {
   final PlantRepository _repository;
   final int Function(int max) _pickIndex;
 
-  void _selectPlant() {
-    final plants = _repository.plants;
+  Future<void> _selectPlant() async {
+    final plants = await _repository.getAll();
     if (plants.isEmpty) {
       emit(const FocusEmpty());
       return;

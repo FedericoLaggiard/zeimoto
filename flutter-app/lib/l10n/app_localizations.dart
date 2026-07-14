@@ -107,8 +107,20 @@ abstract class AppLocalizations {
   /// Titolo del primo step del wizard di creazione pianta
   ///
   /// In it, this message translates to:
-  /// **'Scegli una foto'**
+  /// **'Aggiungi una foto'**
   String get wizard_step_photo_heading;
+
+  /// Etichetta pulsante per scattare una foto con la fotocamera
+  ///
+  /// In it, this message translates to:
+  /// **'Fotocamera'**
+  String get wizard_pick_photo_camera;
+
+  /// Etichetta pulsante per scegliere una foto dalla galleria
+  ///
+  /// In it, this message translates to:
+  /// **'Scegli dalla galleria'**
+  String get wizard_pick_photo_gallery;
 
   /// Titolo del secondo step del wizard di creazione pianta
   ///

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/design/zeimoto_theme.dart';
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/plant_cover_photo.dart';
 import 'collection_cubit.dart';
 import 'collection_state.dart';
 
@@ -128,24 +129,9 @@ class _PlantCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Photo placeholder
+            // Cover photo
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [plant.cover.top, plant.cover.bottom],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    plant.cover.glyph,
-                    style: const TextStyle(fontSize: 48),
-                  ),
-                ),
-              ),
+              child: PlantCoverPhoto(path: plant.coverPhotoPath),
             ),
             const SizedBox(height: 16),
             // Plant info

@@ -12,8 +12,13 @@ flutter-app/lib/
 ├── core/
 │   └── design/
 │       └── zeimoto_theme.dart   # Palette, spaziatura, ThemeData
+├── data/
+│   ├── db/
+│   │   └── app_database.dart    # Schema Drift, generato da drift_dev
+│   └── repositories/
+│       └── drift_plant_repository.dart  # Impl. Drift di PlantRepository
 ├── domain/
-│   └── plants.dart              # Tipi di dominio, interfaccia repository, impl. in-memory
+│   └── plants.dart              # Tipi di dominio, PhotoPath, interfaccia repository, impl. in-memory
 ├── features/
 │   ├── home/
 │   │   └── home.dart            # Feature Home: 5 sezioni + FAB + AgentBar
@@ -35,7 +40,8 @@ flutter-app/lib/
 │       ├── focus_cubit.dart
 │       └── focus_plant_section.dart
 ├── widgets/
-│   └── agent_bar.dart           # Widget UI riutilizzabile — barra agente pinnata
+│   ├── agent_bar.dart           # Widget UI riutilizzabile — barra agente pinnata
+│   └── plant_cover_photo.dart   # Widget condiviso — foto di copertina pianta da filesystem
 ├── routing/
 │   ├── routes.dart              # AppRoutes — costanti dei path (sorgente unica di verità)
 │   ├── app_router.dart          # buildAppRouter() factory + re-export di routes.dart
@@ -74,11 +80,13 @@ graph TD
     subgraph Dominio
         PR[PlantRepository interface]
         P[Plant]
-        PP[PlaceholderPhoto]
+        PP[PhotoPath]
     end
 
     subgraph Infrastruttura
         IMPR[InMemoryPlantRepository]
+        DPR[DriftPlantRepository]
+        ADB[(AppDatabase / SQLite)]
     end
 
     subgraph Fondamenta
@@ -103,15 +111,16 @@ graph TD
     FC --> FS
     FC --> PR
     PR --> P
-    PR --> PP
     IMPR -->|implements| PR
+    DPR -->|implements| PR
+    DPR --> ADB
 ```
 
 ---
 
 ## Iniezione delle dipendenze
 
-`PlantRepository` è fornito una volta sola a livello di `main.dart` tramite `RepositoryProvider` (da `flutter_bloc`). Il `GoRouter` è creato da `buildAppRouter()` e passato a `MaterialApp.router`. Ogni feature legge il repository tramite `context.read<PlantRepository>()` nel `create` del proprio `BlocProvider`.
+`PlantRepository` è fornito una volta sola a livello di `main.dart` tramite `RepositoryProvider` (da `flutter_bloc`). In produzione viene istanziato `DriftPlantRepository(AppDatabase(NativeDatabase(...)))`. Il `GoRouter` è creato da `buildAppRouter()` e passato a `MaterialApp.router`. Ogni feature legge il repository tramite `context.read<PlantRepository>()` nel `create` del proprio `BlocProvider`.
 
 ```mermaid
 graph TD
@@ -135,6 +144,7 @@ graph TD
 | [0002](../adr/0002-flutter-bloc-state-management.md) | `flutter_bloc` come state-management seam |
 | [0003](../adr/0003-business-logic-in-cubits.md) | Logica di business nei Cubit; nessun `*Flow` intermedio |
 | [0004](../adr/0004-routing-go-router.md) | Routing centralizzato con go_router in `lib/routing/` |
+| [0005](../adr/0005-plant-repository-drift-contract.md) | Contratto `PlantRepository` Drift: API, reattività Cubit, injection, test |
 
 ---
 
@@ -147,3 +157,4 @@ graph TD
 | Home | Widget test con `buildAppRouter()` reale + `InMemoryPlantRepository` | `test/features/home/home_test.dart` |
 | Widget standalone | Widget test in isolamento con `MaterialApp` + `AppLocalizations` | `test/widgets/*_test.dart` |
 | Dominio | Unit test puri | `test/domain/*_test.dart` |
+| Repository Drift | Unit test con `NativeDatabase.memory()` iniettato nel costruttore | `test/data/repositories/*_test.dart` |

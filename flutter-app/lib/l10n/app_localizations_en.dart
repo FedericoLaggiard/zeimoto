@@ -12,7 +12,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wizard_close => 'Close';
 
   @override
-  String get wizard_step_photo_heading => 'Choose a photo';
+  String get wizard_step_photo_heading => 'Add a photo';
+
+  @override
+  String get wizard_pick_photo_camera => 'Camera';
+
+  @override
+  String get wizard_pick_photo_gallery => 'Choose from gallery';
 
   @override
   String get wizard_step_species_heading => 'Select the species';

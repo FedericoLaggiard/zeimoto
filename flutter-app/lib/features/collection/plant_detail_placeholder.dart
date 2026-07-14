@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/plant_cover_photo.dart';
 
 /// Minimal placeholder detail page for a single plant.
 ///
@@ -27,22 +28,12 @@ class PlantDetailPlaceholder extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Photo placeholder
-              Container(
+              // Cover photo
+              SizedBox(
                 height: 420,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [plant.cover.top, plant.cover.bottom],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    plant.cover.glyph,
-                    style: const TextStyle(fontSize: 72),
-                  ),
+                child: PlantCoverPhoto(
+                  path: plant.coverPhotoPath,
+                  iconSize: 72,
                 ),
               ),
               const SizedBox(height: 24),

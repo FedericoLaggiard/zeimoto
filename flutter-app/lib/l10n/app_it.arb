@@ -6,9 +6,19 @@
     "description": "Tooltip per il pulsante di chiusura (✕) del wizard"
   },
 
-  "wizard_step_photo_heading": "Scegli una foto",
+  "wizard_step_photo_heading": "Aggiungi una foto",
   "@wizard_step_photo_heading": {
     "description": "Titolo del primo step del wizard di creazione pianta"
+  },
+
+  "wizard_pick_photo_camera": "Fotocamera",
+  "@wizard_pick_photo_camera": {
+    "description": "Etichetta pulsante per scattare una foto con la fotocamera"
+  },
+
+  "wizard_pick_photo_gallery": "Scegli dalla galleria",
+  "@wizard_pick_photo_gallery": {
+    "description": "Etichetta pulsante per scegliere una foto dalla galleria"
   },
 
   "wizard_step_species_heading": "Seleziona la specie",

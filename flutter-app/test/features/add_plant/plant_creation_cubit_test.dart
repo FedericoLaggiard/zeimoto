@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:zeimoto/domain/plants.dart';
 import 'package:zeimoto/features/add_plant/plant_creation_cubit.dart';
@@ -7,32 +8,37 @@ import 'package:zeimoto/features/add_plant/plant_creation_state.dart';
 // ---------------------------------------------------------------------------
 // Test double
 // ---------------------------------------------------------------------------
-class _FakeRepo implements PlantRepository {
+class _FakeRepo extends Fake implements PlantRepository {
   final List<Plant> _plants = [];
 
+  /// Direct access for test assertions — not part of the interface.
+  List<Plant> get plantsSync => List.unmodifiable(_plants);
+
   @override
-  List<Plant> get plants => List.unmodifiable(_plants);
+  Future<List<Plant>> getAll() async => List.unmodifiable(_plants);
 
   @override
   Stream<void> get changes => Stream.empty();
 
   @override
-  Plant add({
+  Future<Plant> add({
     required String species,
     String? nickname,
-    required PlaceholderPhoto cover,
-  }) {
+    required String sourcePhotoPath,
+  }) async {
     final plant = Plant(
       id: 'fake-${_plants.length}',
       species: species,
       nickname: nickname ?? defaultNickname(species, _plants.length),
-      cover: cover,
+      coverPhotoPath: PhotoPath(sourcePhotoPath),
       createdAt: DateTime.now(),
     );
     _plants.insert(0, plant);
     return plant;
   }
 }
+
+const _kFakePhotoPath = '/fake/cover.jpg';
 
 void main() {
   late _FakeRepo repo;
@@ -52,7 +58,7 @@ void main() {
     test('initial state is PlantCreationCollecting on step Foto', () {
       final state = cubit.state as PlantCreationCollecting;
       expect(state.step, WizardStep.foto);
-      expect(state.selectedPhoto, isNull);
+      expect(state.selectedPhotoPath, isNull);
       expect(state.species, isEmpty);
       expect(state.nickname, isEmpty);
     });
@@ -66,7 +72,7 @@ void main() {
       });
 
       test('canAdvance becomes true after selectPhoto', () {
-        cubit.selectPhoto(PlaceholderPhoto.palette.first);
+        cubit.selectPhoto(_kFakePhotoPath);
         expect((cubit.state as PlantCreationCollecting).canAdvance, isTrue);
       });
 
@@ -76,7 +82,7 @@ void main() {
       });
 
       test('advance after selecting a photo moves to step Specie', () {
-        cubit.selectPhoto(PlaceholderPhoto.palette.first);
+        cubit.selectPhoto(_kFakePhotoPath);
         cubit.advance();
         expect(
           (cubit.state as PlantCreationCollecting).step,
@@ -90,7 +96,7 @@ void main() {
     // -------------------------------------------------------------------------
     group('step Specie', () {
       setUp(() {
-        cubit.selectPhoto(PlaceholderPhoto.palette.first);
+        cubit.selectPhoto(_kFakePhotoPath);
         cubit.advance();
       });
 
@@ -126,7 +132,7 @@ void main() {
     // -------------------------------------------------------------------------
     group('step Nickname', () {
       setUp(() {
-        cubit.selectPhoto(PlaceholderPhoto.palette.first);
+        cubit.selectPhoto(_kFakePhotoPath);
         cubit.advance();
         cubit.changeSpecies(kSeedSpecies.first);
         cubit.advance();
@@ -142,37 +148,37 @@ void main() {
     // -------------------------------------------------------------------------
     group('save', () {
       setUp(() {
-        cubit.selectPhoto(PlaceholderPhoto.palette.first);
+        cubit.selectPhoto(_kFakePhotoPath);
         cubit.advance();
         cubit.changeSpecies(kSeedSpecies.first);
         cubit.advance();
       });
 
-      test('emits PlantCreationSaved with the created plant', () {
-        cubit.save();
+      test('emits PlantCreationSaved with the created plant', () async {
+        await cubit.save();
         expect(cubit.state, isA<PlantCreationSaved>());
         final saved = cubit.state as PlantCreationSaved;
         expect(saved.plant.species, kSeedSpecies.first);
       });
 
-      test('plant appears in the repository after save', () {
-        cubit.save();
-        expect(repo.plants, hasLength(1));
-        expect(repo.plants.first.species, kSeedSpecies.first);
+      test('plant appears in the repository after save', () async {
+        await cubit.save();
+        expect(repo.plantsSync, hasLength(1));
+        expect(repo.plantsSync.first.species, kSeedSpecies.first);
       });
 
       test(
         'empty nickname triggers repository default nickname generation',
-        () {
-          cubit.save();
+        () async {
+          await cubit.save();
           final saved = cubit.state as PlantCreationSaved;
           expect(saved.plant.nickname, isNotEmpty);
         },
       );
 
-      test('provided nickname is trimmed and used', () {
+      test('provided nickname is trimmed and used', () async {
         cubit.changeNickname('  Momiji  ');
-        cubit.save();
+        await cubit.save();
         final saved = cubit.state as PlantCreationSaved;
         expect(saved.plant.nickname, 'Momiji');
       });

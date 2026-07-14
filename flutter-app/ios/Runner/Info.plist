@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Zeimoto usa la fotocamera per scattare la foto di copertina della pianta.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Zeimoto accede alla libreria foto per scegliere la foto di copertina della pianta.</string>
 </dict>
 </plist>

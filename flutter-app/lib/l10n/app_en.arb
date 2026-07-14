@@ -2,7 +2,9 @@
   "@@locale": "en",
 
   "wizard_close": "Close",
-  "wizard_step_photo_heading": "Choose a photo",
+  "wizard_step_photo_heading": "Add a photo",
+  "wizard_pick_photo_camera": "Camera",
+  "wizard_pick_photo_gallery": "Choose from gallery",
   "wizard_step_species_heading": "Select the species",
   "wizard_step_nickname_heading": "Give it a name",
   "wizard_button_next": "Next",

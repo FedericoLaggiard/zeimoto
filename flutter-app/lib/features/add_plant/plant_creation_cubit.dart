@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../domain/plants.dart';
 import 'plant_creation_state.dart';
@@ -13,9 +14,12 @@ import 'plant_creation_state.dart';
 ///
 /// No user-supplied data is ever included in error messages or logs.
 class PlantCreationCubit extends Cubit<PlantCreationState> {
-  PlantCreationCubit(this._repository) : super(const PlantCreationCollecting());
+  PlantCreationCubit(this._repository, {ImagePicker? imagePicker})
+    : _picker = imagePicker ?? ImagePicker(),
+      super(const PlantCreationCollecting());
 
   final PlantRepository _repository;
+  final ImagePicker _picker;
 
   static const _kNicknameMaxLength = 100;
 
@@ -23,9 +27,23 @@ class PlantCreationCubit extends Cubit<PlantCreationState> {
   // User actions
   // ---------------------------------------------------------------------------
 
-  void selectPhoto(PlaceholderPhoto photo) {
-    final current = _collecting;
-    emit(current.copyWith(selectedPhoto: photo));
+  /// Opens the native image picker for [source] and emits the selected path.
+  ///
+  /// No-op if the user dismisses the picker without selecting an image.
+  Future<void> pickPhoto(ImageSource source) async {
+    final file = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+      maxWidth: 1600,
+      maxHeight: 1600,
+    );
+    if (file == null) return;
+    selectPhoto(file.path);
+  }
+
+  /// Directly sets the selected photo path — used internally and in tests.
+  void selectPhoto(String path) {
+    emit(_collecting.copyWith(selectedPhotoPath: path));
   }
 
   void changeSpecies(String value) {
@@ -57,18 +75,18 @@ class PlantCreationCubit extends Cubit<PlantCreationState> {
   /// Throws [ArgumentError] if the nickname fails validation.
   /// Guards silently if called when cover or species are missing (cannot happen
   /// via the normal UI flow, but defensive programming applies at seam entry).
-  void save() {
+  Future<void> save() async {
     final current = _collecting;
-    final cover = current.selectedPhoto;
-    if (cover == null) return;
+    final photoPath = current.selectedPhotoPath;
+    if (photoPath == null) return;
     if (current.species.trim().isEmpty) return;
 
     final normalisedNickname = _normaliseNickname(current.nickname);
 
-    final plant = _repository.add(
+    final plant = await _repository.add(
       species: current.species.trim(),
       nickname: normalisedNickname,
-      cover: cover,
+      sourcePhotoPath: photoPath,
     );
 
     emit(PlantCreationSaved(plant));
