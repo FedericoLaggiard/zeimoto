@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -27,21 +29,20 @@ class PlantDetailPlaceholder extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Photo placeholder
+              // Cover photo
               Container(
                 height: 420,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [plant.cover.top, plant.cover.bottom],
-                  ),
+                  color: Colors.grey[200],
                 ),
-                child: Center(
-                  child: Text(
-                    plant.cover.glyph,
-                    style: const TextStyle(fontSize: 72),
+                clipBehavior: Clip.antiAlias,
+                child: Image.file(
+                  File(plant.coverPhotoPath),
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Icon(Icons.eco, size: 72, color: Colors.grey),
                   ),
                 ),
               ),

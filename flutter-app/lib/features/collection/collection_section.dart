@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -128,21 +130,16 @@ class _PlantCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Photo placeholder
+            // Cover photo
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [plant.cover.top, plant.cover.bottom],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    plant.cover.glyph,
-                    style: const TextStyle(fontSize: 48),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.file(
+                  File(plant.coverPhotoPath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.eco, size: 48, color: Colors.grey),
                   ),
                 ),
               ),

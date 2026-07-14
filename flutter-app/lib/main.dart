@@ -5,6 +5,7 @@ import 'package:zeimoto/l10n/app_localizations.dart';
 
 import 'core/design/zeimoto_theme.dart';
 import 'data/db/app_database.dart';
+import 'data/repositories/drift_plant_repository.dart';
 import 'domain/plants.dart';
 import 'routing/app_router.dart';
 
@@ -31,7 +32,7 @@ class _ZeimotoAppState extends State<ZeimotoApp> {
     return RepositoryProvider<AppDatabase>.value(
       value: widget.db,
       child: RepositoryProvider<PlantRepository>(
-        create: (_) => InMemoryPlantRepository(),
+        create: (_) => DriftPlantRepository(widget.db),
         child: MaterialApp.router(
           title: 'Zeimoto',
           debugShowCheckedModeBanner: !kReleaseMode,

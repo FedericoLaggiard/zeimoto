@@ -24,8 +24,8 @@ class CollectionCubit extends Cubit<CollectionState> {
   final PlantRepository _repository;
   late final StreamSubscription<void> _subscription;
 
-  void _loadPlants() {
-    final plants = List<Plant>.of(_repository.plants)
+  Future<void> _loadPlants() async {
+    final plants = List<Plant>.of(await _repository.getAll())
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     if (plants.isEmpty) {

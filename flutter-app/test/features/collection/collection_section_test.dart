@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/domain/plants.dart';
@@ -11,11 +12,11 @@ import 'package:zeimoto/l10n/app_localizations.dart';
 // ---------------------------------------------------------------------------
 // Test double
 // ---------------------------------------------------------------------------
-class _FakeRepo implements PlantRepository {
+class _FakeRepo extends Fake implements PlantRepository {
   final List<Plant> _plants = [];
 
   @override
-  List<Plant> get plants {
+  Future<List<Plant>> getAll() async {
     final sorted = List<Plant>.of(_plants)
       ..sort((left, right) => right.createdAt.compareTo(left.createdAt));
     return List.unmodifiable(sorted);
@@ -25,26 +26,24 @@ class _FakeRepo implements PlantRepository {
   Stream<void> get changes => Stream.empty();
 
   @override
-  Plant add({
+  Future<Plant> add({
     required String species,
     String? nickname,
-    required PlaceholderPhoto cover,
+    required String sourcePhotoPath,
   }) {
     throw UnimplementedError('Test fixture only');
   }
 
-  /// Utility to add a plant with explicit createdAt for testing
   Plant addWithTime({
     required String species,
     required String nickname,
-    required PlaceholderPhoto cover,
     required DateTime createdAt,
   }) {
     final plant = Plant(
       id: 'fake-${_plants.length}',
       species: species,
       nickname: nickname,
-      cover: cover,
+      coverPhotoPath: '/fake/photo_${_plants.length}.jpg',
       createdAt: createdAt,
     );
     _plants.add(plant);
@@ -65,13 +64,11 @@ void main() {
       repo.addWithTime(
         species: 'Acer palmatum',
         nickname: 'acero_01',
-        cover: PlaceholderPhoto.palette[0],
         createdAt: now,
       );
       repo.addWithTime(
         species: 'Juniperus chinensis',
         nickname: 'ginepro_01',
-        cover: PlaceholderPhoto.palette[1],
         createdAt: now.subtract(const Duration(hours: 1)),
       );
 
@@ -88,10 +85,11 @@ void main() {
           ),
         ),
       );
+      // Await the async _loadPlants to resolve.
+      await tester.pump();
 
       // First plant should be visible
       expect(find.text('acero_01'), findsOneWidget);
-      // PageView hides other plants until swiped, so we just verify carousel exists
       expect(find.byType(PageView), findsOneWidget);
     });
 
@@ -103,7 +101,6 @@ void main() {
       final plant = repo.addWithTime(
         species: 'Acer palmatum',
         nickname: 'acero_01',
-        cover: PlaceholderPhoto.palette[0],
         createdAt: now,
       );
 
@@ -121,8 +118,8 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
-      // Find and tap the plant nickname (which is inside a tappable card)
       await tester.tap(find.text('acero_01'));
       await tester.pumpAndSettle();
 
@@ -148,10 +145,9 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
-      // Expect empty state message or no plants shown
       expect(find.byType(Center), findsWidgets);
-      // (The exact empty state message depends on i18n, verify logic instead)
     });
 
     testWidgets('tapping a plant card navigates to PlantDetailPlaceholder', (
@@ -162,7 +158,6 @@ void main() {
       final plant = repo.addWithTime(
         species: 'Acer palmatum',
         nickname: 'acero_01',
-        cover: PlaceholderPhoto.palette[0],
         createdAt: now,
       );
 
@@ -190,15 +185,13 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
-      // Tap the plant card
       await tester.tap(find.text('acero_01'));
       await tester.pumpAndSettle();
 
-      // PlantDetailPlaceholder should be visible
       expect(find.byType(PlantDetailPlaceholder), findsOneWidget);
-      // The detail page should show the plant's nickname in title
-      expect(find.text('acero_01'), findsWidgets); // in both card and detail
+      expect(find.text('acero_01'), findsWidgets);
     });
 
     testWidgets('empty state shows CTA button', (WidgetTester tester) async {
@@ -218,6 +211,7 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
       expect(
         find.byKey(const Key('collection_add_plant_cta_button')),
@@ -248,6 +242,7 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
       await tester.tap(
         find.byKey(const Key('collection_add_plant_cta_button')),

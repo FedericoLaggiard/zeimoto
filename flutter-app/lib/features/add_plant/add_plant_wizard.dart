@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
@@ -9,20 +12,27 @@ import 'plant_creation_state.dart';
 
 /// Full-page 3-step wizard for adding a new plant.
 ///
-/// Step 1 — Foto: pick one of the [PlaceholderPhoto] palette items.
+/// Step 1 — Foto: pick a cover photo from camera or gallery via image_picker.
 /// Step 2 — Specie: choose from [kSeedSpecies] or type manually.
 /// Step 3 — Nickname: optional free-text; defaults to [defaultNickname].
 ///
 /// The wizard is navigation-agnostic: it creates its own [PlantCreationCubit]
 /// from the ambient [PlantRepository] (via [RepositoryProvider]) and pops the
 /// route when [PlantCreationSaved] is emitted.
+///
+/// [imagePicker] can be injected for tests to avoid opening the native picker.
 class AddPlantWizard extends StatelessWidget {
-  const AddPlantWizard({super.key});
+  const AddPlantWizard({super.key, this.imagePicker});
+
+  final ImagePicker? imagePicker;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (ctx) => PlantCreationCubit(ctx.read<PlantRepository>()),
+      create: (ctx) => PlantCreationCubit(
+        ctx.read<PlantRepository>(),
+        imagePicker: imagePicker,
+      ),
       child: const _WizardView(),
     );
   }
@@ -66,7 +76,6 @@ class _WizardViewState extends State<_WizardView> {
         }
       },
       child: BlocBuilder<PlantCreationCubit, PlantCreationState>(
-        // Only rebuild while collecting; the listener handles the saved state.
         buildWhen: (_, next) => next is PlantCreationCollecting,
         builder: (context, state) {
           final collecting = state as PlantCreationCollecting;
@@ -93,9 +102,9 @@ class _WizardViewState extends State<_WizardView> {
             ),
             body: switch (collecting.step) {
               WizardStep.foto => _StepFoto(
-                palette: PlaceholderPhoto.palette,
-                selected: collecting.selectedPhoto,
-                onSelect: cubit.selectPhoto,
+                selectedPhotoPath: collecting.selectedPhotoPath,
+                onPickCamera: () => cubit.pickPhoto(ImageSource.camera),
+                onPickGallery: () => cubit.pickPhoto(ImageSource.gallery),
                 onNext: collecting.canAdvance ? cubit.advance : null,
               ),
               WizardStep.specie => _StepSpecie(
@@ -108,7 +117,7 @@ class _WizardViewState extends State<_WizardView> {
                 nicknameController: _nicknameController,
                 defaultName: defaultNickname(collecting.species, 0),
                 onNicknameChanged: cubit.changeNickname,
-                onSave: cubit.save,
+                onSave: () => cubit.save(),
               ),
             },
           );
@@ -124,15 +133,15 @@ class _WizardViewState extends State<_WizardView> {
 
 class _StepFoto extends StatelessWidget {
   const _StepFoto({
-    required this.palette,
-    required this.selected,
-    required this.onSelect,
+    required this.selectedPhotoPath,
+    required this.onPickCamera,
+    required this.onPickGallery,
     required this.onNext,
   });
 
-  final List<PlaceholderPhoto> palette;
-  final PlaceholderPhoto? selected;
-  final ValueChanged<PlaceholderPhoto> onSelect;
+  final String? selectedPhotoPath;
+  final VoidCallback onPickCamera;
+  final VoidCallback onPickGallery;
   final VoidCallback? onNext;
 
   @override
@@ -150,45 +159,29 @@ class _StepFoto extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: GridView.builder(
-            key: const Key('wizard_photo_grid'),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-            ),
-            itemCount: palette.length,
-            itemBuilder: (context, index) {
-              final photo = palette[index];
-              final isSelected = photo == selected;
-              return GestureDetector(
-                key: Key('wizard_photo_item_$index'),
-                onTap: () => onSelect(photo),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [photo.top, photo.bottom],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: isSelected
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 3,
-                          )
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      photo.glyph,
-                      style: const TextStyle(fontSize: 32),
-                    ),
-                  ),
-                ),
-              );
-            },
+          child: selectedPhotoPath != null
+              ? _PhotoPreview(
+                  key: const Key('wizard_photo_preview'),
+                  path: selectedPhotoPath!,
+                )
+              : const _PhotoPickerPlaceholder(),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: FilledButton.icon(
+            key: const Key('wizard_pick_photo_camera_button'),
+            onPressed: onPickCamera,
+            icon: const Icon(Icons.camera_alt),
+            label: Text(l10n.wizard_pick_photo_camera),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: OutlinedButton.icon(
+            key: const Key('wizard_pick_photo_gallery_button'),
+            onPressed: onPickGallery,
+            icon: const Icon(Icons.photo_library),
+            label: Text(l10n.wizard_pick_photo_gallery),
           ),
         ),
         Padding(
@@ -200,6 +193,48 @@ class _StepFoto extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PhotoPreview extends StatelessWidget {
+  const _PhotoPreview({super.key, required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          File(path),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.broken_image, size: 48),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoPickerPlaceholder extends StatelessWidget {
+  const _PhotoPickerPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.add_a_photo, size: 64, color: Colors.grey),
+      ),
     );
   }
 }
@@ -333,3 +368,5 @@ class _StepNickname extends StatelessWidget {
     );
   }
 }
+
+

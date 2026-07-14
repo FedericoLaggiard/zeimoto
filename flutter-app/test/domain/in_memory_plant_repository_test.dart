@@ -3,24 +3,26 @@ import 'package:zeimoto/domain/plants.dart';
 
 void main() {
   group('InMemoryPlantRepository', () {
-    test('exposes seeded plants ordered by descending createdAt', () {
+    test('exposes seeded plants ordered by descending createdAt', () async {
       final repository = InMemoryPlantRepository();
+      final plants = await repository.getAll();
 
-      expect(repository.plants, isNotEmpty);
-      expect(_isSortedByMostRecentFirst(repository.plants), isTrue);
+      expect(plants, isNotEmpty);
+      expect(_isSortedByMostRecentFirst(plants), isTrue);
     });
 
-    test('keeps the newest added plant at the front of the list', () {
+    test('keeps the newest added plant at the front of the list', () async {
       final repository = InMemoryPlantRepository();
 
-      final addedPlant = repository.add(
+      final addedPlant = await repository.add(
         species: 'Acer palmatum',
         nickname: 'Momiji',
-        cover: PlaceholderPhoto.random(99),
+        sourcePhotoPath: '/fake/momiji.jpg',
       );
 
-      expect(repository.plants.first, same(addedPlant));
-      expect(_isSortedByMostRecentFirst(repository.plants), isTrue);
+      final plants = await repository.getAll();
+      expect(plants.first, same(addedPlant));
+      expect(_isSortedByMostRecentFirst(plants), isTrue);
     });
   });
 }

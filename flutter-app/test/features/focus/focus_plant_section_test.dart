@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:zeimoto/core/design/zeimoto_theme.dart';
 import 'package:zeimoto/domain/plants.dart';
@@ -11,34 +12,30 @@ import 'package:zeimoto/l10n/app_localizations.dart';
 // Test double
 // ---------------------------------------------------------------------------
 
-class _FakeRepo implements PlantRepository {
+class _FakeRepo extends Fake implements PlantRepository {
   final List<Plant> _plants = [];
 
   @override
-  List<Plant> get plants => List.unmodifiable(_plants);
+  Future<List<Plant>> getAll() async => List.unmodifiable(_plants);
 
   @override
   Stream<void> get changes => Stream.empty();
 
   @override
-  Plant add({
+  Future<Plant> add({
     required String species,
     String? nickname,
-    required PlaceholderPhoto cover,
+    required String sourcePhotoPath,
   }) {
     throw UnimplementedError('Test fixture only');
   }
 
-  Plant addPlant({
-    required String species,
-    required String nickname,
-    required PlaceholderPhoto cover,
-  }) {
+  Plant addPlant({required String species, required String nickname}) {
     final plant = Plant(
       id: 'fake-${_plants.length}',
       species: species,
       nickname: nickname,
-      cover: cover,
+      coverPhotoPath: '/fake/photo_${_plants.length}.jpg',
       createdAt: DateTime(2026, 1, 10 - _plants.length),
     );
     _plants.add(plant);
@@ -78,15 +75,12 @@ void main() {
       WidgetTester tester,
     ) async {
       final repo = _FakeRepo();
-      repo.addPlant(
-        species: 'Juniperus chinensis',
-        nickname: 'ginepro_01',
-        cover: PlaceholderPhoto.palette[1],
-      );
+      repo.addPlant(species: 'Juniperus chinensis', nickname: 'ginepro_01');
 
       await tester.pumpWidget(
         buildHarness(repository: repo, onTapPlant: (_) {}),
       );
+      await tester.pump(); // allow async getAll() to complete
 
       expect(find.text('ginepro_01'), findsOneWidget);
       expect(find.text('Juniperus chinensis'), findsOneWidget);
@@ -99,13 +93,13 @@ void main() {
       final plant = repo.addPlant(
         species: 'Acer palmatum',
         nickname: 'acero_01',
-        cover: PlaceholderPhoto.palette[0],
       );
 
       Plant? tapped;
       await tester.pumpWidget(
         buildHarness(repository: repo, onTapPlant: (p) => tapped = p),
       );
+      await tester.pump();
 
       await tester.tap(find.text('acero_01'));
       await tester.pumpAndSettle();
@@ -122,28 +116,22 @@ void main() {
       await tester.pumpWidget(
         buildHarness(repository: repo, onTapPlant: (_) {}),
       );
+      await tester.pump();
 
       final l10n = lookupAppLocalizations(const Locale('it'));
       expect(find.text(l10n.focus_plant_empty), findsOneWidget);
       expect(find.byType(GestureDetector), findsNothing);
     });
 
-    testWidgets('card shows photo placeholder glyph, nickname and species', (
-      WidgetTester tester,
-    ) async {
-      final cover = PlaceholderPhoto.palette[2];
+    testWidgets('card shows nickname and species', (WidgetTester tester) async {
       final repo = _FakeRepo();
-      repo.addPlant(
-        species: 'Pinus parviflora',
-        nickname: 'pino_01',
-        cover: cover,
-      );
+      repo.addPlant(species: 'Pinus parviflora', nickname: 'pino_01');
 
       await tester.pumpWidget(
         buildHarness(repository: repo, onTapPlant: (_) {}),
       );
+      await tester.pump();
 
-      expect(find.text(cover.glyph), findsOneWidget);
       expect(find.text('pino_01'), findsOneWidget);
       expect(find.text('Pinus parviflora'), findsOneWidget);
     });
