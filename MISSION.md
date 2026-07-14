@@ -183,7 +183,7 @@ Nel MVP ogni evento deve avere un tipo canonico tra quelli supportati; “osserv
 - Bloc state management
 
 ## Storage locale
-- Isar
+- Drift (SQLite type-safe, single-active-maintainer, migrazione naturale a PostgreSQL/Supabase)
 
 Contiene:
 - immagini

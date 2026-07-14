@@ -6,7 +6,23 @@
 
 ### Issue tracker
 
-Issue e PRD vivono come file markdown in `docs/tracker/`. Le issue singole stanno in `docs/tracker/issues/`. Non usare mai `.scratch/`.
+Issue, PRD, mappe wayfinder e vision documents vivono come **GitHub Issues** nel repo `FedericoLaggiard/zeimoto`. Usare `gh issue …` per crearle, commentarle, chiuderle. Non creare più file markdown in `.scratch/` o `docs/tracker/` per il tracking del lavoro.
+
+Convenzioni label:
+- `wayfinder:map` — mappa wayfinder (parent issue)
+- `wayfinder:research` / `wayfinder:prototype` / `wayfinder:grilling` / `wayfinder:task` — ticket wayfinder per tipo
+- `mission` — documento product vision pinnato
+- `revision` — ticket che rivisita una decisione precedente
+- `legacy-archive` — issue migrate dal vecchio tracker locale, già chiuse
+- Le label triage standard restano in `docs/agents/triage-labels.md`
+
+Convenzioni body wayfinder:
+- I ticket iniziano con `**Parent map**: #NN` come prima riga
+- I ticket bloccati chiudono il body con `**Blocked by**: #NN, #MM`
+- I ticket chiusi ricevono la resolution come **commento**, non nel body
+- La mappa espone la frontiera (aperti sbloccati) e le Decisions so far come index
+
+MISSION.md nel repo resta la fonte di verità; l'issue pinnata "MISSION —" è una copia consultabile dal tracker.
 
 ### Triage labels
 
@@ -27,7 +43,7 @@ Questo documento definisce i vincoli, gli standard e le best practice di sicurez
 Non memorizzare mai dati sensibili (token di autenticazione, password, chiavi API, dati personali) in chiaro all'interno delle preferenze standard (`SharedPreferences` su Android o `NSUserDefaults` su iOS).
 
 *   **Utilizzo di Storage Crittografato:** Utilizzare esclusivamente pacchetti che si interfacciano con le controparti native sicure: **Android Keystore** e **iOS Keychain**. Il pacchetto di riferimento standard è `flutter_secure_storage`.
-*   **Database Locali:** Se l'applicazione richiede un database locale per dati sensibili, utilizzare una soluzione crittografata come **Isar** o **Hive** con crittografia AES abilitata, oppure **SQFlite** integrato con **SQLCipher**.
+*   **Database Locali:** Se l'applicazione richiede un database locale per dati sensibili, utilizzare una soluzione crittografata come **Drift** o **Hive** con crittografia AES abilitata, oppure **SQFlite** integrato con **SQLCipher**.
 *   **Prevenzione del Leak nei Log:** Disabilitare completamente i log di debug (`print`, `debugPrint`, `log`) in ambiente di produzione. Utilizzare macro di compilazione o framework di logging che oscurano i dati sensibili.
 
 ```dart
