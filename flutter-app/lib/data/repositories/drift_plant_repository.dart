@@ -43,7 +43,7 @@ class DriftPlantRepository implements PlantRepository {
     final rows = await query.get();
     return rows
         .map(
-          (row) => _toPlant(
+        (row) => _toPlant(
             row.readTable(_db.plants),
             row.readTable(_db.photos),
             docsDir.path,
@@ -117,7 +117,7 @@ class DriftPlantRepository implements PlantRepository {
       id: plantId,
       species: species.trim(),
       nickname: resolvedNickname,
-      coverPhotoPath: targetPath,
+      coverPhotoPath: PhotoPath(targetPath),
       createdAt: now,
     );
   }
@@ -127,7 +127,7 @@ class DriftPlantRepository implements PlantRepository {
         id: plantRow.id,
         species: plantRow.species,
         nickname: plantRow.nickname,
-        coverPhotoPath: '$docsPath/${photoRow.relativePath}',
+        coverPhotoPath: PhotoPath('$docsPath/${photoRow.relativePath}'),
         createdAt: plantRow.createdAt,
         category: plantRow.category,
         position: plantRow.position,

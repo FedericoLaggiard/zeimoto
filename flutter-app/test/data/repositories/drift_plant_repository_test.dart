@@ -44,7 +44,7 @@ void main() {
       );
 
       expect(plant.species, 'Acer palmatum');
-      expect(plant.coverPhotoPath, isNotEmpty);
+      expect(plant.coverPhotoPath.value, isNotEmpty);
       expect(plant.id, isNotEmpty);
     });
 
@@ -101,7 +101,7 @@ void main() {
         sourcePhotoPath: sourceFile.path,
       );
 
-      final copiedFile = File(plant.coverPhotoPath);
+      final copiedFile = File(plant.coverPhotoPath.value);
       expect(copiedFile.existsSync(), isTrue);
     });
 

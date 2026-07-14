@@ -43,7 +43,7 @@ class _FakeRepo extends Fake implements PlantRepository {
       id: 'fake-${_plants.length}',
       species: species,
       nickname: nickname,
-      coverPhotoPath: '/fake/photo_${_plants.length}.jpg',
+      coverPhotoPath: PhotoPath('/fake/photo_${_plants.length}.jpg'),
       createdAt: createdAt,
     );
     _plants.add(plant);

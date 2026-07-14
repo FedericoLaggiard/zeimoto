@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/plant_cover_photo.dart';
 
 /// Minimal placeholder detail page for a single plant.
 ///
@@ -30,20 +29,11 @@ class PlantDetailPlaceholder extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Cover photo
-              Container(
+              SizedBox(
                 height: 420,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey[200],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Image.file(
-                  File(plant.coverPhotoPath),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => const Center(
-                    child: Icon(Icons.eco, size: 72, color: Colors.grey),
-                  ),
+                child: PlantCoverPhoto(
+                  path: plant.coverPhotoPath,
+                  iconSize: 72,
                 ),
               ),
               const SizedBox(height: 24),

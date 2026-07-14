@@ -1,6 +1,6 @@
 # Domain — Piante
 
-Il layer di dominio (`lib/domain/plants.dart`) contiene tutti i tipi di dati condivisi, l'interfaccia del repository e l'implementazione in-memory usata nel MVP.
+Il layer di dominio (`lib/domain/plants.dart`) contiene tutti i tipi di dati condivisi, i value object, l'interfaccia del repository e l'implementazione in-memory usata nei test.
 
 ---
 
@@ -12,36 +12,54 @@ classDiagram
         +String id
         +String species
         +String nickname
-        +PlaceholderPhoto cover
+        +PhotoPath coverPhotoPath
         +DateTime createdAt
+        +PlantCategory? category
+        +String? position
+        +String? substrate
     }
 
-    class PlaceholderPhoto {
-        +Color top
-        +Color bottom
-        +String glyph
-        +palette() List~PlaceholderPhoto~  «static»
-        +random(seed?) PlaceholderPhoto  «static»
+    class PhotoPath {
+        +String value
+        +PhotoPath(raw) «factory»
+    }
+
+    class PlantCategory {
+        <<enumeration>>
+        bonsai
+        prebonsai
+        yamadori
     }
 
     class PlantRepository {
         <<interface>>
-        +plants List~Plant~
-        +add(species, nickname?, cover) Plant
+        +getAll() Future~List~Plant~~
+        +changes Stream~void~
+        +add(species, nickname?, sourcePhotoPath) Future~Plant~
     }
 
     class InMemoryPlantRepository {
         -List~Plant~ _plants
-        -DateTime Function() _now
-        -Uuid _uuid
-        +plants List~Plant~
-        +add(species, nickname?, cover) Plant
+        -StreamController _changesController
+        +getAll() Future~List~Plant~~
+        +changes Stream~void~
+        +add(...) Future~Plant~
         -_seed()
     }
 
-    Plant --> PlaceholderPhoto : cover
+    class DriftPlantRepository {
+        -AppDatabase _db
+        +getAll() Future~List~Plant~~
+        +changes Stream~void~
+        +add(...) Future~Plant~
+        -_toPlant(plantRow, photoRow, docsPath) Plant
+    }
+
+    Plant --> PhotoPath : coverPhotoPath
+    Plant --> PlantCategory : category (opzionale)
     PlantRepository --> Plant : gestisce
     InMemoryPlantRepository ..|> PlantRepository
+    DriftPlantRepository ..|> PlantRepository
 ```
 
 ---
@@ -55,25 +73,39 @@ Oggetto valore immutabile che rappresenta una pianta nel sistema.
 | `id` | `String` | UUID v4 generato dal repository |
 | `species` | `String` | Nome scientifico della specie |
 | `nickname` | `String` | Nome personalizzato o generato automaticamente |
-| `cover` | `PlaceholderPhoto` | Foto placeholder selezionata |
+| `coverPhotoPath` | `PhotoPath` | Percorso assoluto della foto di copertina sul filesystem locale |
 | `createdAt` | `DateTime` | Timestamp di creazione |
+| `category` | `PlantCategory?` | Categoria opzionale (bonsai, prebonsai, yamadori) |
+| `position` | `String?` | Posizione della pianta (opzionale) |
+| `substrate` | `String?` | Substrato usato (opzionale) |
 
 ---
 
-## `PlaceholderPhoto`
+## `PhotoPath`
 
-Rappresenta una delle 6 foto placeholder della palette. Ogni foto è un gradiente verticale con un glifo emoji.
+Value object che incapsula e valida un percorso filesystem verso una foto di pianta.
+Costruzione fallisce con `ArgumentError` se il percorso grezzo è vuoto o solo whitespace.
 
-La palette contiene:
+```dart
+final class PhotoPath {
+  factory PhotoPath(String raw); // lancia ArgumentError se vuoto
+  final String value;
+}
+```
 
-| Indice | Glifo | Colore top | Colore bottom |
-|--------|-------|-----------|---------------|
-| 0 | 🌲 | `#6E8B6A` | `#2F3F2C` |
-| 1 | 🍁 | `#B2A57A` | `#5A4A2E` |
-| 2 | 🌿 | `#9DB7C8` | `#3A5468` |
-| 3 | 🌳 | `#C49A82` | `#5C382A` |
-| 4 | 🎋 | `#A3C4A3` | `#3D5A3F` |
-| 5 | 🌱 | `#D4B896` | `#6B4423` |
+Usare `path.value` per interagire con API di sistema (`File`, `Image.file`, ecc.).
+
+---
+
+## `PlantCategory`
+
+Enum che rappresenta la categoria di una pianta nella collezione. I valori sono in inglese per allineamento con il DB Drift, le chiavi ARB e i nomi enum.
+
+| Valore | Descrizione |
+|--------|-------------|
+| `bonsai` | Bonsai finito |
+| `prebonsai` | Materiale in sviluppo |
+| `yamadori` | Raccolta da natura |
 
 ---
 
@@ -97,24 +129,34 @@ Funzione pura che genera il nickname di default quando l'utente non ne fornisce 
 
 ```dart
 abstract interface class PlantRepository {
-  List<Plant> get plants;          // ordinata per createdAt decrescente
+  /// Restituisce tutte le piante ordinate per [Plant.createdAt] decrescente.
+  Future<List<Plant>> getAll();
 
-  /// Emette un evento void ogni volta che una pianta viene aggiunta.
+  /// Emette un evento void ogni volta che il set di piante cambia.
   Stream<void> get changes;
 
-  Plant add({
+  /// Crea e persiste una nuova pianta.
+  ///
+  /// [sourcePhotoPath] è il percorso assoluto del file foto sorgente
+  /// (es. file temporaneo da image_picker). Il repository copia il file
+  /// nella directory documenti dell'app e salva il percorso relativo nel DB.
+  ///
+  /// [nickname] null o vuoto → generato automaticamente da [defaultNickname].
+  Future<Plant> add({
     required String species,
-    String? nickname,              // null → genera defaultNickname
-    required PlaceholderPhoto cover,
+    String? nickname,
+    required String sourcePhotoPath,
   });
 }
 ```
+
+L'interfaccia è **completamente asincrona** (Future + Stream): il vecchio `PlantStore` sincrono + `ChangeNotifier` è stato rimosso. La reattività della UI avviene tramite i Cubit che ascoltano `changes` e ri-caricano via `getAll()` — scelta C (Bloc/Cubit) secondo la decisione documentata in [ADR 0005](../adr/0005-plant-repository-drift-contract.md).
 
 ---
 
 ## `InMemoryPlantRepository`
 
-Implementazione in-memory usata nel MVP. Al costruttore, carica 5 piante di seed.
+Implementazione in-memory usata nei test e nello sviluppo locale. Al costruttore, carica 5 piante di seed con percorsi sintetici (`photos/seed_<n>.jpg`) — nessun file reale viene creato. Sicura da usare in unit test e widget test che non verificano il rendering foto.
 
 **Piante di seed:**
 
@@ -126,9 +168,17 @@ Implementazione in-memory usata nel MVP. Al costruttore, carica 5 piante di seed
 | Ficus retusa | ficus veloce |
 | Ulmus parvifolia | olmo pigro |
 
-Il getter `plants` restituisce sempre la lista ordinata per `createdAt` decrescente (piante più recenti prime).
+---
 
-Dopo ogni chiamata a `add()`, l'implementazione emette un evento su `changes` (tramite `StreamController.broadcast()`) per notificare i sottoscrittori (es. `CollectionCubit`) che la collezione è cambiata.
+## `DriftPlantRepository`
+
+Implementazione backed da SQLite tramite Drift. Vedi [ADR 0005](../adr/0005-plant-repository-drift-contract.md) per il contratto completo, la strategia di test e le decisioni architetturali.
+
+Punti chiave:
+- Riceve `AppDatabase` via costruttore per piena testabilità (`NativeDatabase.memory()`).
+- `add()` esegue la copia del file foto e gli INSERT in una singola transazione.
+- `changes` è un `Stream<void>` derivato da `_db.select(_db.plants).watch()`.
+- Mappa `PlantData` (Drift) → `Plant` (dominio) nel metodo privato `_toPlant()`.
 
 ---
 
@@ -150,3 +200,5 @@ Cryptomeria japonica · Punica granatum
 |-----------|--------------------------|
 | `test/domain/plant_nickname_test.dart` | Generazione nickname: suffisso, single-word, nickname fornito, whitespace |
 | `test/domain/in_memory_plant_repository_test.dart` | Ordine piante seed, pianta aggiunta appare in testa |
+| `test/data/repositories/drift_plant_repository_test.dart` | add/getAll/changes/copia file, con `NativeDatabase.memory()` |
+

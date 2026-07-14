@@ -13,6 +13,35 @@ enum PlantCategory {
   yamadori,
 }
 
+/// Type-safe, validated wrapper for a local filesystem path to a plant photo.
+///
+/// Construction fails fast with [ArgumentError] if [raw] is blank, preventing
+/// invalid paths from propagating into the domain or the repository layer.
+final class PhotoPath {
+  const PhotoPath._(this.value);
+
+  factory PhotoPath(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError.value(raw, 'raw', 'PhotoPath cannot be empty');
+    }
+    return PhotoPath._(trimmed);
+  }
+
+  /// The underlying path string.
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is PhotoPath && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
 class Plant {
   const Plant({
     required this.id,
@@ -29,9 +58,9 @@ class Plant {
   final String species;
   final String nickname;
 
-  /// Absolute path to the cover photo on the local filesystem.
+  /// Typed path to the cover photo on the local filesystem.
   /// Resolved from the relative DB path by the repository before returning.
-  final String coverPhotoPath;
+  final PhotoPath coverPhotoPath;
 
   final DateTime createdAt;
   final PlantCategory? category;
@@ -128,7 +157,7 @@ class InMemoryPlantRepository implements PlantRepository {
       id: _uuid.v4(),
       species: species,
       nickname: defaultNickname(species, _plants.length, nickname: nickname),
-      coverPhotoPath: sourcePhotoPath,
+      coverPhotoPath: PhotoPath(sourcePhotoPath),
       createdAt: _now(),
     );
 
@@ -146,7 +175,7 @@ class InMemoryPlantRepository implements PlantRepository {
           id: _uuid.v4(),
           species: seed.$1,
           nickname: seed.$2,
-          coverPhotoPath: 'photos/seed_$index.jpg',
+          coverPhotoPath: PhotoPath('photos/seed_$index.jpg'),
           createdAt: anchor.subtract(Duration(days: 30 * (index + 1))),
         ),
       );

@@ -10,7 +10,7 @@ void main() {
         id: 'p-1',
         species: 'Acer palmatum',
         nickname: 'acero_01',
-        coverPhotoPath: '/fake/cover.jpg',
+        coverPhotoPath: PhotoPath('/fake/cover.jpg'),
         createdAt: DateTime(2026, 1, 1),
       );
 

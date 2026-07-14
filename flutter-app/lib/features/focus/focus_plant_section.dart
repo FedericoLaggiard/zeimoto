@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/design/zeimoto_theme.dart';
 import '../../domain/plants.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/plant_cover_photo.dart';
 import 'focus_cubit.dart';
 import 'focus_state.dart';
 
@@ -99,17 +98,7 @@ class _FocusPlantCard extends StatelessWidget {
           children: [
             // Cover photo — identical visual style to CollectionSection's _PlantCard
             Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.file(
-                  File(plant.coverPhotoPath),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.eco, size: 48, color: Colors.grey),
-                  ),
-                ),
-              ),
+              child: PlantCoverPhoto(path: plant.coverPhotoPath),
             ),
             const SizedBox(height: 16),
             // Plant info
