@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../domain/plants.dart';
 import 'photos_table.dart';
 
 /// Plants table.
@@ -7,7 +8,8 @@ import 'photos_table.dart';
 /// Schema decided in ticket #34.
 /// Indexes: `created_at DESC` (collection grid ordering) and `species`
 /// (species-based filtering in the prototype Variant C).
-@TableIndex(name: 'plants_created_at_idx', columns: {#createdAt})
+/// Note: plants_created_at_idx is created explicitly in AppDatabase.onCreate
+/// with DESC direction — @TableIndex doesn't support column ordering.
 @TableIndex(name: 'plants_species_idx', columns: {#species})
 class Plants extends Table {
   /// UUID v4 generated client-side.
@@ -27,11 +29,9 @@ class Plants extends Table {
   TextColumn get coverPhotoId =>
       text().unique().references(Photos, #id, onDelete: KeyAction.restrict)();
 
-  /// Optional plant category.  CHECK constraint kept at DB level as defence in
-  /// depth; the repository also validates before writing.
-  TextColumn get category => text().nullable().customConstraint(
-    "CHECK (category IN ('bonsai', 'prebonsai', 'yamadori'))",
-  )();
+  /// Optional plant category.  [PlantCategory] is the single source of truth —
+  /// Drift derives the CHECK constraint and TypeConverter from the enum values.
+  TextColumn get category => textEnum<PlantCategory>().nullable()();
 
   TextColumn get position => text().nullable()();
   TextColumn get substrate => text().nullable()();

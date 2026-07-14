@@ -3,19 +3,6 @@ import 'package:drift/drift.dart';
 import '../../../domain/events.dart';
 import 'plants_table.dart';
 
-/// Bidirectional TypeConverter between the [EventType] enum and its TEXT
-/// storage representation (the canonical English identifier).
-class EventTypeConverter extends TypeConverter<EventType, String> {
-  const EventTypeConverter();
-
-  @override
-  EventType fromSql(String fromDb) =>
-      EventType.values.firstWhere((e) => e.name == fromDb);
-
-  @override
-  String toSql(EventType value) => value.name;
-}
-
 /// Events table.
 ///
 /// Schema decided in ticket #35.
@@ -31,14 +18,9 @@ class Events extends Table {
   TextColumn get plantId =>
       text().references(Plants, #id, onDelete: KeyAction.restrict)();
 
-  /// Canonical event type stored as an English text identifier.
-  /// TypeConverter bridges DB text ↔ [EventType] enum in Dart.
-  TextColumn get type => text()
-      .map(const EventTypeConverter())
-      .customConstraint(
-        "NOT NULL CHECK (type IN ('repotting','pruning','wiring','pinching',"
-        "'defoliation','treatment','fertilizing','observation','styling'))",
-      )();
+  /// Canonical event type.  Drift derives the CHECK constraint and TypeConverter
+  /// directly from [EventType].values — single source of truth, no duplication.
+  TextColumn get type => textEnum<EventType>()();
 
   /// When the event happened according to the user (editable after creation).
   DateTimeColumn get happenedAt => dateTime()();

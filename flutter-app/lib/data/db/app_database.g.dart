@@ -537,19 +537,15 @@ class $PlantsTable extends Plants with TableInfo<$PlantsTable, Plant> {
       'UNIQUE REFERENCES photos (id) ON DELETE RESTRICT',
     ),
   );
-  static const VerificationMeta _categoryMeta = const VerificationMeta(
-    'category',
-  );
   @override
-  late final GeneratedColumn<String> category = GeneratedColumn<String>(
-    'category',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints:
-        'CHECK (category IN (\'bonsai\', \'prebonsai\', \'yamadori\'))',
-  );
+  late final GeneratedColumnWithTypeConverter<PlantCategory?, String> category =
+      GeneratedColumn<String>(
+        'category',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<PlantCategory?>($PlantsTable.$convertercategoryn);
   static const VerificationMeta _positionMeta = const VerificationMeta(
     'position',
   );
@@ -635,12 +631,6 @@ class $PlantsTable extends Plants with TableInfo<$PlantsTable, Plant> {
     } else if (isInserting) {
       context.missing(_coverPhotoIdMeta);
     }
-    if (data.containsKey('category')) {
-      context.handle(
-        _categoryMeta,
-        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
-      );
-    }
     if (data.containsKey('position')) {
       context.handle(
         _positionMeta,
@@ -682,9 +672,11 @@ class $PlantsTable extends Plants with TableInfo<$PlantsTable, Plant> {
         DriftSqlType.string,
         data['${effectivePrefix}cover_photo_id'],
       )!,
-      category: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}category'],
+      category: $PlantsTable.$convertercategoryn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        ),
       ),
       position: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -701,6 +693,11 @@ class $PlantsTable extends Plants with TableInfo<$PlantsTable, Plant> {
   $PlantsTable createAlias(String alias) {
     return $PlantsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<PlantCategory, String, String> $convertercategory =
+      const EnumNameConverter<PlantCategory>(PlantCategory.values);
+  static JsonTypeConverter2<PlantCategory?, String?, String?>
+  $convertercategoryn = JsonTypeConverter2.asNullable($convertercategory);
 }
 
 class Plant extends DataClass implements Insertable<Plant> {
@@ -717,9 +714,9 @@ class Plant extends DataClass implements Insertable<Plant> {
   /// in the repository (must delete photo record last).
   final String coverPhotoId;
 
-  /// Optional plant category.  CHECK constraint kept at DB level as defence in
-  /// depth; the repository also validates before writing.
-  final String? category;
+  /// Optional plant category.  [PlantCategory] is the single source of truth —
+  /// Drift derives the CHECK constraint and TypeConverter from the enum values.
+  final PlantCategory? category;
   final String? position;
   final String? substrate;
   const Plant({
@@ -741,7 +738,9 @@ class Plant extends DataClass implements Insertable<Plant> {
     map['created_at'] = Variable<DateTime>(createdAt);
     map['cover_photo_id'] = Variable<String>(coverPhotoId);
     if (!nullToAbsent || category != null) {
-      map['category'] = Variable<String>(category);
+      map['category'] = Variable<String>(
+        $PlantsTable.$convertercategoryn.toSql(category),
+      );
     }
     if (!nullToAbsent || position != null) {
       map['position'] = Variable<String>(position);
@@ -782,7 +781,9 @@ class Plant extends DataClass implements Insertable<Plant> {
       nickname: serializer.fromJson<String>(json['nickname']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       coverPhotoId: serializer.fromJson<String>(json['coverPhotoId']),
-      category: serializer.fromJson<String?>(json['category']),
+      category: $PlantsTable.$convertercategoryn.fromJson(
+        serializer.fromJson<String?>(json['category']),
+      ),
       position: serializer.fromJson<String?>(json['position']),
       substrate: serializer.fromJson<String?>(json['substrate']),
     );
@@ -796,7 +797,9 @@ class Plant extends DataClass implements Insertable<Plant> {
       'nickname': serializer.toJson<String>(nickname),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'coverPhotoId': serializer.toJson<String>(coverPhotoId),
-      'category': serializer.toJson<String?>(category),
+      'category': serializer.toJson<String?>(
+        $PlantsTable.$convertercategoryn.toJson(category),
+      ),
       'position': serializer.toJson<String?>(position),
       'substrate': serializer.toJson<String?>(substrate),
     };
@@ -808,7 +811,7 @@ class Plant extends DataClass implements Insertable<Plant> {
     String? nickname,
     DateTime? createdAt,
     String? coverPhotoId,
-    Value<String?> category = const Value.absent(),
+    Value<PlantCategory?> category = const Value.absent(),
     Value<String?> position = const Value.absent(),
     Value<String?> substrate = const Value.absent(),
   }) => Plant(
@@ -882,7 +885,7 @@ class PlantsCompanion extends UpdateCompanion<Plant> {
   final Value<String> nickname;
   final Value<DateTime> createdAt;
   final Value<String> coverPhotoId;
-  final Value<String?> category;
+  final Value<PlantCategory?> category;
   final Value<String?> position;
   final Value<String?> substrate;
   final Value<int> rowid;
@@ -942,7 +945,7 @@ class PlantsCompanion extends UpdateCompanion<Plant> {
     Value<String>? nickname,
     Value<DateTime>? createdAt,
     Value<String>? coverPhotoId,
-    Value<String?>? category,
+    Value<PlantCategory?>? category,
     Value<String?>? position,
     Value<String?>? substrate,
     Value<int>? rowid,
@@ -979,7 +982,9 @@ class PlantsCompanion extends UpdateCompanion<Plant> {
       map['cover_photo_id'] = Variable<String>(coverPhotoId.value);
     }
     if (category.present) {
-      map['category'] = Variable<String>(category.value);
+      map['category'] = Variable<String>(
+        $PlantsTable.$convertercategoryn.toSql(category.value),
+      );
     }
     if (position.present) {
       map['position'] = Variable<String>(position.value);
@@ -1039,16 +1044,14 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
     ),
   );
   @override
-  late final GeneratedColumnWithTypeConverter<EventType, String>
-  type = GeneratedColumn<String>(
-    'type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints:
-        'NOT NULL CHECK (type IN (\'repotting\',\'pruning\',\'wiring\',\'pinching\',\'defoliation\',\'treatment\',\'fertilizing\',\'observation\',\'styling\'))',
-  ).withConverter<EventType>($EventsTable.$convertertype);
+  late final GeneratedColumnWithTypeConverter<EventType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<EventType>($EventsTable.$convertertype);
   static const VerificationMeta _happenedAtMeta = const VerificationMeta(
     'happenedAt',
   );
@@ -1179,8 +1182,8 @@ class $EventsTable extends Events with TableInfo<$EventsTable, Event> {
     return $EventsTable(attachedDatabase, alias);
   }
 
-  static TypeConverter<EventType, String> $convertertype =
-      const EventTypeConverter();
+  static JsonTypeConverter2<EventType, String, String> $convertertype =
+      const EnumNameConverter<EventType>(EventType.values);
 }
 
 class Event extends DataClass implements Insertable<Event> {
@@ -1191,8 +1194,8 @@ class Event extends DataClass implements Insertable<Event> {
   /// before deleting the plant (hard-delete cascade orchestrated explicitly).
   final String plantId;
 
-  /// Canonical event type stored as an English text identifier.
-  /// TypeConverter bridges DB text ↔ [EventType] enum in Dart.
+  /// Canonical event type.  Drift derives the CHECK constraint and TypeConverter
+  /// directly from [EventType].values — single source of truth, no duplication.
   final EventType type;
 
   /// When the event happened according to the user (editable after creation).
@@ -1249,7 +1252,9 @@ class Event extends DataClass implements Insertable<Event> {
     return Event(
       id: serializer.fromJson<String>(json['id']),
       plantId: serializer.fromJson<String>(json['plantId']),
-      type: serializer.fromJson<EventType>(json['type']),
+      type: $EventsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
       happenedAt: serializer.fromJson<DateTime>(json['happenedAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -1261,7 +1266,9 @@ class Event extends DataClass implements Insertable<Event> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'plantId': serializer.toJson<String>(plantId),
-      'type': serializer.toJson<EventType>(type),
+      'type': serializer.toJson<String>(
+        $EventsTable.$convertertype.toJson(type),
+      ),
       'happenedAt': serializer.toJson<DateTime>(happenedAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'notes': serializer.toJson<String?>(notes),
@@ -1723,10 +1730,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PlantsTable plants = $PlantsTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $EventPhotosTable eventPhotos = $EventPhotosTable(this);
-  late final Index plantsCreatedAtIdx = Index(
-    'plants_created_at_idx',
-    'CREATE INDEX plants_created_at_idx ON plants (created_at)',
-  );
   late final Index plantsSpeciesIdx = Index(
     'plants_species_idx',
     'CREATE INDEX plants_species_idx ON plants (species)',
@@ -1744,7 +1747,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     plants,
     events,
     eventPhotos,
-    plantsCreatedAtIdx,
     plantsSpeciesIdx,
     eventPhotosEventSortUnique,
   ];
@@ -2196,7 +2198,7 @@ typedef $$PlantsTableCreateCompanionBuilder =
       required String nickname,
       required DateTime createdAt,
       required String coverPhotoId,
-      Value<String?> category,
+      Value<PlantCategory?> category,
       Value<String?> position,
       Value<String?> substrate,
       Value<int> rowid,
@@ -2208,7 +2210,7 @@ typedef $$PlantsTableUpdateCompanionBuilder =
       Value<String> nickname,
       Value<DateTime> createdAt,
       Value<String> coverPhotoId,
-      Value<String?> category,
+      Value<PlantCategory?> category,
       Value<String?> position,
       Value<String?> substrate,
       Value<int> rowid,
@@ -2284,9 +2286,10 @@ class $$PlantsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get category => $composableBuilder(
+  ColumnWithTypeConverterFilters<PlantCategory?, PlantCategory, String>
+  get category => $composableBuilder(
     column: $table.category,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get position => $composableBuilder(
@@ -2437,7 +2440,7 @@ class $$PlantsTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<String> get category =>
+  GeneratedColumnWithTypeConverter<PlantCategory?, String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
 
   GeneratedColumn<String> get position =>
@@ -2528,7 +2531,7 @@ class $$PlantsTableTableManager
                 Value<String> nickname = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> coverPhotoId = const Value.absent(),
-                Value<String?> category = const Value.absent(),
+                Value<PlantCategory?> category = const Value.absent(),
                 Value<String?> position = const Value.absent(),
                 Value<String?> substrate = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2550,7 +2553,7 @@ class $$PlantsTableTableManager
                 required String nickname,
                 required DateTime createdAt,
                 required String coverPhotoId,
-                Value<String?> category = const Value.absent(),
+                Value<PlantCategory?> category = const Value.absent(),
                 Value<String?> position = const Value.absent(),
                 Value<String?> substrate = const Value.absent(),
                 Value<int> rowid = const Value.absent(),

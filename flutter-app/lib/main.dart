@@ -10,7 +10,7 @@ import 'routing/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final db = openAppDatabase();
+  final db = AppDatabase();
   runApp(ZeimotoApp(db: db));
 }
 
