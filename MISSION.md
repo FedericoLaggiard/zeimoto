@@ -176,6 +176,36 @@ Nel MVP ogni evento deve avere un tipo canonico tra quelli supportati; “osserv
 
 ---
 
+# Convenzioni di implementazione
+
+## Vocabolario: dominio persistito vs presentazione
+
+Il testo di questo documento è in italiano per praticità di redazione, ma l'app è **multilingua fin dalla prima release**: `flutter-app/lib/l10n/app_en.arb` e `app_it.arb` sono già in atto e nuove lingue vanno aggiunte come ARB file, senza toccare il modello dati.
+
+Convenzione vincolante:
+
+- **Identificatori di dominio persistiti** (nomi tabella/colonna DB, valori enum, chiavi API, chiavi ARB, nomi file, nomi classi/metodi Dart): **inglese**, `snake_case` per SQL/ARB, `camelCase` per Dart. Sono stabili per sempre — non si traducono, non si rinominano per stile, non entrano nelle stringhe visibili all'utente.
+- **Label per l'utente**: sempre da ARB, mai da costanti Dart, mai dal DB.
+- **Vocabolario canonico**: i termini italiani in MISSION (Pianta, Evento, Rinvaso, Potatura, Timeline, Work Session, Synthetic Memory, Active State, Task Engine, Quick Actions…) definiscono il **significato di dominio**; il **loro identificatore tecnico** è la traduzione inglese standard (Plant, Event, Repotting, Pruning, Timeline, WorkSession, SyntheticMemory, ActiveState, TaskEngine, QuickActions…). Le equivalenze IT↔EN sono decise una volta, non si rediscutono.
+
+### Tipi Evento canonici (mapping normativo)
+
+| Dominio (MISSION, IT) | Identificatore tecnico (DB `type`, `enum EventType`, ARB key suffix) |
+|---|---|
+| Rinvaso | `repotting` |
+| Potatura | `pruning` |
+| Filo | `wiring` |
+| Pinzatura | `pinching` |
+| Defogliazione | `defoliation` |
+| Trattamento | `treatment` |
+| Concimazione | `fertilizing` |
+| Osservazione (fallback) | `observation` |
+| Styling | `styling` |
+
+Le label utente vanno in ARB come `event_type_<identificatore>` (es. `event_type_repotting`).
+
+---
+
 # Architettura Generale
 
 ## Frontend
